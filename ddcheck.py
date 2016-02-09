@@ -59,12 +59,12 @@ diffqry01 = "select ' ' status,vfn,"+",".join(rccols[1:])+" from scaffold "+" ".
 diffqry02 = "create table diffs as "+diffqry01+" where "+"||".join(rccols[1:])+" like '%),(%';\n";
 sqscr.write(diffqry02);
 
-# TODO: group concat distinct the above subquery, group by field name
-# TODO: iterate over all rccols with above
-# done
-
+# TODO: work through the discrepancies, annotate the ones that are okay
+# TODO: plan, then code, for unioning surveys
 # save the in-memory database
 sqscr.write(".backup "+ddsqldb+"\n");
+
+# done
 sqscr.close();
 
 pdb.set_trace();
