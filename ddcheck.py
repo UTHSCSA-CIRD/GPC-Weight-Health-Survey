@@ -62,6 +62,10 @@ svs = [[ff,svprfx+ff.replace(svnmrep,'')] for ff in os.listdir(dddir) if os.path
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in dds]];
 # same, but for survey files
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in svs]];
+# add site-identifying columns for tables
+[sqscr.write("alter table {0} ADD COLUMN svsite TEXT; update {0} set svsite = '{0}';".format(xx[1])+"\n")
+ for xx in svs];
+
 # create a single column of all unique field names to later join things onto
 sqscr.write("create table scaffold as select distinct vfn from ("+\
   " union all ".join(["select `Variable / Field Name` vfn from "+\
@@ -81,7 +85,7 @@ diffqry02 = "create table diffs as "+diffqry01+" where "+"||".join(rccols[1:])+"
 sqscr.write(diffqry02);
 
 # TODO: work through the discrepancies, annotate the ones that are okay
-# TODO: plan, then code, for unioning surveys
+
 # save the in-memory database
 sqscr.write(".backup "+ddsqldb+"\n");
 
@@ -97,4 +101,19 @@ subprocess.call("sqlite3 < "+ddsqlscr,shell=True);
 
 cn = sq.connect(ddsqldb);
 
+# all the column names in all the tables
+svrawcols = [cn.execute('pragma table_info({0})'.format(xx)).fetchall() for xx in [yy[1] for yy in svs]];
+# just the unique ones
+svunqcols = unq([xx[1] for sublist in svrawcols for xx in sublist]);
+# create a table with the union of all site survey columns
+cn.execute("CREATE TABLE sv_unified ("+" TEXT,".join(['site']+svunqcols)+" TEXT);");
+# create a dictionary object, which can be used to insert into columns defined for each site
+svcols = dict(zip([xx[1] for xx in svs],svrawcols));
+# one insert statement for each site's survey table
+svinsrt = ["insert into sv_unified ("+\
+  ",".join([jj[1] for jj in svcols[ii]])+") select * from "+\
+    ii for ii in svcols.keys()];
+# now run the above inserts
+[cn.execute(xx) for xx in svinsrt];
+cn.commit();
 pdb.set_trace();
