@@ -10,10 +10,13 @@ Stuff to move to a config file if we keep using this script
 dddir = '.';
 # match data dictionary pattern
 ddmatch = '_dd.csv.csv';
+svmatch = '_survey.csv';
 # replace data dictionary string to get site name
 ddnmrep = ddmatch;
+svnmrep = svmatch;
 # prefix for sqlite dd tables
 ddprfx = 'dd_';
+svprfx = 'sv_';
 # name of sqlite script created
 ddsqlscr = 'dd_sqlscript.sql';
 ddsqlscr = dddir+"/"+ddsqlscr;
@@ -25,6 +28,20 @@ rccols = ["`Variable / Field Name`","`Field Type`"
 ,"`Field Label`","`Choices, Calculations, OR Slider Labels`"
 ,"`Field Note`","`Text Validation Type OR Show Slider Number`"
 ,"`Identifier?`","`Branching Logic (Show field only if...)`"];
+
+"""
+function defs
+"""
+
+"""
+From http://stackoverflow.com/a/480227/945039
+By Markus Jaderot, January 26, 2009
+Returns a set of unique list elements while preserving order
+"""
+def unq(seq):
+    seen = set()
+    seen_add = seen.add
+    return [xx for xx in seq if not (xx in seen or seen_add(xx))]
 
 # initialize sql file
 sqscr = open(ddsqlscr,'w');
@@ -39,8 +56,12 @@ removed using ddnmrep
 
 # create a list of paired lists where the first one is the file name and the second is the table name
 dds = [[ff,ddprfx+ff.replace(ddnmrep,'')] for ff in os.listdir(dddir) if os.path.isfile(ff) and ff.find(ddmatch) > 0];
+# same, but for survey files
+svs = [[ff,svprfx+ff.replace(svnmrep,'')] for ff in os.listdir(dddir) if os.path.isfile(ff) and ff.find(svmatch) > 0];
 # now write table import commands to a SQL script
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in dds]];
+# same, but for survey files
+[sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in svs]];
 # create a single column of all unique field names to later join things onto
 sqscr.write("create table scaffold as select distinct vfn from ("+\
   " union all ".join(["select `Variable / Field Name` vfn from "+\
@@ -67,7 +88,6 @@ sqscr.write(".backup "+ddsqldb+"\n");
 # done
 sqscr.close();
 
-pdb.set_trace();
 
 # screw whatever the sqlite3 module wants us to do for running scripts
 # we'll just run it from the native client via shell and cross the t's
@@ -75,3 +95,6 @@ pdb.set_trace();
 
 subprocess.call("sqlite3 < "+ddsqlscr,shell=True);
 
+cn = sq.connect(ddsqldb);
+
+pdb.set_trace();
