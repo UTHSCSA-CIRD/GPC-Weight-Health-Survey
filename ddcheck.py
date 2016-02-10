@@ -1,5 +1,7 @@
 # for file listing
-import sqlite3 as sq,pdb,os,subprocess;
+import sqlite3 as sq,pdb,os,subprocess,re;
+# to create rxs object, where order matters
+from collections import OrderedDict;
 
 
 """
@@ -9,7 +11,7 @@ Stuff to move to a config file if we keep using this script
 # where data dictionary files are to be found
 dddir = '.';
 # match repsective file patterns
-ddmatch = '_dd.csv.csv'; svmatch = '_survey.csv'; dbmatch = '.db';
+ddmatch = '_dd.csv'; svmatch = '_survey.csv'; dbmatch = '.db';
 # replace data dictionary string to get site name
 ddnmrep = ddmatch; svnmrep = svmatch; dbnmrep = dbmatch;
 # prefixs for sqlite data dictionary and survey tables
@@ -27,8 +29,59 @@ rccols = ["`Variable / Field Name`","`Field Type`"
 ,"`Identifier?`","`Branching Logic (Show field only if...)`"];
 
 """
-function defs
+regexps
 """
+rxs = OrderedDict([
+  ('Empty' , '^\s{0,}$'),
+  ('Digit' , '^[0-9]$'),
+  ('Numbr' , '^[0-9,. ]{1,}$'),
+  ('YMD'   , '^201[0-9]-[0-9]{2}-[0-9]{2}$'),
+  ('MDY'   , '^[0-9]{2}-[0-9]{2}-201[0-9]$'),
+  ('YMDTS' , '^201[0-9]-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$'),
+  ('MDYTS' , '^[0-9]{2}-[0-9]{2}-201[0-9] [0-9]{2}:[0-9]{2}:[0-9]{2}$'),
+  ('Text'  , '^.*$')
+  ]);
+
+"""
+rxoneint = '^[0-9]$'; rxbignum = '^[0-9,. ]{1,}$';
+rxymd = '^201[0-9]-[0-9]{2}-[0-9]{2}$';
+rxmdy = '^[0-9]{2}-[0-9]{2}-201[0-9]$';
+rxymdts = '^201[0-9]-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$';
+rxmdyts = '^[0-9]{2}-[0-9]{2}-201[0-9] [0-9]{2}:[0-9]{2}:[0-9]{2}$';
+rxempty = '^\s{0,}$';
+"""
+"""
+SQL UDFs
+"""
+class typect:
+  def __init__(self):
+    self.xxvals = {};
+  def step(self,xx):
+    if xx is None: xx = '';
+    mtype=[ii for ii in rxs.keys() if re.compile(rxs[ii]).match(xx) is not None][0];
+    if mtype in self.xxvals.keys(): self.xxvals[mtype] += 1
+    else: self.xxvals[mtype] = 1;
+  def finalize(self):
+    return (str(self.xxvals)[1:-1]).replace(' ','').replace("'",'');
+  
+class valct:
+  def __init__(self):
+    self.xxvals = {};
+  def step(self,xx):
+    if xx is None: xx = 'None'
+    else: xx = str(xx).lower();
+    if xx in self.xxvals.keys(): self.xxvals[xx] += 1
+    else: self.xxvals[xx] = 1;
+  def finalize(self):
+    return (str(sorted(self.xxvals.items(), key=lambda tt: tt[1]))).replace("','",':').replace("(",'').replace(")",'').replace("'",'').replace(' ','')
+  
+
+"""
+    if 'aa' not in foo.keys(): foo['aa'] = 1
+... else: foo['aa'] += 1
+"""
+
+# mdy2ymd
 
 """
 From http://stackoverflow.com/a/480227/945039
@@ -110,17 +163,29 @@ cn.execute("CREATE TABLE sv_unified ("+" TEXT,".join(['site']+svunqcols)+" TEXT)
 # create a dictionary object, which can be used to insert into columns defined for each site
 svcols = dict(zip([xx[1] for xx in svs],svrawcols));
 # one insert statement for each site's survey table
-svinsrt = ["insert into sv_unified ("+\
-  ",".join([jj[1] for jj in svcols[ii]])+") select * from "+\
+svinsrt = ["insert into sv_unified (site, " +\
+  ",".join([jj[1] for jj in svcols[ii]])+") select '"+ii+"' site,* from "+\
     ii for ii in svcols.keys()];
 # now run the above inserts
 [cn.execute(xx) for xx in svinsrt];
 [cn.execute("attach database '{0}' as {1}".format(xx[0],xx[1])) for xx in dbs];
 # TODO: the below two statements execute silently. Find a way to output to screen
 # ...these are comparisons between PATIENT_NUM's in the survey and in the .db file
-cn.execute(" union all ".join(["select '{1}' site, count(*) good from {0}{1} where patient_num in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
-cn.execute(" union all ".join(["select '{1}' site, count(*) missing from {0}{1} where patient_num not in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
+"""
+pmatched = cn.execute(" union all ".join(["select '{1}' site, count(*) good from {0}{1} where patient_num in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
+punmatched = cn.execute(" union all ".join(["select '{1}' site, count(*) missing from {0}{1} where patient_num not in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
+"""
 cn.commit();
+cn.create_aggregate('typect',1,typect);
+cn.create_aggregate('valct',1,valct);
+
+"""
+#creates summary tables of data types broken up by site
+cn.execute("create table sv_summ01 as select "+",".join(['site']+['typect({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified group by site union all select "+",".join(["'ALL' site"]+['typect({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified")
+# ditto distinct counts
+cn.execute("create table sv_summ02 as select "+",".join(['site']+['valct({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified group by site union all select "+",".join(["'ALL' site"]+['valct({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified")
+
+"""
 pdb.set_trace();
 
 cn.close();
