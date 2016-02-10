@@ -20,3 +20,6 @@ vignettes/*.pdf
 
 # Python
 *.pyc
+
+# Kate
+*.kate-swp
