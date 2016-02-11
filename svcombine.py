@@ -6,8 +6,8 @@ from collections import OrderedDict;
 # DONE: move the shared definitions to a separate file
 # TODO: simple way to distinguish non-respondents, respondents, and long-form respondents
 # TODO: MDY -> YMD for MCRF
-# TODO: examine the unique text values in fields that have them, insure no Identifiers
-# TODO: .csv file with the svconsensus columns and site indicator
+# DONE: examine the unique text values in fields that have them, insure no Identifiers
+# DONE: .csv file with the svconsensus columns and site indicator
 # TODO: import into R, examine
 
 # path to database
@@ -18,10 +18,7 @@ from rccheck_shared import pthddsqldb;
 acodes = {
 'children_research' : ['Yes_Contact', 'Maybe_Contact', 'No_Contact', 'No_Kids', 'Prefer_Not_Answer']
 };
-
-# This is where the checkbox field codes will go
-ccodes = {};
-
+  
 # convert codes to labels, the existence of an acodes dictionary is hardcoded for now
 def cd2str(colname,colval):
   try:
@@ -91,17 +88,23 @@ ddexclude = ' and '.join([" site != 'dd_utsw' "]);
 cn = sq.connect(pthddsqldb);
 cn.create_function('cd2str',2,cd2str);
 
-# 
+# radio and dropdown elements from data dictionaries 
+# (each value is a different integer code in the corresponding column)
 codestrings = cn.execute("select distinct `Variable / Field Name`,`Choices, Calculations, OR Slider Labels` from allsites where `Field Type` in ('dropdown','radio')"+" and "+ddexclude).fetchall();
 
+# codestrings is now used to create key-value pairs in acodes where the column name is the key
+# and the list of text descriptions is the value e.g. ['Yes', 'No', 'I prefer to not answer']
 for xx in codestrings:
   if xx[0] not in acodes.keys():
     acodes[xx[0]] = [yy[3:] for yy in repl_all(xx[1],repls).split(" | ")];
 
+# now we pull the checkbox elements from the data dictionaries
+# (each value is a 1 in its own column, and 0 if that box was not checked)
 codestrings = cn.execute("select distinct `Variable / Field Name`,`Choices, Calculations, OR Slider Labels` from allsites where `Field Type` = 'checkbox'"+" and "+ddexclude).fetchall();
 
+# add these to acodes
 for xx in codestrings:
-  if len([yy for yy in acodes.keys() if yy.find(xx[0]+"___") > -1]) == 0:
+  if len([yy for yy in acodes.keys() if xx[0]+"___" in yy]) == 0:
     acodes.update(dict([(xx[0]+"___"+yy[0],[yy[3:]]) for yy in repl_all(xx[1],repls).split(" | ")]));
 
 dataout = cn.execute("select "+",".join([" cd2str('{0}',{0}) {0} ".format(xx[1]) 
