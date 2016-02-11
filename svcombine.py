@@ -79,6 +79,9 @@ okayfields = ['site', 'state', 'contact_type', 'match_type', 'pat_sex', 'proj_bi
 # stuff to replace
 repls = {'<i>':'','</i>':''}
 
+colrepls = {
+  'sex' : { '1':'M', '2':'F', 'Male':'M', 'Female':'F'}
+  }
 
 # exclusion criteria
 svexclude = ' and '.join([" site != 'sv_utsw' "]);
@@ -86,7 +89,10 @@ ddexclude = ' and '.join([" site != 'dd_utsw' "]);
 
 # connect to this badboy...
 cn = sq.connect(pthddsqldb);
+
 cn.create_function('cd2str',2,cd2str);
+# the following could be used with create_function if needed
+def rpl(text): return repl_all(text,repls);
 
 # radio and dropdown elements from data dictionaries 
 # (each value is a different integer code in the corresponding column)
