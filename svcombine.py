@@ -13,6 +13,7 @@ from collections import OrderedDict;
 # path to database
 from rccheck_shared import pthddsqldb;
 
+
 # manually pre-fill the ones that need to be treated specially
 # the rest will get programmatically populated from dd data
 acodes = {
@@ -33,8 +34,9 @@ def cd2str(colname,colval):
 # bulk replace func from http://stackoverflow.com/a/6117042/945039
 # by http://stackoverflow.com/users/756329/joseph
 def repl_all(text, dic):
-    for ii, ij in dic.iteritems():
-        text = text.replace(ii, ij);
+    if text is not None:
+      for ii, ij in dic.iteritems():
+	  text = text.replace(ii, ij);
     return text;
 
 """
@@ -77,11 +79,11 @@ okayfields = ['site', 'state', 'contact_type', 'match_type', 'pat_sex', 'proj_bi
 
 
 # stuff to replace
-repls = {'<i>':'','</i>':''}
+repls = {'<i>':'','</i>':'','\t':' ','\n':' ','"':'',"'":'',',':' '};
 
 colrepls = {
   'sex' : { '1':'M', '2':'F', 'Male':'M', 'Female':'F'}
-  }
+  };
 
 # exclusion criteria
 svexclude = ' and '.join([" site != 'sv_utsw' "]);
@@ -93,6 +95,15 @@ cn = sq.connect(pthddsqldb);
 cn.create_function('cd2str',2,cd2str);
 # the following could be used with create_function if needed
 def rpl(text): return repl_all(text,repls);
+
+if os.path.isfile('sitesettings.py'):
+  # The file where we keep raw SQL code to remove or clean up specific problems that were 
+  # identified manually. This file doesn't get checked into the repo because it may reference
+  # non-shareable data. But you are free to create one of your own, with however many sql 
+  # commands you want in the site_sql_hax character variable, individual statements separated 
+  # by newlines and/or ;'s
+  from sitesettings import site_sql_hax;
+  cn.executescript(site_sql_hax);
 
 # radio and dropdown elements from data dictionaries 
 # (each value is a different integer code in the corresponding column)
@@ -121,7 +132,7 @@ out = open('testoutput.csv','w');
 out.truncate();
 out.write('"'+'"\t"'.join([xx[1] for xx in cn.execute('pragma table_info(sv_unified)').fetchall() 
 			   if xx[1] in okayfields])+'"\n');
-[out.write('"'+'"\t"'.join(yy or "" for yy in xx)+'"\n') for xx in dataout];
+[out.write('"'+'"\t"'.join(repl_all(yy,repls) or "" for yy in xx)+'"\n') for xx in dataout];
 
 pdb.set_trace();
   

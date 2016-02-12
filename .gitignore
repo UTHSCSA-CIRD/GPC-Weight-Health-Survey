@@ -23,3 +23,6 @@ vignettes/*.pdf
 
 # Kate
 *.kate-swp
+
+# This project
+sitesettings.py
