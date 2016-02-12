@@ -66,6 +66,17 @@ class valct:
   def finalize(self):
     return (str(sorted(self.xxvals.items(), key=lambda tt: tt[1]))).replace("','",':').replace("(",'').replace(")",'').replace("'",'').replace(' ','')
   
+class sqdsSel:
+  def __init__(self):
+    self.lvals=[];self.rvals=[];self.lfuns=[];
+  def step(self,lval,rval,lfun):
+    if rval is None: rval='';
+    if lfun is None: lfun=' {0} ';
+    self.lvals.append(lval);
+    self.rvals.append(rval);
+    self.lfuns.append(lfun);
+  def finalize(self):
+    return ds(self.lvals,self.rvals,self.lfuns);
 
 """
 functions
