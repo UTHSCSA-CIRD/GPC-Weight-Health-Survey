@@ -22,7 +22,7 @@ pthddsqlscr = dddir+"/"+ddsqlscr;
 ddsqldb = 'ddcheck.db';
 pthddsqldb = dddir+"/"+ddsqldb;
 # REDcap columns that need to be used
-rccols = ["`Variable / Field Name`","`Field Type`"
+rccols = ["`Variable / Field Name`","`Field Type`","`Form Name`"
 ,"`Field Label`","`Choices, Calculations, OR Slider Labels`"
 ,"`Field Note`","`Text Validation Type OR Show Slider Number`"
 ,"`Identifier?`","`Branching Logic (Show field only if...)`"];
@@ -70,6 +70,12 @@ class valct:
 """
 functions
 """
+
+def pin (needles,haystack):
+  out = [];
+  for xx in needles:
+    out += [yy for yy in haystack if xx in yy];
+  return out;
 
 # TODO: mdy2ymd
 

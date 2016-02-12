@@ -77,6 +77,9 @@ okayfields = ['site', 'state', 'contact_type', 'match_type', 'pat_sex', 'proj_bi
 	      , 'latino_origin', 'race___1', 'race___2', 'race___3', 'race___4', 'race___5', 'race___6', 'income'
 	      , 'insurance', 'household', 'language'];
 
+longsurvey = ['health_medical_research_family_survey_timestamp', 'research', 'possible_research', 'research_types_adult', 'research_depends_why', 'children_in_home', 'children_research', 'research_types2_child', 'res_dep_why2_child', 'res_talk_family', 'research_feeling', 'q6_ans6_response', 'deid_data', 'q7_ans6_response', 'height_req', 'height_feet', 'height_in', 'height_value_cm', 'weight_req', 'weight_value_lbs', 'weight_value_kg', 'bp_hypten_self', 'chole_triigl_hyperlip_self', 'bloodsugar_diabetes_self', 'cancer_anytype_self', 'hpb_hprtnsn', 'chole_trig_hyperlip', 'elev_bs_diabetes', 'cancer_anytype', 'sex', 'other_sex', 'age', 'latino_origin', 'other_race', 'income', 'insurance', 'other_insurance', 'education', 'other_schooling', 'household', 'language', 'other_language'];
+
+longsurveycb = ['research_accept_decisions___1', 'research_accept_decisions___2', 'research_accept_decisions___3', 'research_accept_decisions___4', 'research_accept_decisions___5', 'research_accept_decisions___6', 'research_accept_decisions___7', 'research_accept_dec_child___1', 'research_accept_dec_child___2', 'research_accept_dec_child___3', 'research_accept_dec_child___4', 'research_accept_dec_child___5', 'research_accept_dec_child___6', 'research_accept_dec_child___7', 'race___1', 'race___2', 'race___3', 'race___4', 'race___5', 'race___6'];
 
 # stuff to replace
 repls = {'<i>':'','</i>':'','\t':' ','\n':' ','"':'',"'":'',',':' '};
@@ -123,6 +126,11 @@ codestrings = cn.execute("select distinct `Variable / Field Name`,`Choices, Calc
 for xx in codestrings:
   if len([yy for yy in acodes.keys() if xx[0]+"___" in yy]) == 0:
     acodes.update(dict([(xx[0]+"___"+yy[0],[yy[3:]]) for yy in repl_all(xx[1],repls).split(" | ")]));
+
+# column of empirical counts of survey2 responses
+cn.execute("update sv_unified set s2resp = 1 where coalesce("+",".join(longsurvey[1:]+longsurveycb)+",'') not in ('','0')");
+# chunked massive join tables ... not needed
+#cttabs = dict([("tmp_"+str(ii).zfill(3),"create table tmp_"+str(ii).zfill(3)+" as select scf.site,"+",".join(svunqcols[ii:ii+63])+" from (select distinct site from sv_unified) scf left join"+" left join ".join(["(select site,count(*) #{0} from sv_unified where {0} is not NULL and trim({0}) not in ('','0') group by site) {0} on scf.site = {0}.site ".format(jj) for jj in svunqcols[ii:ii+63]])) for ii in xrange(0, len(svunqcols), 63)]);
 
 dataout = cn.execute("select "+",".join([" cd2str('{0}',{0}) {0} ".format(xx[1]) 
 					 if xx[1] in acodes.keys() else xx[1] 

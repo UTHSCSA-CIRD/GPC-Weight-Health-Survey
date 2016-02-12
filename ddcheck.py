@@ -22,7 +22,6 @@ from rccheck_shared import typect,valct;
 # functions
 from rccheck_shared import unq;
 
-pdb.set_trace();
 # initialize sql file
 sqscr = open(pthddsqlscr,'w');
 sqscr.truncate();
@@ -83,6 +82,8 @@ sqscr.close();
 subprocess.call("sqlite3 < "+pthddsqlscr,shell=True);
 
 cn = sq.connect(pthddsqldb);
+cn.create_aggregate('typect',1,typect);
+cn.create_aggregate('valct',1,valct);
 
 # all the column names in all the tables
 svrawcols = [cn.execute('pragma table_info({0})'.format(xx)).fetchall() for xx in [yy[1] for yy in svs]];
@@ -94,20 +95,20 @@ cn.execute("CREATE TABLE sv_unified ("+" TEXT,".join(['site']+svunqcols)+" TEXT)
 svcols = dict(zip([xx[1] for xx in svs],svrawcols));
 # one insert statement for each site's survey table
 svinsrt = ["insert into sv_unified (site, " +\
-  ",".join([jj[1] for jj in svcols[ii]])+") select '"+ii+"' site,* from "+\
-    ii for ii in svcols.keys()];
+  ",".join([jj[1] for jj in svcols[ii]])+") select '{0}' site,* from {0}".format(ii) for ii in svcols.keys()];
 # now run the above inserts
 [cn.execute(xx) for xx in svinsrt];
-[cn.execute("attach database '{0}' as {1}".format(xx[0],xx[1])) for xx in dbs];
+[cn.execute("attach database '{0}' as {1}".format(*xx) for xx in dbs];
 # TODO: the below two statements execute silently. Find a way to output to screen
 # ...these are comparisons between PATIENT_NUM's in the survey and in the .db file
 """
 pmatched = cn.execute(" union all ".join(["select '{1}' site, count(*) good from {0}{1} where patient_num in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
 punmatched = cn.execute(" union all ".join(["select '{1}' site, count(*) missing from {0}{1} where patient_num not in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
 """
+# create a counts table
+cn.execute("create table svcolcts as select site,"+",".join(["count(case when {0} is not null and {0} not in ('','0') then 1 else null end) {0}".format(ii) for ii in svunqcols])+" from sv_unified group by site");
+
 cn.commit();
-cn.create_aggregate('typect',1,typect);
-cn.create_aggregate('valct',1,valct);
 
 """
 #creates summary tables of data types broken up by site
@@ -116,6 +117,8 @@ cn.execute("create table sv_summ01 as select "+",".join(['site']+['typect({0}) {
 cn.execute("create table sv_summ02 as select "+",".join(['site']+['valct({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified group by site union all select "+",".join(["'ALL' site"]+['valct({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified")
 
 """
+tocoal =  ",".join([ii[0] for ii in cn.execute("select distinct `Variable / Field Name` from allsites where `Form Name` != 'tracker_form' and `Field Type` = 'checkbox' and site != 'dd_utsw';").fetchall()]);
 pdb.set_trace();
+
 
 cn.close();
