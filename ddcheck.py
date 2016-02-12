@@ -98,7 +98,7 @@ svinsrt = ["insert into sv_unified (site, " +\
   ",".join([jj[1] for jj in svcols[ii]])+") select '{0}' site,* from {0}".format(ii) for ii in svcols.keys()];
 # now run the above inserts
 [cn.execute(xx) for xx in svinsrt];
-[cn.execute("attach database '{0}' as {1}".format(*xx) for xx in dbs];
+[cn.execute("attach database '{0}' as {1}".format(*xx)) for xx in dbs];
 # TODO: the below two statements execute silently. Find a way to output to screen
 # ...these are comparisons between PATIENT_NUM's in the survey and in the .db file
 """

@@ -89,3 +89,30 @@ def unq(seq):
     seen_add = seen.add
     return [xx for xx in seq if not (xx in seen or seen_add(xx))]
 
+
+"""
+Dynamic SQLifier?
+"""
+# should be easy to turn into aggregator UDF: just collect the args, and run ds* at the end
+
+def ds(lval,rval=' ',lfun=' {0} ',rfun=' {0} ',op=' ',joiner=','):
+  # check for optional args and expand as needed
+  ln = len(lval);
+  # TODO: check for mismatched list lengths, non-lists, etc.
+  # TODO: check for non-string arguments (catch and fix numeric)
+  # TODO: check for non-string lists (catch and fix numeric)
+  if isinstance(rval,str): rval = [rval]*ln;
+  if isinstance(lfun,str): lfun = [lfun]*ln;
+  if isinstance(rfun,str): rfun = [rfun]*ln;
+  if isinstance(op,str): op = [op]*ln;
+  rawvals = zip(lfun,lval,op,rfun,rval);
+  return joiner.join([str(xx[0]).format(str(xx[1]))+\
+    str(xx[2])+str(xx[3]).format(str(xx[4])) for xx in rawvals]);
+
+def dsSel(lval,rval='',lfun=' {0} '):
+  if lfun != ' {0} ' and rval == '': rval = lval;
+  return ds(lval,rval,lfun);
+
+def dsCond(lval,rval,joiner=' and ',op=' = ',lfun = ' {0} ',rfun=' {0} '):
+  return ds(lval,rval,lfun,rfun,op,joiner);
+
