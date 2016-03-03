@@ -34,12 +34,12 @@ removed using ddnmrep
 """
 
 # create a list of paired lists where the first one is the file name and the second is the table name
-dds = [[ff,ddprfx+ff.replace(ddnmrep,'')] for ff in os.listdir(dddir) if os.path.isfile(ff) and ff.find(ddmatch) > 0];
+dds = [[ff,ddprfx+re.sub(ddnmrep,'',ff)] for ff in os.listdir(dddir) if os.path.isfile(ff) and re.search(ddmatch,ff) > 0];
 # same, but for survey files
-svs = [[ff,svprfx+ff.replace(svnmrep,'')] for ff in os.listdir(dddir) if os.path.isfile(ff) and ff.find(svmatch) > 0];
+svs = [[ff,svprfx+re.sub(svnmrep,'',ff)] for ff in os.listdir(dddir) if os.path.isfile(ff) and re.search(svmatch,ff) > 0];
 # ...and database files
-dbs = [[ff,ff.replace(dbnmrep,'')] 
-       for ff in os.listdir(dddir) if os.path.isfile(ff) and ff.find(dbmatch) > 0 and ff != ddsqldb];
+dbs = [[ff,re.sub(dbnmrep,'',ff)] 
+       for ff in os.listdir(dddir) if os.path.isfile(ff) and re.search(dbmatch,ff) > 0 and ff != ddsqldb];
 # now write table import commands to a SQL script
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in dds]];
 # same, but for survey files
@@ -50,11 +50,11 @@ dbs = [[ff,ff.replace(dbnmrep,'')]
 
 # create a single column of all unique field names to later join things onto
 sqscr.write("create table scaffold as select distinct vfn from ("+\
-  " union all ".join(["select `Variable / Field Name` vfn from "+\
+  "\n union all \n".join(["select `Variable / Field Name` vfn from "+\
     xx[1] for xx in dds])+");\n");
 
 sqscr.write("create table allsites as "+
-  " union all ".join([(" select "+",".join(["'{0}' site"]+rccols)+
+  "\n union all \n".join([(" select "+",".join(["'{0}' site"]+rccols)+
     " from {0}").format(xx[1]) for xx in dds])+";\n");
   
 """
@@ -62,7 +62,7 @@ gigantic ugly statement that creates a table of all possible misalignments
 (based on data dictionaries) between the site surveys.
 Createed in TWO lines for... uh.. maintainability?
 """
-diffqry01 = "select ' ' status,vfn,"+",".join(rccols[1:])+" from scaffold "+" ".join([(" left join (select {0} var, group_concat(distinct '('||{1}||')') {1} from allsites group by {0}) {1} on vfn = {1}.var".format(rccols[0],"{0}")).format(xx) for xx in rccols[1:]]);
+diffqry01 = "select ' ' status,vfn,"+",".join(rccols[1:])+" from scaffold "+" ".join([(" left join (select {0} var, group_concat(distinct '('||{1}||')') {1} \nfrom allsites group by {0}) {1} \n on vfn = {1}.var".format(rccols[0],"{0}")).format(xx) for xx in rccols[1:]]);
 diffqry02 = "create table diffs as "+diffqry01+" where "+"||".join(rccols[1:])+" like '%),(%';\n";
 sqscr.write(diffqry02);
 
@@ -98,16 +98,53 @@ svinsrt = ["insert into sv_unified (site, " +\
   ",".join([jj[1] for jj in svcols[ii]])+") select '{0}' site,* from {0}".format(ii) for ii in svcols.keys()];
 # now run the above inserts
 [cn.execute(xx) for xx in svinsrt];
-[cn.execute("attach database '{0}' as {1}".format(*xx)) for xx in dbs];
+
+# create an indicator column for overall responder/nonresponder
+cn.execute("alter table sv_unified add column s2resp number"); 
+cn.execute("update sv_unified set s2resp = 0");
+respondercolumn = """
+update sv_unified set s2resp = 1
+where coalesce(research,possible_research,research_types_adult,research_depends_why,children_in_home,children_research
+	       ,research_types2_child,res_dep_why2_child,res_talk_family,research_feeling,q6_ans6_response,deid_data
+	       ,q7_ans6_response,height_req,height_feet,height_in,height_value_cm,weight_req,weight_value_lbs
+	       ,weight_value_kg,bp_hypten_self,chole_triigl_hyperlip_self,bloodsugar_diabetes_self,cancer_anytype_self
+	       ,hpb_hprtnsn,chole_trig_hyperlip,elev_bs_diabetes,cancer_anytype,sex,other_sex,age,latino_origin,other_race
+	       ,income,insurance,other_insurance,education,other_schooling,household,language,other_language
+	       ,research_accept_decisions___1,research_accept_decisions___2,research_accept_decisions___3
+	       ,research_accept_decisions___4,research_accept_decisions___5,research_accept_decisions___6
+	       ,research_accept_decisions___7,research_accept_dec_child___1,research_accept_dec_child___2
+	       ,research_accept_dec_child___3,research_accept_dec_child___4,research_accept_dec_child___5
+	       ,research_accept_dec_child___6,research_accept_dec_child___7,race___1,race___2,race___3,race___4,race___5
+	       ,race___6,'') not in ('0','')
+	       """;
+cn.execute(respondercolumn);
+
+
+# attach the i2b2 databuilder files to crossheck patients
+[cn.execute("attach database '{0}' as {1}".format(xx[0],xx[1])) for xx in dbs];
+dbspatients = [xx[1] for xx in dbs 
+	       if any(['patient_num' in yy[1] 
+		for yy in cn.execute("pragma table_info({0}{1})".format(svprfx,xx[1])).fetchall()])];
+pmatched = cn.execute(" union all ".join(["""
+  select '{1}' site, count(*) good from {0}{1} 
+  where patient_num in 
+  (select patient_num from {1}.patient_dimension)
+  """.format(svprfx,xx) for xx in dbspatients])).fetchall();
+punmatched = cn.execute(" union all ".join(["""
+  select '{1}' site, count(*) missing from {0}{1} 
+  where patient_num not in 
+  (select patient_num from {1}.patient_dimension)
+  """.format(svprfx,xx) for xx in dbspatients])).fetchall();
+cn.execute("create table matched as "+" union all "
+	   .join(["select '{0}' site, {1} matched, {2} unmatched "
+	     .format(xx[0][0],xx[0][1],xx[1][1]) for xx in zip(pmatched,punmatched)]));
+
 # TODO: the below two statements execute silently. Find a way to output to screen
 # ...these are comparisons between PATIENT_NUM's in the survey and in the .db file
 """
 pmatched = cn.execute(" union all ".join(["select '{1}' site, count(*) good from {0}{1} where patient_num in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
 punmatched = cn.execute(" union all ".join(["select '{1}' site, count(*) missing from {0}{1} where patient_num not in (select patient_num from {1}.patient_dimension)".format(svprfx,xx[1]) for xx in dbs])).fetchall();
 """
-# create a counts table
-cn.execute("create table svcolcts as select site,"+",".join(["count(case when {0} is not null and {0} not in ('','0') then 1 else null end) {0}".format(ii) for ii in svunqcols])+" from sv_unified group by site");
-
 cn.commit();
 
 """
