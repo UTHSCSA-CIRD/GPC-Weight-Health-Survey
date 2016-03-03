@@ -10,7 +10,7 @@ Stuff to move to a config file if we keep using this script
 # where data dictionary files are to be found
 dddir = '.';
 # match repsective file patterns
-ddmatch = '_dd.csv'; svmatch = '_survey.csv'; dbmatch = '.db';
+ddmatch = '_dd.csv$'; svmatch = '_survey.csv$'; dbmatch = '.db$';
 # replace data dictionary string to get site name
 ddnmrep = ddmatch; svnmrep = svmatch; dbnmrep = dbmatch;
 # prefixs for sqlite data dictionary and survey tables
