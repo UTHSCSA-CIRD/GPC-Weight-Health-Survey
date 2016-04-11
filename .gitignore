@@ -9,6 +9,8 @@
 *-Ex.R
 *.db
 *.txt
+*.Rproj
+*.csv
 
 # RStudio files
 .Rproj.user/
