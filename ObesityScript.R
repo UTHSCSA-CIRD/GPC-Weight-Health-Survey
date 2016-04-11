@@ -26,6 +26,7 @@ levels(obd$pat_sex) = c("F", "F", "M", "M")
 # Arrange the levels for income to keep like incomes together
 obd$income <- factor(obd$income, levels(obd$income)[c(8,2,4,3,7,5,6,1)])
 obd$Race <- apply(obd[,58:62], 1,concatRace)
+obd$Race <- as.factor(obd$Race)
 obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
 samp = pickSample(obd, .25)
 
@@ -40,8 +41,23 @@ runByRaceVariable(samp, "sex", "Gender")
 runByRaceVariable(samp, "latino_origin", "Latino Origin")
 runByRaceVariable(samp, "income", "Income")
 runByRaceVariable(samp, "insurance", "Insurance by Race")
+
+#lets play with some mosaic plots...
 ggMMplot(samp$site, samp$possible_research)
 mosaic(structable(site ~ surv_2, data = samp), shade = TRUE, legend = TRUE)
+
+#categorical trees-- just playing with these for now. 
+#This was the most interesting one I found
+library("party")
+fit <- ctree(income ~ site + Race, data = samp)
+#Not as much a fan of this one, maybe Alex can work out what to do with it. 
+library("rpart")
+fit <- rpart(income ~ site + Race, method = "class", data = samp)
+printcp(fit)
+plotcp(fit)
+summary(fit)
+plot(fit, uniform=TRUE)
+text(fit, use.n=TRUE, all=TRUE, cex=.8)
 
 #Plots by willingness to participate - most of the factors don't seem to stand out
 runByWilling2P(samp, "site")
