@@ -16,6 +16,12 @@ runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Wil
     geom_bar(aes_string(x = "possible_research", fill = fill), position = "fill")+
     labs(title = title, y = ylab, x = xlab)
 }
+runGGPLOT <- function(data, x, fill, title = "", ylab = "Percent", xlab = ""){
+  require(ggplot2)
+  ggplot(data = data)+ 
+    geom_bar(aes_string(x = x, fill = fill), position = "fill")+
+    labs(title = title, y = ylab, x = xlab)
+}
 ggMMplot <- function(var1, var2){
   #Code by: http://stackoverflow.com/users/2119315/edwin
   require(ggplot2)
