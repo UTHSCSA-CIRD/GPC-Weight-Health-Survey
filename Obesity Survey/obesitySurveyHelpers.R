@@ -16,14 +16,21 @@ runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Wil
     geom_bar(aes_string(x = "possible_research", fill = fill), position = "fill")+
     labs(title = title, y = ylab, x = xlab)
 }
-runGGPLOT <- function(data, x, fill, title = "", ylab = "Percent", xlab = ""){
+runGGPLOT <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE){
   require(ggplot2)
+  if(omitNA_X){
+    data = data[(data[,x] !="0" & data[,x] != ""),]
+  }
+  if(omitNA_Y){
+    data = data[(data[,fill] !="0" & data[,fill] != ""),]
+  }
   ggplot(data = data)+ 
-    geom_bar(aes_string(x = x, fill = fill), position = "fill")+
+    geom_bar(aes_string(x = x, fill = fill))+
     labs(title = title, y = ylab, x = xlab)
 }
-ggMMplot <- function(var1, var2){
+ggMosaicPlot <- function(var1, var2){
   #Code by: http://stackoverflow.com/users/2119315/edwin
+  #MOSAIC PLOT
   require(ggplot2)
   levVar1 <- length(levels(var1))
   levVar2 <- length(levels(var2))

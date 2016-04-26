@@ -4,7 +4,7 @@ library(plyr)
 library(reshape)
 library(vcd)
 
-#untested read.table
+
 obd <- read.table("obesity_survey_v0.3.csv", header = TRUE, sep = "\t")
 
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
@@ -41,9 +41,9 @@ runByRaceVariable(samp, "sex", "Gender")
 runByRaceVariable(samp, "latino_origin", "Latino Origin")
 runByRaceVariable(samp, "income", "Income")
 runByRaceVariable(samp, "insurance", "Insurance by Race")
-
+runGGPLOT(samp, "income", "insurance", xlab ="Income", ylab = "Insurance", omitNA_X = FALSE)
 #lets play with some mosaic plots...
-ggMMplot(samp$site, samp$possible_research)
+ggMosaicP(samp$site, samp$possible_research)
 mosaic(structable(site ~ surv_2, data = samp), shade = TRUE, legend = TRUE)
 
 #categorical trees-- just playing with these for now. 
