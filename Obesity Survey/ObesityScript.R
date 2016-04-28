@@ -3,33 +3,70 @@ library(ggplot2)
 library(plyr)
 library(reshape)
 library(vcd)
-#save(obd, samp, file = "survSave.rdata")
-load("survSave.rdata")
-# obd <- read.table("obesity_survey_v0.3.csv", header = TRUE, sep = "\t")
-# 
-# #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
-# colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
-# 
-# #Clean up in-race names for ggplot -- They're currently too long and overlapping
-# levels(obd[,58])<-c("0", "0", "White")
-# levels(obd[,59])<-c("0", "Black")
-# levels(obd[,60])<-c("0", "American_Indian")
-# levels(obd[,62])<-c("0", "Other")
-# levels(obd[,63])<-c("0", "NA")
-# 
-# #Clean up willing to participate answers for ggplot -- They're currently too long and overlapping
-# levels(obd$possible_research)<-c("", "Maybe", "NA", "No", "Yes")
-# 
-# #Clean pt_sex
-# levels(obd$pat_sex) = c("F", "F", "M", "M")
-# 
-# # Arrange the levels for income to keep like incomes together
-# obd$income <- factor(obd$income, levels(obd$income)[c(8,2,4,3,7,5,6,1)])
-# obd$Race <- apply(obd[,58:62], 1,concatRace)
-# obd$Race <- as.factor(obd$Race)
-# obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
-# samp = pickSample(obd, .25)
 
+#load clean and save 
+obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
+# 
+#convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
+colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
+
+#Clean up in-race names for ggplot -- They're currently too long and overlapping
+levels(obd[,58])<-c("0", "0", "White")
+levels(obd[,59])<-c("0", "0", "Black")
+levels(obd[,60])<-c("0", "0", "American_Indian")
+levels(obd[,61])<-c("0", "0", "Asian")
+levels(obd[,62])<-c("0", "0","Other")
+levels(obd[,63])<-c("0", "0", "NA")
+
+#Clean up willing to participate answers for ggplot -- They're currently too long and overlapping
+levels(obd$possible_research)<-c("", "Maybe", "NA", "No", "Yes")
+
+#Clean pt_sex
+levels(obd$pat_sex) = c("0", "M", "F", "F", "F","F", "M", "M", "M")
+
+# Arrange the levels for income to keep like incomes together
+obd$income <- factor(obd$income, levels(obd$income)[c(8,2,4,3,7,5,6,1)])
+obd$Race <- apply(obd[,58:62], 1,concatRace)
+obd$Race <- as.factor(obd$Race)
+obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
+
+#possible research checkboxes for depends on.... for me and child
+colnames(obd)[19:25] <- c("PR_Me_DependsAbout","PR_Me_If_Spec","PR_Me_Time","PR_Me_Doctor_Op", "PR_Me_Compensation", "PR_Me_Involve_Child","PR_Me_Other")
+colnames(obd)[27:33] <- c("PR_Child_DependsAbout","PR_Child_If_Spec","PR_Child_Time","PR_Child_Doctor_Op", "PR_Child_Compensation", "PR_Child_Involve_Child","PR_Child_Other")
+respStr = c("", "0", "Yes") #no survey response, did not check, checked. Using this to these more readable now that the colnames are slightly more readable
+levels(obd[,19]) = respStr
+levels(obd[,20]) = respStr
+levels(obd[,21]) = respStr
+levels(obd[,22]) = respStr
+levels(obd[,23]) = respStr
+levels(obd[,24]) = respStr
+levels(obd[,25]) = respStr
+
+levels(obd[,27]) = respStr
+levels(obd[,28]) = respStr
+levels(obd[,29]) = respStr
+levels(obd[,30]) = respStr
+levels(obd[,31]) = respStr
+levels(obd[,32]) = respStr
+levels(obd[,33]) = respStr
+
+#converting "notes" to characters so they don't get added to the data dictionary as factors when they aren't
+obd$q6_ans6_response = as.character(obd$q6_ans6_response)
+obd$q7_ans6_response = as.character(obd$q7_ans6_response)
+obd$other_race = as.character(obd$other_race)
+obd$other_language = as.character(obd$other_language)
+obd$other_sex = as.character(obd$other_sex)
+obd$other_insurance = as.character(obd$other_insurance)
+obd$research_types2_child = as.character(obd$research_types2_child)
+
+#converting the logical to a factor
+obd$surv_2 = as.factor(obd$surv_2)
+
+#bmi factor
+obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,75,100), c("1st Quarter", "2nd Quarter", "3rd Quarter", "4th Quarter"))
+
+samp = pickSample(obd, .25)
+save(obd, samp, file = "survSave.rdata")
 
 #Some plots by race
 runByRaceVariable(samp, "possible_research", "Interested in Being Contacted for Research")

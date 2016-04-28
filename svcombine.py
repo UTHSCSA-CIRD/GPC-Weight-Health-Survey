@@ -149,5 +149,4 @@ out.write('"'+'"\t"'.join([xx for xx in sv_colnames
 			   if xx in okayfields])+'"\n');
 [out.write('"'+'"\t"'.join(repl_all(str(yy),repls) or "" for yy in xx)+'"\n') for xx in dataout];
 
-pdb.set_trace();
   

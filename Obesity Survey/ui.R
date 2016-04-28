@@ -7,10 +7,9 @@ shinyUI(
         uiOutput("graphSidePanel")
       ), #end sidebar panel
       mainPanel(
-        bsAlert("graphError"),
-        plotOutput("visPlot")
-        #graph
-        #uiOutput("ui")
+#        bsAlert("graphError"),
+        plotOutput("visPlot"),
+        tableOutput("freqTable")
       )#end mainPanel
     )#end sidebarLayout
   )#end fluidPage

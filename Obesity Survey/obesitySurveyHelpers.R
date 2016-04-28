@@ -16,7 +16,7 @@ runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Wil
     geom_bar(aes_string(x = "possible_research", fill = fill), position = "fill")+
     labs(title = title, y = ylab, x = xlab)
 }
-runGGPLOT <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE){
+runGGPLOT <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE, position = "stack"){
   require(ggplot2)
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
@@ -25,7 +25,7 @@ runGGPLOT <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", om
     data = data[(data[,fill] !="0" & data[,fill] != ""),]
   }
   ggplot(data = data)+ 
-    geom_bar(aes_string(x = x, fill = fill))+
+    geom_bar(aes_string(x = x, fill = fill), position = position)+
     labs(title = title, y = ylab, x = xlab)
 }
 ggMosaicPlot <- function(var1, var2){

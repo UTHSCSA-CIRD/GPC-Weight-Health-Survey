@@ -4,6 +4,7 @@
 *.Rproj
 *.rdata
 *.html
+dd_sqlscript.sql
 
 # Session Data files
 *.RData
