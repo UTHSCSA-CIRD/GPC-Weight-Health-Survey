@@ -41,7 +41,10 @@ shinyServer(
       flowLayout(
         p("Currently only barplots are available, please make your selections."),
         selectInput("xVal", "X Value", vals ),
-        selectInput("plotFill", "Fill Value", vals)
+        
+        checkboxInput("xOmit", "Omit blanks?", value = TRUE),
+        selectInput("plotFill", "Fill Value", vals),
+        checkboxInput("fillOmit", "Omit blanks?", value = FALSE)
       )
     })#end output$graphSidePanel
     
@@ -50,8 +53,7 @@ shinyServer(
         need(input$xVal, 'Please select an X Value.'),
         need(input$plotFill, 'Please select a fill value')
       )
-      runGGPLOT(samp, input$xVal, input$plotFill , xlab = input$xVal, ylab = input$plotFill)
+      runGGPLOT(samp, input$xVal, input$plotFill , xlab = input$xVal, ylab = input$plotFill, omitNA_X = input$xOmit, omitNA_Y = input$fillOmit)
     })#end output$visPlot
-    
   }
 )
