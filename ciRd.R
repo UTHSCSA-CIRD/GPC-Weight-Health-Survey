@@ -24,16 +24,17 @@ vs <- function(xx
   # The first argument is match.arg, which matches the possibly partial
   # string the user typed to full argument. Think of tye `type` argument
   # to the vs() function as a multiple-choice question.
-  test <- switch(match.arg(type),
-                 'numeric'=is.numeric,
-                 'factor'=is.factor,
-                 'logical'=is.logical, # i.e. all non-missing values in this column are TRUE/FALSE
-                 'character'=is.character,
-                 'binary'=function(zz) length(unique(zz))==2,
-                 'multinomial'=function(zz) length(unique(zz))<length(zz),
-                 'time'=function(zz) inherits(zz,'POSIXt'),
-                 'date'=function(zz) inherits(zz,'Date'),
-                 'dt'=function(zz) inherits(zz,c('Date','POSIXt')) # i.e. either date OR time
+  test <- switch(match.arg(type)
+                 ,'numeric'=is.numeric
+                 ,'factor'=is.factor
+                 ,'logical'=is.logical # i.e. all non-missing values in this column are TRUE/FALSE
+                 ,'character'=is.character
+                 ,'binary'=function(zz) length(unique(zz))==2
+                 ,'multinomial'=function(zz) length(unique(zz))<length(zz)
+                 ,'time'=function(zz) inherits(zz,'POSIXt')
+                 ,'date'=function(zz) inherits(zz,'Date')
+                 ,'dt'=function(zz) inherits(zz,c('Date','POSIXt')) # i.e. either date OR time
+                 ,'znumeric'=function(zz) guessnum(zz,...)
   );
   # Then we apply the test function appropriate to the data type of to each 
   # column of xx using the `sapply()` function. What it returns, `matches` is a
