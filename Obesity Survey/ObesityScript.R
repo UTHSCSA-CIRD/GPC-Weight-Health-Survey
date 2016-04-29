@@ -72,7 +72,7 @@ obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
 # As it turns out, "" is not 'no survey response', "0" is and "" may be an 
 # artifact
 # So here we can get rid of them...
-obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=2,oth='0');
+obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=2,oth='0',simplify = F);
 
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
