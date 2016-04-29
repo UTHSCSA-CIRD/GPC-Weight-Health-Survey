@@ -27,6 +27,11 @@ sqscr = open(pthddsqlscr,'w');
 sqscr.truncate();
 sqscr.write('.mode csv\n');
 
+# fix messed up uiowa multiply nested quotes by just blowing away those few rows for now
+subprocess.call("grep -v '\"\{2,\}' uiowa_survey.csv > tempfix.csv",shell=True)
+subprocess.call("mv tempfix.csv uiowa_survey.csv",shell=True)
+
+
 """ 
 find files and create tables, the assumption is a consistant naming pattern for tables
 where the site name is the prefix and the rest is recognized by ddmatch, and can be
