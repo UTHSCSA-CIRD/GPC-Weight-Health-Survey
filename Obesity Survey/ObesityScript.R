@@ -66,7 +66,7 @@ obd[,textfields] <- sapply(obd[,textfields],as.character);
 
 # converting things that ought to be numeric (or at least we don't mind if they
 # are made numeric) to numeric values
-obd[,numfields]
+obd[,numfields] <- sapply(obd[,numfields],function(xx) as.numeric(as.character(xx)));
 
 #converting the logical to a factor
 obd$surv_2 = as.factor(obd$surv_2)
