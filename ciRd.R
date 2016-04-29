@@ -69,7 +69,7 @@ colnamestringmap <- rbind(
   ,c('race___2','Black')
   ,c('race___3','American_Indian')
   ,c('race___4','Asian')
-  ,c('race___5','Other')
+  ,c('race___5','OtherRace')
   ,c('race___6','PreferNotAnswer')
   );
 
