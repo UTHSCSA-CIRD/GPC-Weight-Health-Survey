@@ -14,12 +14,18 @@ obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 # set variables all in one place if practical
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
 numfields <- vs(obd,'z',exclude=c('','None','0'));
+factors <- vs(obd,'f');
+racenames <- grep('race___',names(obd),val=T);
 
 # clean up state name
 levels(obd$state) <- toupper(levels(obd$state));
 
 # clean up patient sex
 obd$pat_sex <- mapstrings(obd$pat_sex,sexstringmap);
+
+# clean up ALL other factor levels for readability
+# though we're not done yet, some of them still have small numbers of garbage
+obd[,factors] <- sapply(obd[,factors],mapstrings);
 
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
 colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
