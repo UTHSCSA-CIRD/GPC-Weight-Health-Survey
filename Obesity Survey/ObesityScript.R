@@ -61,6 +61,9 @@ levels(obd[,31]) = respStr
 levels(obd[,32]) = respStr
 levels(obd[,33]) = respStr
 
+# backup of just the systematically modified fields
+obd.backup <- obd[,c(textfields,numfields)];
+
 #converting "notes" to characters so they don't get added to the data dictionary as factors when they aren't
 obd[,textfields] <- sapply(obd[,textfields],as.character);
 
