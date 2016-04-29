@@ -135,6 +135,7 @@ punmatched = cn.execute(" union all ".join(["""
   where patient_num not in 
   (select patient_num from {1}.patient_dimension)
   """.format(svprfx,xx) for xx in dbspatients])).fetchall();
+
 cn.execute("create table matched as "+" union all "
 	   .join(["select '{0}' site, {1} matched, {2} unmatched "
 	     .format(xx[0][0],xx[0][1],xx[1][1]) for xx in zip(pmatched,punmatched)]));

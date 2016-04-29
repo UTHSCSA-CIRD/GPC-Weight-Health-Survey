@@ -1,5 +1,115 @@
+stringmap <- rbind(
+  c('It depends on something else. If this is your choice  please share what it would depend on and write in your answer.','Yes')
+  ,c('It depends on whether it would involve just me or whether it would involve my child or children.','Yes')
+  ,c('I would be interested if the research is about: (be specific and write it in)','Yes')
+  ,c('It depends on whether my childs doctor thinks it is a good idea.','Yes')
+  ,c('Private (for example  Blue Cross/Blue Shield  Aetna  Humana)','Private')
+  ,c('It depends on whether my doctor thinks it is a good idea.','Yes')
+  ,c('I have no insurance; I pay cash for health care services','Uninsured')
+  ,c('My weight in pounds (lbs) is (enter in the box below):','WeightLbs')
+  ,c('My height in centimeters is (enter in the box below):','HeightCm')
+  ,c('My height in feet inches is (enter in the box below):','HeightFt')
+  ,c('No  I am not of Hispanic  Latino or of Spanish origin','No')
+  ,c('My weight in kilos (kg) is (enter in the box below):','WeightKg')
+  ,c('Yes   I am of Hispanic  Latino or of Spanish origin','Yes')
+  ,c('Yes  I would be interested in being contacted','Yes')
+  ,c('It depends on how much time it would take.','Yes')
+  ,c('It depends on what the research is about.','Yes')
+  ,c('Other race (please enter in the next box)','Other')
+  ,c('I might be interested in being contacted','Maybe')
+  ,c('It depends on whether I would be paid.','Yes')
+  ,c('Yes  we speak another language at home','Yes')
+  ,c('I am not sure how I feel about that','Unsure')
+  ,c('American Indian or Alaskan Native','NativeAm')
+  ,c('I think that is not a good idea','NotGoodIdea')
+  ,c('I think it is a fantastic idea','Fantastic')
+  ,c('I think it is a terrible idea','Terrible')
+  ,c('I do not know / I am not sure','Unsure')
+  ,c('Other( describe in box below)','Other')
+  ,c('I do not know; I am not sure','Unsure')
+  ,c('No  please do not contact me','No')
+  ,c('I live with 1-2 other people','1-2')
+  ,c('I live with 3-4 other people','3-4')
+  ,c('I live with 7 or more people','7+')
+  ,c('Not willing to be contacted','No')
+  ,c('My feelings about this are:','Other')
+  ,c('I think it is a good idea','GoodIdea')
+  ,c('No  We speak English only','No')
+  ,c('Willing to be contacted','Yes')
+  ,c('I prefer not to answer.','PreferNotAnswer')
+  ,c('I prefer not to answer','PreferNotAnswer')
+  ,c('Black/African American','Black')
+  ,c('I live with 5-6 people','5-6')
+  ,c('Maybe  I am not sure','Unsure')
+  ,c('$100 000 to $199 999','100000-199999')
+  ,c('Medicare or Medicaid','MedicareMedicaid')
+  ,c('$25 000 to $49 999','025000-049999')
+  ,c('$50 000 to $99 999','050000-099999')
+  ,c('More than $200 000','200000+')
+  ,c('Less than $24 999','000000-024999')
+  ,c('White/Caucasian','White')
+);
+
+colnamestringmap <- rbind(
+  c('research_accept_decisions___1','PR_Me_DependsAbout')
+  ,c('research_accept_decisions___2','PR_Me_If_Spec')
+  ,c('research_accept_decisions___3','PR_Me_Time')
+  ,c('research_accept_decisions___4','PR_Me_Doctor_Op')
+  ,c('research_accept_decisions___5','PR_Me_Compensation')
+  ,c('research_accept_decisions___6','PR_Me_Involve_Child')
+  ,c('research_accept_decisions___7','PR_Me_Other')
+  ,c('research_accept_dec_child___1','PR_Child_DependsAbout')
+  ,c('research_accept_dec_child___2','PR_Child_If_Spec')
+  ,c('research_accept_dec_child___3','PR_Child_TiChild')
+  ,c('research_accept_dec_child___4','PR_Child_Doctor_Op')
+  ,c('research_accept_dec_child___5','PR_Child_Compensation')
+  ,c('research_accept_dec_child___6','PR_Child_Involve_Child')
+  ,c('research_accept_dec_child___7','PR_Child_Other')
+  ,c('race___1','White')
+  ,c('race___2','Black')
+  ,c('race___3','American_Indian')
+  ,c('race___4','Asian')
+  ,c('race___5','OtherRace')
+  ,c('race___6','PreferNotAnswer')
+  );
+
+sexstringmap <- rbind(
+  c('1','Male')
+  ,c('2','Female')
+  ,c('f','Female')
+  ,c('F','Female')
+  ,c('m','Male')
+  ,c('M','Male')
+  ,c('female','Female')
+  ,c('male','Female')
+);
+
+mapstrings <- function(xx,map=stringmap,...){
+  UseMethod('mapstrings');
+}
+
+mapstrings.default <- function(xx,map=stringmap,...){
+  # xx  : character vector
+  # map : data.frame or matrix with matched string in first column and 
+  #       replacement string in second column
+  if(is.null(nc<-ncol(map))||nc<2) stop('The map argument needs to be a matrix with character strings in the first two columns');
+  matches <- match(xx,map[,1]);
+  ifelse(is.na(matches),xx,map[matches,2]);
+}
+
+mapstrings.factor <- function(xx,map=stringmap,...){
+  levels(xx) <- mapstrings.default(levels(xx),map,...);
+  xx;
+}
+
+guessnum <- function(xx,exclude='',returnval=F,tolerance=.11){
+  xx <- xx[!is.na(xx)&!xx%in%exclude];
+  out <- sum(is.na(as.numeric(as.character(xx))))/length(xx);
+  if(returnval) out else out <= tolerance;
+}
+
 vs <- function(xx
-               ,type=c('numeric','factor','logical','character','binary','multinomial','time','date','dt')
+               ,type=c('numeric','factor','logical','character','binary','multinomial','time','date','dt','znumeric')
                ,ignorevs='ignorevs',...){
   # This function takes a data.frame and returns the names of columns of a 
   # particular type
@@ -17,16 +127,17 @@ vs <- function(xx
   # The first argument is match.arg, which matches the possibly partial
   # string the user typed to full argument. Think of tye `type` argument
   # to the vs() function as a multiple-choice question.
-  test <- switch(match.arg(type),
-                 'numeric'=is.numeric,
-                 'factor'=is.factor,
-                 'logical'=is.logical, # i.e. all non-missing values in this column are TRUE/FALSE
-                 'character'=is.character,
-                 'binary'=function(zz) length(unique(zz))==2,
-                 'multinomial'=function(zz) length(unique(zz))<length(zz),
-                 'time'=function(zz) inherits(zz,'POSIXt'),
-                 'date'=function(zz) inherits(zz,'Date'),
-                 'dt'=function(zz) inherits(zz,c('Date','POSIXt')) # i.e. either date OR time
+  test <- switch(match.arg(type)
+                 ,'numeric'=is.numeric
+                 ,'factor'=is.factor
+                 ,'logical'=is.logical # i.e. all non-missing values in this column are TRUE/FALSE
+                 ,'character'=is.character
+                 ,'binary'=function(zz) length(unique(zz))==2
+                 ,'multinomial'=function(zz) length(unique(zz))<length(zz)
+                 ,'time'=function(zz) inherits(zz,'POSIXt')
+                 ,'date'=function(zz) inherits(zz,'Date')
+                 ,'dt'=function(zz) inherits(zz,c('Date','POSIXt')) # i.e. either date OR time
+                 ,'znumeric'=function(zz) guessnum(zz,...)
   );
   # Then we apply the test function appropriate to the data type of to each 
   # column of xx using the `sapply()` function. What it returns, `matches` is a
