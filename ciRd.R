@@ -1,4 +1,4 @@
-tabstringmap <- rbind(
+stringmap <- rbind(
   c('It depends on something else. If this is your choice  please share what it would depend on and write in your answer.','Yes')
   ,c('It depends on whether it would involve just me or whether it would involve my child or children.','Yes')
   ,c('I would be interested if the research is about: (be specific and write it in)','Yes')
@@ -50,7 +50,7 @@ tabstringmap <- rbind(
   ,c('White/Caucasian','White')
 );
 
-tabsexstringmap <- rbind(
+sexstringmap <- rbind(
   c('1','Male')
   ,c('2','Female')
   ,c('f','Female')
@@ -60,6 +60,8 @@ tabsexstringmap <- rbind(
   ,c('female','Female')
   ,c('male','Female')
 );
+
+mapstrings <- function(xx,map=tabstringmap)
 
 guessnum <- function(xx,exclude='',returnval=F,tolerance=.11){
   xx <- xx[!is.na(xx)&!xx%in%exclude];
