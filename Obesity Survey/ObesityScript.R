@@ -15,6 +15,7 @@ obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
 numfields <- vs(obd,'z',exclude=c('','None','0'));
 racenames <- grep('race___',names(obd),val=T);
+researchaccept <- grep('research_accept_dec',names(obd),val=T);
 
 # backup of just the systematically modified fields
 obd.backup <- obd;
