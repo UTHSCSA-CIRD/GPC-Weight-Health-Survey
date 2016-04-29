@@ -79,8 +79,8 @@ obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
 
 #bmi factor
-obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,85,95,100)
-              ,c("Q1","Q2","Normal","Overweight","Obese"));
+obd$BMI = cut(obd$pat_bmi_pct, c(0,85,95,100)
+              ,c("Normal","Overweight","Obese"));
 
 for(ii in names(obd.backup)) 
   if(isTRUE(all.equal(obd.backup[[ii]],obd[[ii]]))) 
