@@ -13,6 +13,7 @@ textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
 #load clean and save 
 obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 
+
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
 colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
 
@@ -57,13 +58,7 @@ levels(obd[,32]) = respStr
 levels(obd[,33]) = respStr
 
 #converting "notes" to characters so they don't get added to the data dictionary as factors when they aren't
-obd$q6_ans6_response = as.character(obd$q6_ans6_response)
-obd$q7_ans6_response = as.character(obd$q7_ans6_response)
-obd$other_race = as.character(obd$other_race)
-obd$other_language = as.character(obd$other_language)
-obd$other_sex = as.character(obd$other_sex)
-obd$other_insurance = as.character(obd$other_insurance)
-obd$research_types2_child = as.character(obd$research_types2_child)
+obd[,textfields] <- sapply(obd[,textfields],as.character);
 
 #converting the logical to a factor
 obd$surv_2 = as.factor(obd$surv_2)
