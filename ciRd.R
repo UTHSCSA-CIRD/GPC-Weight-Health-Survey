@@ -1,3 +1,7 @@
+guessnum <- function(xx,tolerance=.1){
+  (sum(is.na(as.numeric(as.character(xx))))- sum(is.na(xx)))/length(xx)<=tolerance;
+}
+
 vs <- function(xx
                ,type=c('numeric','factor','logical','character','binary','multinomial','time','date','dt')
                ,ignorevs='ignorevs',...){
