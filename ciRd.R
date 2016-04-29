@@ -74,6 +74,11 @@ mapstrings.default <- function(xx,map=stringmap,...){
   ifelse(is.na(matches),xx,map[matches,2]);
 }
 
+mapstrings.factor <- function(xx,map=stringmap,...){
+  levels(xx) <- mapstrings.default(levels(xx),map,...);
+  xx;
+}
+
 guessnum <- function(xx,exclude='',returnval=F,tolerance=.11){
   xx <- xx[!is.na(xx)&!xx%in%exclude];
   out <- sum(is.na(as.numeric(as.character(xx))))/length(xx);
