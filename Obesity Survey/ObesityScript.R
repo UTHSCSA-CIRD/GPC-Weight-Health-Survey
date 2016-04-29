@@ -47,7 +47,7 @@ obd[,factors] <- sapply(obd[,factors],mapstrings,simplify = F);
 obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=2,oth='0',simplify=F);
 # Combine race columns into a single one
 obd$Race <- interaction(obd[,racenames],drop = T,sep = '');
-obd$Race <- gsub('^White[0]{0,1}([A-Z])','\\1'
+levels(obd$Race) <- gsub('^White[0]{0,1}([A-Z])','\\1'
                  ,gsub('^0|0$',''
                        ,gsub('0+','0',levels(obd$Race))));
 
