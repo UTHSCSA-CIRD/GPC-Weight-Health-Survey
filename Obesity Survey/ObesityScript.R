@@ -18,6 +18,9 @@ numfields <- vs(obd,'z',exclude=c('','None','0'));
 # clean up state name
 levels(obd$state) <- toupper(levels(obd$state));
 
+# clean up patient sex
+obd$pat_sex <- mapstrings(obd$pat_sex,sexstringmap);
+
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
 colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
 
