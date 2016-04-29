@@ -73,7 +73,8 @@ obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp);
 
 #bmi factor
-obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,75,100), c("1st Quarter", "2nd Quarter", "3rd Quarter", "4th Quarter"))
+obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,85,95,100)
+              ,c("Q1","Q2","Normal","Overweight","Obese"));
 
 samp = pickSample(obd, .25)
 save(obd, samp, file = "survSave.rdata")
