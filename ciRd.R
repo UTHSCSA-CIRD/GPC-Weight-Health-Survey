@@ -1,4 +1,4 @@
-guessnum <- function(xx,tolerance=.1){
+guessnum <- function(xx,tolerance=.11){
   (sum(is.na(as.numeric(as.character(xx))))- sum(is.na(xx)))/length(xx)<=tolerance;
 }
 
