@@ -25,7 +25,7 @@ obd$pat_sex <- mapstrings(obd$pat_sex,sexstringmap);
 
 # clean up ALL other factor levels for readability
 # though we're not done yet, some of them still have small numbers of garbage
-obd[,factors] <- sapply(obd[,factors],mapstrings);
+obd[,factors] <- sapply(obd[,factors],mapstrings,simplify = F);
 
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
 colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
