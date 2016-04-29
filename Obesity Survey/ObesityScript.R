@@ -14,7 +14,6 @@ obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 # set variables all in one place if practical
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
 numfields <- vs(obd,'z',exclude=c('','None','0'));
-factors <- vs(obd,'f');
 racenames <- grep('race___',names(obd),val=T);
 
 # backup of just the systematically modified fields
@@ -24,6 +23,8 @@ obd[,textfields] <- sapply(obd[,textfields],as.character);
 # converting things that ought to be numeric (or at least we don't mind if they
 # are made numeric) to numeric values
 obd[,numfields] <- sapply(obd[,numfields],function(xx) as.numeric(as.character(xx)));
+
+factors <- vs(obd,'f');
 
 
 # clean up state name
