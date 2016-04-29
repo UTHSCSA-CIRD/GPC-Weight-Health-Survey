@@ -6,7 +6,7 @@ guessnum <- function(xx,exclude='',returnval=F,tolerance=.11){
 }
 
 vs <- function(xx
-               ,type=c('numeric','factor','logical','character','binary','multinomial','time','date','dt')
+               ,type=c('numeric','factor','logical','character','binary','multinomial','time','date','dt','znumeric')
                ,ignorevs='ignorevs',...){
   # This function takes a data.frame and returns the names of columns of a 
   # particular type
