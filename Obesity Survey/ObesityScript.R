@@ -86,7 +86,8 @@ for(ii in names(obd.backup))
   if(isTRUE(all.equal(obd.backup[[ii]],obd[[ii]]))) 
     obd.backup[,ii]<-NULL;
 
-
+names(obd) <- mapstrings(names(obd),colnamestringmap);
+names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 
 samp = pickSample(obd, .25)
 save(obd, obd.backup,samp, file = "survSave.rdata")
