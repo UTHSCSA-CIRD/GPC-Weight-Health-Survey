@@ -40,7 +40,8 @@ shinyServer(
         need(input$xVal, 'Please select an X Value.'),
         need(input$plotFill, 'Please select a fill value')
       )
-      table(samp[,input$xVal], samp[,input$plotFill])
+      out <- table(samp[,c(input$xVal,input$plotFill)]);
+      if(input$xVal==input$plotFill) out else addmargins(out);
     })
   }
 )
