@@ -159,4 +159,3 @@ tocoal =  ",".join([ii[0] for ii in cn.execute("select distinct `Variable / Fiel
 pdb.set_trace();
 
 
-cn.close();
