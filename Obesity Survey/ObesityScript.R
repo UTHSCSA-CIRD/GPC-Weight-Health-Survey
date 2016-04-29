@@ -64,6 +64,10 @@ levels(obd[,33]) = respStr
 #converting "notes" to characters so they don't get added to the data dictionary as factors when they aren't
 obd[,textfields] <- sapply(obd[,textfields],as.character);
 
+# converting things that ought to be numeric (or at least we don't mind if they
+# are made numeric) to numeric values
+obd[,numfields]
+
 #converting the logical to a factor
 obd$surv_2 = as.factor(obd$surv_2)
 
