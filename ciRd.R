@@ -1,8 +1,7 @@
 guessnum <- function(xx,exclude='',returnval=F,tolerance=.11){
   xx <- xx[!is.na(xx)&!xx%in%exclude];
   out <- sum(is.na(as.numeric(as.character(xx))))/length(xx);
-  out <-c(val=out,result = out<=tolerance);
-  if(returnval) out else out[2];
+  if(returnval) out else out <= tolerance;
 }
 
 vs <- function(xx
