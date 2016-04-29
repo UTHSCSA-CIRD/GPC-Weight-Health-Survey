@@ -7,12 +7,15 @@ library(vcd)
 # some handy functions
 source('../ciRd.R');
 
-# set variables all in one place if practical
-textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
 
 #load clean and save 
 obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 
+# set variables all in one place if practical
+textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
+
+# clean up state name
+levels(obd$state) <- toupper(levels(obd$state));
 
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
 colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
