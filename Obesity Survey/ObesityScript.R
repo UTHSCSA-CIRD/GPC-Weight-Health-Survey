@@ -82,7 +82,7 @@ obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,85,95,100)
               ,c("Q1","Q2","Normal","Overweight","Obese"));
 
 samp = pickSample(obd, .25)
-save(obd, samp, file = "survSave.rdata")
+save(obd, obd.backup,samp, file = "survSave.rdata")
 
 #Some plots by race
 runByRaceVariable(samp, "possible_research", "Interested in Being Contacted for Research")
