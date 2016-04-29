@@ -31,6 +31,8 @@ obd[,factors] <- sapply(obd[,factors],mapstrings);
 colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
 
 #Clean up in-race names for ggplot -- They're currently too long and overlapping
+obd[,racenames] <- sapply(obd[,racenames],)
+
 levels(obd[,58])<-c("0", "0", "White")
 levels(obd[,59])<-c("0", "0", "Black")
 levels(obd[,60])<-c("0", "0", "American_Indian")
