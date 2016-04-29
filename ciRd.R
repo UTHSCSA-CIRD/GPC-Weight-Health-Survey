@@ -50,6 +50,29 @@ stringmap <- rbind(
   ,c('White/Caucasian','White')
 );
 
+colnamestringmap <- rbind(
+  c('research_accept_decisions___1','PR_Me_DependsAbout')
+  ,c('research_accept_decisions___2','PR_Me_If_Spec')
+  ,c('research_accept_decisions___3','PR_Me_Time')
+  ,c('research_accept_decisions___4','PR_Me_Doctor_Op')
+  ,c('research_accept_decisions___5','PR_Me_Compensation')
+  ,c('research_accept_decisions___6','PR_Me_Involve_Child')
+  ,c('research_accept_decisions___7','PR_Me_Other')
+  ,c('research_accept_dec_child___1','PR_Child_DependsAbout')
+  ,c('research_accept_dec_child___2','PR_Child_If_Spec')
+  ,c('research_accept_dec_child___3','PR_Child_TiChild')
+  ,c('research_accept_dec_child___4','PR_Child_Doctor_Op')
+  ,c('research_accept_dec_child___5','PR_Child_Compensation')
+  ,c('research_accept_dec_child___6','PR_Child_Involve_Child')
+  ,c('research_accept_dec_child___7','PR_Child_Other')
+  ,c('race___1','White')
+  ,c('race___2','Black')
+  ,c('race___3','American_Indian')
+  ,c('race___4','Asian')
+  ,c('race___5','Other')
+  ,c('race___6','PreferNotAnswer')
+  );
+
 sexstringmap <- rbind(
   c('1','Male')
   ,c('2','Female')
