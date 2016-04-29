@@ -43,6 +43,9 @@ colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", 
 obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=2,oth='0',simplify=F);
 # Combine race columns into a single one
 obd$Race <- interaction(obd[,racenames],drop = T,sep = '');
+obd$Race <- gsub('^White[0]{0,1}([A-Z])','\\1'
+                 ,gsub('^0|0$',''
+                       ,gsub('0+','0',levels(obd$Race))));
 
 levels(obd[,58])<-c("0", "0", "White")
 levels(obd[,59])<-c("0", "0", "Black")
