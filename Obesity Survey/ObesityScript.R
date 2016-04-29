@@ -24,8 +24,9 @@ obd[,textfields] <- sapply(obd[,textfields],as.character);
 # are made numeric) to numeric values
 obd[,numfields] <- sapply(obd[,numfields],function(xx) as.numeric(as.character(xx)));
 
+# the factor names need to be collected here, because some of the above steps 
+# cause certain columns to stop being factors
 factors <- vs(obd,'f');
-
 
 # clean up state name
 levels(obd$state) <- toupper(levels(obd$state));
