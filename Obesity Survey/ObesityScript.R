@@ -76,7 +76,7 @@ obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=2,oth='0',simp
 
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
-obd$s2resp <- factor(obd$s2resp);
+obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('FALSE','TRUE'));
 
 #bmi factor
 obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,85,95,100)
