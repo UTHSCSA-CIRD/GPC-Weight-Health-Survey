@@ -70,7 +70,8 @@ mapstrings.default <- function(xx,map=stringmap,...){
   # map : data.frame or matrix with matched string in first column and 
   #       replacement string in second column
   if(is.null(nc<-ncol(map))||nc<2) stop('The map argument needs to be a matrix with character strings in the first two columns');
-  matches <- match(xx,map[,1])
+  matches <- match(xx,map[,1]);
+  ifelse(is.na(matches),xx,map[matches,2]);
 }
 
 guessnum <- function(xx,exclude='',returnval=F,tolerance=.11){
