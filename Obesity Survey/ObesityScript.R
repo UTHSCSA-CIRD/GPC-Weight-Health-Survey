@@ -50,6 +50,8 @@ obd$Race <- gsub('^White[0]{0,1}([A-Z])','\\1'
 # Arrange the levels for income to keep like incomes together
 # hardcoding indexes into levels is unstable, can change when data refreshed
 obd$income <- factor(obd$income,levels=sort(levels(obd$income)));
+# far from perfect, but at least resistant to changing of level order
+# and can accommodate at least some variation in level names
 levels(obd$income) <- gsub('^([1-9])','$\\1'
                            ,gsub('-0*','-$'
                                  ,gsub('^0([1-9])','\\1'
