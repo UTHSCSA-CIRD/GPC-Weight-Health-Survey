@@ -57,6 +57,7 @@ levels(obd$income) <- gsub('^([1-9])','$\\1'
                                  ,gsub('^0([1-9])','\\1'
                                        ,gsub('^0+','0',levels(obd$income)))));
 
+# find survey responses
 obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
 
 #possible research checkboxes for depends on.... for me and child
