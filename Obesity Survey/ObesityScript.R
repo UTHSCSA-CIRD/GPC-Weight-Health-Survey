@@ -13,6 +13,7 @@ obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 
 # set variables all in one place if practical
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
+numfields <- vs(obd,'z',exclude=c('','None','0'));
 
 # clean up state name
 levels(obd$state) <- toupper(levels(obd$state));
