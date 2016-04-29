@@ -4,6 +4,9 @@ library(plyr)
 library(reshape)
 library(vcd)
 
+# some handy functions
+source('../ciRd.R');
+
 #load clean and save 
 obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 # 
