@@ -28,20 +28,21 @@ obd[,numfields] <- sapply(obd[,numfields],function(xx) as.numeric(as.character(x
 
 # clean up state name
 levels(obd$state) <- toupper(levels(obd$state));
-
 # clean up patient sex
 obd$pat_sex <- mapstrings(obd$pat_sex,sexstringmap);
-
 # clean up ALL other factor levels for readability
 # though we're not done yet, some of them still have small numbers of garbage
 # Apparently we need to use the simplify=F argument to prevent coercion of factors to strings
 obd[,factors] <- sapply(obd[,factors],mapstrings,simplify = F);
+
 
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
 colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
 
 #Clean up in-race names for ggplot -- They're currently too long and overlapping
 obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=2,oth='0',simplify=F);
+# Combine race columns into a single one
+obd$Race <- interaction(obd[,racenames],drop = T,sep = '');
 
 levels(obd[,58])<-c("0", "0", "White")
 levels(obd[,59])<-c("0", "0", "Black")
