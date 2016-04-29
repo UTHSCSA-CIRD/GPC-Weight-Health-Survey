@@ -32,6 +32,9 @@ vignettes/*.pdf
 # Kate
 *.kate-swp
 
+# LibreOffice
+.~lock.*.od*#
+
 # This project
 sitesettings.py
 .Rproj.user
