@@ -17,6 +17,15 @@ numfields <- vs(obd,'z',exclude=c('','None','0'));
 factors <- vs(obd,'f');
 racenames <- grep('race___',names(obd),val=T);
 
+# backup of just the systematically modified fields
+obd.backup <- obd[,c(textfields,numfields)];
+#converting "notes" to characters so they don't get added to the data dictionary as factors when they aren't
+obd[,textfields] <- sapply(obd[,textfields],as.character);
+# converting things that ought to be numeric (or at least we don't mind if they
+# are made numeric) to numeric values
+obd[,numfields] <- sapply(obd[,numfields],function(xx) as.numeric(as.character(xx)));
+
+
 # clean up state name
 levels(obd$state) <- toupper(levels(obd$state));
 
@@ -73,17 +82,7 @@ levels(obd[,31]) = respStr
 levels(obd[,32]) = respStr
 levels(obd[,33]) = respStr
 
-# backup of just the systematically modified fields
-obd.backup <- obd[,c(textfields,numfields)];
-
-#converting "notes" to characters so they don't get added to the data dictionary as factors when they aren't
-obd[,textfields] <- sapply(obd[,textfields],as.character);
-
-# converting things that ought to be numeric (or at least we don't mind if they
-# are made numeric) to numeric values
-obd[,numfields] <- sapply(obd[,numfields],function(xx) as.numeric(as.character(xx)));
-
-#converting the logical to a factor
+#converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp);
 
