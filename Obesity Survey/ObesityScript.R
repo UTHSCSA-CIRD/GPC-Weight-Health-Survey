@@ -40,7 +40,8 @@ obd[,factors] <- sapply(obd[,factors],mapstrings,simplify = F);
 
 
 #convert non informative race__1 race__2 titles to White/caucasian  Black/African American etc.
-colnames(obd)[58:63] = c("White", "Black", "American_Indian", "Asian", "Other", "PrefNotAnswer")
+# All column names will be cleaned up in one shot further down, after we are 
+# done using them.
 
 #Clean up in-race names for ggplot -- They're currently too long and overlapping
 obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=2,oth='0',simplify=F);
@@ -66,9 +67,11 @@ obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
 #possible research checkboxes for depends on.... for me and child
 # All column names will be cleaned up in one shot further down, after we are 
 # done using them.
-colnames(obd)[19:25] <- c("PR_Me_DependsAbout","PR_Me_If_Spec","PR_Me_Time","PR_Me_Doctor_Op", "PR_Me_Compensation", "PR_Me_Involve_Child","PR_Me_Other")
-colnames(obd)[27:33] <- c("PR_Child_DependsAbout","PR_Child_If_Spec","PR_Child_Time","PR_Child_Doctor_Op", "PR_Child_Compensation", "PR_Child_Involve_Child","PR_Child_Other")
-respStr = c("", "0", "Yes") #no survey response, did not check, checked. Using this to these more readable now that the colnames are slightly more readable
+#respStr = c("", "0", "Yes") #no survey response, did not check, checked. Using this to these more readable now that the colnames are slightly more readable
+# As it turns out, "" is not 'no survey response', "0" is and "" may be an 
+# artifact
+# So here we can get rid of them...
+
 levels(obd[,19]) = respStr
 levels(obd[,20]) = respStr
 levels(obd[,21]) = respStr
