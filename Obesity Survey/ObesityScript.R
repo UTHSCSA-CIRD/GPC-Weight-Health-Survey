@@ -70,6 +70,7 @@ obd[,numfields] <- sapply(obd[,numfields],function(xx) as.numeric(as.character(x
 
 #converting the logical to a factor
 obd$surv_2 = as.factor(obd$surv_2)
+obd$s2resp <- factor(obd$s2resp);
 
 #bmi factor
 obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,75,100), c("1st Quarter", "2nd Quarter", "3rd Quarter", "4th Quarter"))
