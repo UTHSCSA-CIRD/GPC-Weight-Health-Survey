@@ -1,5 +1,7 @@
-guessnum <- function(xx,tolerance=.11){
-  (sum(is.na(as.numeric(as.character(xx))))- sum(is.na(xx)))/length(xx)<=tolerance;
+guessnum <- function(xx,returnval=F,tolerance=.11){
+  out <- (sum(is.na(as.numeric(as.character(xx))))- sum(is.na(xx)))/length(xx)
+  out <-c(val=out,result = out<=tolerance);
+  if(returnval) out else out[2];
 }
 
 vs <- function(xx
