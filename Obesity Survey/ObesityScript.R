@@ -28,7 +28,7 @@ levels(obd$pat_sex) = c("0", "M", "F", "F", "F","F", "M", "M", "M")
 obd$income <- factor(obd$income, levels(obd$income)[c(8,2,4,3,7,5,6,1)])
 obd$Race <- apply(obd[,58:62], 1,concatRace)
 obd$Race <- as.factor(obd$Race)
-obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
+obd$surv_2 <- apply(obd[,c(17:41,43,45:72)], 1, surveyResponded)
 
 #possible research checkboxes for depends on.... for me and child
 colnames(obd)[19:25] <- c("PR_Me_DependsAbout","PR_Me_If_Spec","PR_Me_Time","PR_Me_Doctor_Op", "PR_Me_Compensation", "PR_Me_Involve_Child","PR_Me_Other")
@@ -66,7 +66,7 @@ obd$surv_2 = as.factor(obd$surv_2)
 obd$BMI = cut(obd$pat_bmi_pct, c(0,25,50,75,100), c("1st Quarter", "2nd Quarter", "3rd Quarter", "4th Quarter"))
 
 samp = pickSample(obd, .25)
-save(obd, samp, file = "survSave.rdata")
+save(samp, file = "survSave.rdata")
 
 #Some plots by race
 runByRaceVariable(samp, "possible_research", "Interested in Being Contacted for Research")

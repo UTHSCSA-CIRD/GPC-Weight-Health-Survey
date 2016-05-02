@@ -9,7 +9,7 @@ shinyServer(
     #createAlert(session, "graphError", "gError", content = "Loading, please wait...", title = "Please wait", append = FALSE)
     #REPLACED loading functions
         load("survSave.rdata")
-    dataDic = lapply(obd, class)
+    dataDic = lapply(samp, class)
     valsFactor = names(dataDic[dataDic == "factor"])
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
     
