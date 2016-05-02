@@ -189,3 +189,46 @@ binfactor<-function(xx,levs,other='other',dec=T){
   # levels, by size.
   if(is.na(dec)) xx else factor(xx,levels=names(sort(summary(xx),dec=dec)))
 }
+
+# Prepare a data.frame for heatmaps, fpca, sphpca, and other haters 
+# that are unforgiving of data that just happens to be in a heterogeneous 
+# format or have missing values. Haters gonna hate.
+nprep <- function(xx,data.frame=T){
+  # coerce xx to numeric via data.matrix, scale/center it
+  xxinput <- scale(data.matrix(xx));
+  # drop the non-pairwise-correlatable columns
+  okaynames <- apply(cor(xxinput,use='pairwise'),2,function(xx) !all(is.na(xx)));
+  # keeping only the okaynames, impute missing values 
+  require(e1071);
+  xxinput <- impute(xxinput[,okaynames]);
+  if(data.frame) data.frame(xxinput) else xxinput;
+}
+
+pcawrap <- function(xx,respvar=c(),predvars,drop=c(),prep=nprep,pca=c('sphpca','fpca'),...){
+  require(psy);
+  # xx      : A matrix or data.frame
+  # respvar : String, the column containing the response variable
+  # predvars: String vector, the columns containing predictor variables,
+  #           optional. By default all columns excluding predvars and exclude
+  # drop    : String vector, columns to exclude, optional
+  # prep    : function to call to preprocess data to avoid hard-to-interpret 
+  #           errors from plotting function.
+  # pca     : Plotting function. Currently either 'sphpca' or 'fpca'
+  # ...     : Passed to plotting function
+  # if respvar no longer included, error
+  pca <- match.arg(pca);
+  xx <- prep(xx);
+  xxnames <- colnames(xx);
+  if(length(respvar)>0 && !respvar%in%xxnames) 
+    stop("Specified response variable got dropped during prep");
+  # find final predvars
+  if(missing(predvars)) predvars <- setdiff(xxnames,c(respvar,drop)) else {
+    predvars <- setdiff(intersect(xxnames,predvars),c(respvar,drop));
+  }
+  xx <- xx[,c(respvar,predvars)];
+  if(pca=='fpca'){
+    # construct the formula
+    frminput <- formula(paste0(respvar,'~',paste0(predvars,collapse='+')));
+    fpca(frminput,data=xx,...);
+  } else if(pca=='sphpca') sphpca(xx,...);
+}
