@@ -195,9 +195,11 @@ binfactor<-function(xx,levs,other='other',dec=T){
 # format or have missing values. Haters gonna hate.
 nprep <- function(xx,data.frame=T){
   # coerce xx to numeric via data.matrix, scale/center it
+  warn <- getOption('warn'); options(warn=-1);
   xxinput <- scale(data.matrix(xx));
   # drop the non-pairwise-correlatable columns
   okaynames <- apply(cor(xxinput,use='pairwise'),2,function(xx) !all(is.na(xx)));
+  options(warn=warn);
   # keeping only the okaynames, impute missing values 
   require(e1071);
   xxinput <- impute(xxinput[,okaynames]);
