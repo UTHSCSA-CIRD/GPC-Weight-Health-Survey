@@ -75,4 +75,74 @@ surveyResponded <- function(a){
   return (FALSE)
 }
 
+reOrderYesNo<- function(col, midAnswers= c("maybe","unsure"), dontKnowAnswers = c("i do not know", "do not know"), nonAnswers = c("none", "prefernotanswer"), blank = c("", "0"), yes = c("yes", "y", "True"), no = c("no","n","False")){
+  #This method takes a factor column
+  #If the column is not a factor or if the column does not contain a convertable factor it 
+  #returns the column unchanged. 
+  #If the column contains a changable factor it will return the reordered factors of the column. 
+  #orders as: blank, nonAnswer, 
+  
+  ##obd$income <- factor(obd$income, levels(obd$income)[c(8,2,4,3,7,5,6,1)])
+  #uniqueness check 
+  un = c(yes, no, midAnswers, dontKnowAnswers, nonAnswers, blank)
+  if(length(un) != length(unique(un))) stop("Error! yes, no, midAnswers, dontKnowAnswers, nonAnswers, and blank must be unique! Overlapping values are not allowed.")
+  
+  #Check for not factor
+  if(class(col) != "factor") return (col)
+  
+  #obtain the levels, if there are more than 5 levels or fewer than 3 levels return col. 
+  lev <- levels(col)
+  if(length(lev) > 6 || length(lev) < 2)return(col)
+  len = 2
+  #going to start building the dynamic call here so we aren't calling as many if statements
+  
+  indexes = vector()
+  #blank
+  blankIndex = which(!is.na(match(tolower(lev), tolower(blank))))
+  if(length(blankIndex) == 1){
+    indexes = c(indexes, blankIndex)
+    len = len + 1
+  }
+  #Non Answer
+  nonAnswerIndex = which(!is.na(match(tolower(lev), tolower(nonAnswers))))
+  if(length(nonAnswerIndex) == 1){
+    indexes = c(indexes, nonAnswerIndex)
+    len = len + 1
+  } 
+  dontKnowIndex = which(!is.na(match(tolower(lev), tolower(dontKnowAnswers))))
+  if(length(dontKnowIndex) == 1) {
+    indexes = c(indexes, dontKnowIndex)
+    len = len + 1
+  }
+  #requires a no answer
+  noIndex = which(!is.na(match(tolower(lev), tolower(no))))
+  if(length(noIndex) != 1) {
+    return(col)
+  }else{
+    indexes = c(indexes, noIndex)
+  }
+  #get mid/maybe not yet sure answer
+  midIndex = which(!is.na(match(tolower(lev), tolower(midAnswers))))
+  if(length(midIndex) == 1) {
+    indexes = c(indexes, midIndex)
+    len = len + 1
+  }
+  #requires a yes answer
+  yesIndex = which(!is.na(match(tolower(lev), tolower(yes))))
+  if(length(yesIndex) != 1){
+    return(col)
+  }else{
+    indexes = c(indexes, yesIndex)
+  }
+  #We have levels that are not captured. For now giving a warning.
+  if(len != length(lev)) {
+    #warning(paste("Only", len, "of", length(lev), "levels matched passed values. Returning original column."))
+    return(col)
+  }
+  #create the dynamic change statement
+  dyn = paste0("col = factor(col, levels(col)[c(", toString(indexes),")])" )
+  eval(parse(text=dyn))
+  return(col)
+}
+
   
