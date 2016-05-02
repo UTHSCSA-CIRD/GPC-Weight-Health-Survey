@@ -55,35 +55,15 @@ pickSample <- function (data, percent){
   data[s,]
 }
 concatRace <- function(x){
-  race = '0'
-  if(x[1] == "White") race = "White"
-  if(x[2] == 'Black') {
-    if(race == '0'){
-      race = "Black"
-    }else{
-      race = paste(race , "Black")
-    }
-  }
-  if(x[3] == "American_Indian"){
-    if(race == '0'){
-      race = "American_Indian"
-    }else{
-      race = paste(race , "American_Indian")
-    }
-  }
-  if(x[4] == "Asian"){
-    if(race == '0'){
-      race = "Asian"
-    }else{
-      race = paste(race , "Asian")
-    }
-  }
+  race = ''
+  if(x[1] == "White") race = paste(race , "White")
+  if(x[2] == 'Black') race = paste(race , "Black")
+  if(x[3] == "American_Indian") race = paste(race , "American_Indian")
+  if(x[4] == "Asian") race = paste(race , "Asian")
   if(x[5] == "Other"){
-    if(race == '0'){
-      race = "Other"
-    }
+    if(race == '') race = "Other"
   }
-  race
+  gsub('^[ ]','',race)
 }
 
 surveyResponded <- function(a){
