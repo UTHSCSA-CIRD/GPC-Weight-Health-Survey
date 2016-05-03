@@ -80,6 +80,9 @@ obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
+# answered the first survey and/or the second survey
+obd$s1s2resp <- factor(obd$s2resp=='Yes'|obd$invite_response_nature=='Yes',levels=c('FALSE','TRUE'),labels=c('No','Yes'));
+
 
 # reordering the yes-no-maybe variables
 obd[,factors] <- sapply(obd[,factors],reOrderYesNo,simplify=F);
