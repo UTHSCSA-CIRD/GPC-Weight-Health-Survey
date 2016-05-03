@@ -1,8 +1,8 @@
 runByRaceVariable <- function(data, fill, title = "", ylab = "Percent", xlab = "Race"){
   require(ggplot2)
   ggplot(data = data)+ 
-    geom_bar(aes_string(x = "PrefNotAnswer", fill = fill), position = "fill")+
-    geom_bar(aes_string(x = "Other", fill = fill), position = "fill")+ 
+    geom_bar(aes_string(x = "PreferNotAnswer", fill = fill), position = "fill")+
+    geom_bar(aes_string(x = "OtherRace", fill = fill), position = "fill")+ 
     geom_bar(aes_string(x = "American_Indian", fill = fill), position = "fill")+
     geom_bar(aes_string(x = "Asian", fill = fill), position = "fill")+ 
     geom_bar(aes_string(x = "Black", fill = fill), position = "fill")+ 
@@ -55,44 +55,98 @@ pickSample <- function (data, percent){
   data[s,]
 }
 concatRace <- function(x){
-  race = '0'
-  if(x[1] == "White") race = "White"
-  if(x[2] == 'Black') {
-    if(race == '0'){
-      race = "Black"
-    }else{
-      race = paste(race , "Black")
-    }
-  }
-  if(x[3] == "American_Indian"){
-    if(race == '0'){
-      race = "American_Indian"
-    }else{
-      race = paste(race , "American_Indian")
-    }
-  }
-  if(x[4] == "Asian"){
-    if(race == '0'){
-      race = "Asian"
-    }else{
-      race = paste(race , "Asian")
-    }
-  }
+  race = ''
+  if(x[1] == "White") race = paste(race , "White")
+  if(x[2] == 'Black') race = paste(race , "Black")
+  if(x[3] == "American_Indian") race = paste(race , "American_Indian")
+  if(x[4] == "Asian") race = paste(race , "Asian")
   if(x[5] == "Other"){
-    if(race == '0'){
-      race = "Other"
-    }
+    if(race == '') race = "Other"
   }
-  race
+  gsub('^[ ]','',race)
 }
+
 
 surveyResponded <- function(a){
   #takes a single array and steps through it returning whether or not ALL values in that array are null 0 or NA
   for(r in a){
-    if(is.na(r) || is.null(r) || r == "0" || r == "NA" || r == "" || r == "None") {
-      }else {return (TRUE)}
+    if(!is.na(r) & !is.null(r) & r != "0" & r != "NA" & r != "" & r != "None") return (TRUE)
   }
   return (FALSE)
+}
+
+reOrderYesNo<- function(col, midAnswers= c("maybe","unsure","maybe_contact"), dontKnowAnswers = c("i do not know", "do not know"), nonAnswers = c("none", "prefernotanswer","prefer_not_answer"), blank = c("", "0"), yes = c("yes", "y", "True"), no = c("no","n","False")){
+  #This method takes a factor column
+  #If the column is not a factor or if the column does not contain a convertable factor it 
+  #returns the column unchanged. 
+  #If the column contains a changable factor it will return the reordered factors of the column. 
+  #orders as: blank, nonAnswer, 
+  
+  #If you want to test this, here's an example with obd as the original and obdCop as the copy
+  #obdCop = obd
+  #for(ii in 1:75){ obdCop[,ii] = reOrderYesNo(obdCop[,ii])}
+  #Test: for(ii in names(obdCop)) {if(!identical(obdCop[[ii]],obd[[ii]])) print(table(obdCop[[ii]],obd[[ii]]))}
+  
+  ##obd$income <- factor(obd$income, levels(obd$income)[c(8,2,4,3,7,5,6,1)])
+  #uniqueness check 
+  un = c(yes, no, midAnswers, dontKnowAnswers, nonAnswers, blank)
+  if(length(un) != length(unique(un))) stop("Error! yes, no, midAnswers, dontKnowAnswers, nonAnswers, and blank must be unique! Overlapping values are not allowed.")
+  
+  #Check for not factor
+  if(class(col) != "factor") return (col)
+  
+  #obtain the levels, if there are more than 5 levels or fewer than 3 levels return col. 
+  lev <- levels(col)
+  if(length(lev) > 6 || length(lev) < 2)return(col)
+  len = 2
+  #going to start building the dynamic call here so we aren't calling as many if statements
+  
+  indexes = vector()
+  #blank
+  blankIndex = which(!is.na(match(tolower(lev), tolower(blank))))
+  if(length(blankIndex) == 1){
+    indexes = c(indexes, blankIndex)
+    len = len + 1
+  }
+  #Non Answer
+  nonAnswerIndex = which(!is.na(match(tolower(lev), tolower(nonAnswers))))
+  if(length(nonAnswerIndex) == 1){
+    indexes = c(indexes, nonAnswerIndex)
+    len = len + 1
+  } 
+  dontKnowIndex = which(!is.na(match(tolower(lev), tolower(dontKnowAnswers))))
+  if(length(dontKnowIndex) == 1) {
+    indexes = c(indexes, dontKnowIndex)
+    len = len + 1
+  }
+  #requires a no answer
+  noIndex = which(!is.na(match(tolower(lev), tolower(no))))
+  if(length(noIndex) != 1) {
+    return(col)
+  }else{
+    indexes = c(indexes, noIndex)
+  }
+  #get mid/maybe not yet sure answer
+  midIndex = which(!is.na(match(tolower(lev), tolower(midAnswers))))
+  if(length(midIndex) == 1) {
+    indexes = c(indexes, midIndex)
+    len = len + 1
+  }
+  #requires a yes answer
+  yesIndex = which(!is.na(match(tolower(lev), tolower(yes))))
+  if(length(yesIndex) != 1){
+    return(col)
+  }else{
+    indexes = c(indexes, yesIndex)
+  }
+  #We have levels that are not captured. For now giving a warning.
+  if(len != length(lev)) {
+    #warning(paste("Only", len, "of", length(lev), "levels matched passed values. Returning original column."))
+    return(col)
+  }
+  #create the dynamic change statement
+  col = factor(col, levels(col)[indexes])
+  return(col)
 }
 
   

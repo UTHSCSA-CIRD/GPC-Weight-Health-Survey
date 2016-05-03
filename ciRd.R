@@ -17,17 +17,24 @@ stringmap <- rbind(
   ,c('It depends on what the research is about.','Yes')
   ,c('Other race (please enter in the next box)','Other')
   ,c('I might be interested in being contacted','Maybe')
+  ,c('Maybe_Contact','Maybe')
   ,c('It depends on whether I would be paid.','Yes')
   ,c('Yes  we speak another language at home','Yes')
   ,c('I am not sure how I feel about that','Unsure')
   ,c('American Indian or Alaskan Native','NativeAm')
   ,c('I think that is not a good idea','NotGoodIdea')
+  ,c('I think it is a bad idea','NotGoodIdea')
   ,c('I think it is a fantastic idea','Fantastic')
   ,c('I think it is a terrible idea','Terrible')
   ,c('I do not know / I am not sure','Unsure')
+  ,c('Do not know','Unsure')
+  ,c('I do not know','Unsure')
+  ,c('I am not sure how I feel about it','Unsure')
   ,c('Other( describe in box below)','Other')
+  ,c('My feeling about this is:','Other')
   ,c('I do not know; I am not sure','Unsure')
   ,c('No  please do not contact me','No')
+  ,c('No_Contact','No')
   ,c('I live with 1-2 other people','1-2')
   ,c('I live with 3-4 other people','3-4')
   ,c('I live with 7 or more people','7+')
@@ -36,8 +43,10 @@ stringmap <- rbind(
   ,c('I think it is a good idea','GoodIdea')
   ,c('No  We speak English only','No')
   ,c('Willing to be contacted','Yes')
+  ,c('Yes_Contact','Yes')
   ,c('I prefer not to answer.','PreferNotAnswer')
   ,c('I prefer not to answer','PreferNotAnswer')
+  ,c('Prefer_Not_Answer','PreferNotAnswer')
   ,c('Black/African American','Black')
   ,c('I live with 5-6 people','5-6')
   ,c('Maybe  I am not sure','Unsure')
@@ -48,6 +57,7 @@ stringmap <- rbind(
   ,c('More than $200 000','200000+')
   ,c('Less than $24 999','000000-024999')
   ,c('White/Caucasian','White')
+  ,c('No_Kids','')
 );
 
 colnamestringmap <- rbind(
@@ -84,6 +94,13 @@ sexstringmap <- rbind(
   ,c('male','Female')
 );
 
+# for longFactorLev
+stdLevels <- list(
+    research_feelings=c('','PreferNotAnswer','Terrible','NotGoodIdea','Unsure','GoodIdea','Fantastic','Other')
+    ,insurance=c('','PreferNotAnswer','Unsure','Uninsured','MedicareMedicaid','Private','Other')
+    ,sex=c('PreferNotAnswer', 'Male','Female', 'Other')
+    );
+
 mapstrings <- function(xx,map=stringmap,...){
   UseMethod('mapstrings');
 }
@@ -100,6 +117,21 @@ mapstrings.default <- function(xx,map=stringmap,...){
 mapstrings.factor <- function(xx,map=stringmap,...){
   levels(xx) <- mapstrings.default(levels(xx),map,...);
   xx;
+}
+
+longFactorLev <- function(xx,map=stdLevels){
+  # will compare the levels of a factor to each of the vectors in list `map`
+  # if one matches exactly the ordering of that vector is used for this factor
+  # otherwise it is returned unchanged
+  # xx  :   A factor
+  # map :   A list of character vectors
+  if(!is.factor(xx)) return(xx) else levs<-levels(xx);
+  # iterate over map and find matching levels without regard for their order
+  whichlevels<-which(sapply(map,function(zz) identical(union(zz,levs),intersect(zz,levs))));
+  # take the order of the first matching level and impose it on xx
+  if(length(whichlevels)<1) return(xx) else {
+    factor(xx,levels=map[[whichlevels[1]]]);
+  }
 }
 
 guessnum <- function(xx,exclude='',returnval=F,tolerance=.11){
@@ -188,4 +220,49 @@ binfactor<-function(xx,levs,other='other',dec=T){
   # If `dec` is not set to NA we rebuild the factor with a new ordering of the
   # levels, by size.
   if(is.na(dec)) xx else factor(xx,levels=names(sort(summary(xx),dec=dec)))
+}
+
+# Prepare a data.frame for heatmaps, fpca, sphpca, and other haters 
+# that are unforgiving of data that just happens to be in a heterogeneous 
+# format or have missing values. Haters gonna hate.
+nprep <- function(xx,data.frame=T){
+  # coerce xx to numeric via data.matrix, scale/center it
+  warn <- getOption('warn'); options(warn=-1);
+  xxinput <- scale(data.matrix(xx));
+  # drop the non-pairwise-correlatable columns
+  okaynames <- apply(cor(xxinput,use='pairwise'),2,function(xx) !all(is.na(xx)));
+  options(warn=warn);
+  # keeping only the okaynames, impute missing values 
+  require(e1071);
+  xxinput <- impute(xxinput[,okaynames]);
+  if(data.frame) data.frame(xxinput) else xxinput;
+}
+
+pcawrap <- function(xx,respvar=c(),predvars,drop=c(),prep=nprep,pca=c('sphpca','fpca'),...){
+  require(psy);
+  # xx      : A matrix or data.frame
+  # respvar : String, the column containing the response variable
+  # predvars: String vector, the columns containing predictor variables,
+  #           optional. By default all columns excluding predvars and exclude
+  # drop    : String vector, columns to exclude, optional
+  # prep    : function to call to preprocess data to avoid hard-to-interpret 
+  #           errors from plotting function.
+  # pca     : Plotting function. Currently either 'sphpca' or 'fpca'
+  # ...     : Passed to plotting function
+  # if respvar no longer included, error
+  pca <- match.arg(pca);
+  xx <- prep(xx);
+  xxnames <- colnames(xx);
+  if(length(respvar)>0 && !respvar%in%xxnames) 
+    stop("Specified response variable got dropped during prep");
+  # find final predvars
+  if(missing(predvars)) predvars <- setdiff(xxnames,c(respvar,drop)) else {
+    predvars <- setdiff(intersect(xxnames,predvars),c(respvar,drop));
+  }
+  xx <- xx[,c(respvar,predvars)];
+  if(pca=='fpca'){
+    # construct the formula
+    frminput <- formula(paste0(respvar,'~',paste0(predvars,collapse='+')));
+    fpca(frminput,data=xx,...);
+  } else if(pca=='sphpca') sphpca(xx,...);
 }

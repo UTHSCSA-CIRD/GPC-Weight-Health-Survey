@@ -8,6 +8,8 @@ library(vcd)
 source('../ciRd.R');
 source('obesitySurveyHelpers.R');
 
+rseed <- 6062016;
+set.seed(rseed);
 
 #load clean and save 
 obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
@@ -16,6 +18,7 @@ obd <- read.table("testoutput.csv", header = TRUE, sep = "\t")
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
 numfields <- vs(obd,'z',exclude=c('','None','0'));
 racenames <- grep('race___',names(obd),val=T);
+defaultNlevels <- 2;
 researchaccept <- grep('research_accept_dec',names(obd),val=T);
 
 # backup of just the systematically modified fields
@@ -45,7 +48,7 @@ obd[,factors] <- sapply(obd[,factors],mapstrings,simplify = F);
 # done using them.
 
 #Clean up in-race names for ggplot -- They're currently too long and overlapping
-obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=2,oth='0',simplify=F);
+obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=defaultNlevels,oth='0',simplify=F);
 # Combine race columns into a single one
 obd$Race <- interaction(obd[,racenames],drop = T,sep = '');
 levels(obd$Race) <- gsub('^White[0]{0,1}([A-Z])','\\1'
@@ -63,7 +66,7 @@ levels(obd$income) <- gsub('^([1-9])','$\\1'
                                        ,gsub('^0+','0',levels(obd$income)))));
 
 # find survey responses
-obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
+obd$surv_2 <- apply(obd[,c(17:41,43,45:72)], 1, surveyResponded)
 
 #possible research checkboxes for depends on.... for me and child
 # All column names will be cleaned up in one shot further down, after we are 
@@ -72,23 +75,31 @@ obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
 # As it turns out, "" is not 'no survey response', "0" is and "" may be an 
 # artifact
 # So here we can get rid of them...
-obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=2,oth='0',simplify = F);
+obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels,oth='0',simplify = F);
 
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
+# answered the first survey and/or the second survey
+obd$s1s2resp <- factor(obd$s2resp=='Yes'|obd$invite_response_nature=='Yes',levels=c('FALSE','TRUE'),labels=c('No','Yes'));
+
+
+# reordering the yes-no-maybe variables
+obd[,factors] <- sapply(obd[,factors],reOrderYesNo,simplify=F);
+# reordering the longer variables
+obd[,factors] <- sapply(obd[,factors],longFactorLev,simplify=F);
 
 #bmi factor
-obd$BMI = cut(obd$pat_bmi_pct, c(0,85,95,100)
-              ,c("Normal","Overweight","Obese"));
+obd$BMI = cut(obd$pat_bmi_pct, c(0,5,85,95,100)
+              ,c("Underweight","Normal","Overweight","Obese"));
 
 for(ii in names(obd.backup)) 
-  if(isTRUE(all.equal(obd.backup[[ii]],obd[[ii]]))) 
+  if(isTRUE(all.equal(as.character(obd.backup[[ii]]),as.character(obd[[ii]])))) 
     obd.backup[,ii]<-NULL;
 
 names(obd) <- mapstrings(names(obd),colnamestringmap);
 names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 
 samp = pickSample(obd, .25)
-save(obd, obd.backup,samp, file = "survSave.rdata")
-
+save(obd,rseed,obd.backup,samp, file = "survProcessed.rdata")
+save(samp,file="survSave.rdata")

@@ -161,6 +161,5 @@ cn.execute("create table sv_summ02 as select "+",".join(['site']+['valct({0}) {0
 
 """
 tocoal =  ",".join([ii[0] for ii in cn.execute("select distinct `Variable / Field Name` from allsites where `Form Name` != 'tracker_form' and `Field Type` = 'checkbox' and site != 'dd_utsw';").fetchall()]);
-pdb.set_trace();
 
 
