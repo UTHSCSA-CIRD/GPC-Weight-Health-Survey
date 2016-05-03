@@ -1,8 +1,8 @@
 runByRaceVariable <- function(data, fill, title = "", ylab = "Percent", xlab = "Race"){
   require(ggplot2)
   ggplot(data = data)+ 
-    geom_bar(aes_string(x = "PrefNotAnswer", fill = fill), position = "fill")+
-    geom_bar(aes_string(x = "Other", fill = fill), position = "fill")+ 
+    geom_bar(aes_string(x = "PreferNotAnswer", fill = fill), position = "fill")+
+    geom_bar(aes_string(x = "OtherRace", fill = fill), position = "fill")+ 
     geom_bar(aes_string(x = "American_Indian", fill = fill), position = "fill")+
     geom_bar(aes_string(x = "Asian", fill = fill), position = "fill")+ 
     geom_bar(aes_string(x = "Black", fill = fill), position = "fill")+ 
@@ -66,16 +66,16 @@ concatRace <- function(x){
   gsub('^[ ]','',race)
 }
 
+
 surveyResponded <- function(a){
   #takes a single array and steps through it returning whether or not ALL values in that array are null 0 or NA
   for(r in a){
-    if(is.na(r) || is.null(r) || r == "0" || r == "NA" || r == "" || r == "None") {
-      }else {return (TRUE)}
+    if(!is.na(r) & !is.null(r) & r != "0" & r != "NA" & r != "" & r != "None") return (TRUE)
   }
   return (FALSE)
 }
 
-reOrderYesNo<- function(col, midAnswers= c("maybe","unsure"), dontKnowAnswers = c("i do not know", "do not know"), nonAnswers = c("none", "prefernotanswer"), blank = c("", "0"), yes = c("yes", "y", "True"), no = c("no","n","False")){
+reOrderYesNo<- function(col, midAnswers= c("maybe","unsure","maybe_contact"), dontKnowAnswers = c("i do not know", "do not know"), nonAnswers = c("none", "prefernotanswer","prefer_not_answer"), blank = c("", "0"), yes = c("yes", "y", "True"), no = c("no","n","False")){
   #This method takes a factor column
   #If the column is not a factor or if the column does not contain a convertable factor it 
   #returns the column unchanged. 

@@ -66,7 +66,7 @@ levels(obd$income) <- gsub('^([1-9])','$\\1'
                                        ,gsub('^0+','0',levels(obd$income)))));
 
 # find survey responses
-obd$surv_2 <- apply(obd[,17:72], 1, surveyResponded)
+obd$surv_2 <- apply(obd[,c(17:41,43,45:72)], 1, surveyResponded)
 
 #possible research checkboxes for depends on.... for me and child
 # All column names will be cleaned up in one shot further down, after we are 
@@ -80,6 +80,14 @@ obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
+# answered the first survey and/or the second survey
+obd$s1s2resp <- factor(obd$s2resp=='Yes'|obd$invite_response_nature=='Yes',levels=c('FALSE','TRUE'),labels=c('No','Yes'));
+
+
+# reordering the yes-no-maybe variables
+obd[,factors] <- sapply(obd[,factors],reOrderYesNo,simplify=F);
+# reordering the longer variables
+obd[,factors] <- sapply(obd[,factors],longFactorLev,simplify=F);
 
 #bmi factor
 obd$BMI = cut(obd$pat_bmi_pct, c(0,5,85,95,100)
