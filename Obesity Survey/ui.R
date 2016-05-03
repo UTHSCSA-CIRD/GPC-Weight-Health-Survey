@@ -21,7 +21,7 @@ shinyUI(
             uiOutput("consetllationSide")
         )),#end constellation sideBar
         mainPanel(
-          plotOutput("constellationPlot")
+          plotOutput("constellationPlot",height="800px")
         )#end constellation mainpanel
       )),#End sidbarLayout/TabPanel CONSTELLATIONS
     tabPanel("Box Plot",sidebarLayout(
