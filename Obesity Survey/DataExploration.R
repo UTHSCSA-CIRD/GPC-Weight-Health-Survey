@@ -99,7 +99,7 @@ pcawrap(subset(samp,s2resp=='Yes')
 #'The latter coerces to numeric, centers, scales, and imputes data. This makes 
 #'it suitable not only for `sphpca()` and `fpca()` but also for good old 
 #'`heatmap()`. Let's try clustering respondents and variables...
-nsamp <- nprep(samp);
+nsamp <- nprep(subset(samp,s2resp=='Yes'));
 heatmap(as.matrix(nsamp));
 #'Now let's try doing the heatmap of just the correlation matrix
 heatmap(cor(nsamp),symm=T);
