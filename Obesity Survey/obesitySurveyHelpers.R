@@ -75,7 +75,7 @@ surveyResponded <- function(a){
   return (FALSE)
 }
 
-reOrderYesNo<- function(col, midAnswers= c("maybe","unsure"), dontKnowAnswers = c("i do not know", "do not know"), nonAnswers = c("none", "prefernotanswer"), blank = c("", "0"), yes = c("yes", "y", "True"), no = c("no","n","False")){
+reOrderYesNo<- function(col, midAnswers= c("maybe","unsure","maybe_contact"), dontKnowAnswers = c("i do not know", "do not know"), nonAnswers = c("none", "prefernotanswer","prefer_not_answer"), blank = c("", "0"), yes = c("yes", "y", "True"), no = c("no","n","False")){
   #This method takes a factor column
   #If the column is not a factor or if the column does not contain a convertable factor it 
   #returns the column unchanged. 

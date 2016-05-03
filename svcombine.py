@@ -76,7 +76,7 @@ okayfields = ['site', 'state', 'contact_type', 'match_type', 'pat_sex', 'proj_bi
 	      , 'weight_value_kg', 'bp_hypten_self', 'chole_triigl_hyperlip_self', 'cancer_anytype_self'
 	      , 'hpb_hprtnsn', 'chole_trig_hyperlip', 'elev_bs_diabetes', 'cancer_anytype', 'sex', 'age'
 	      , 'latino_origin', 'race___1', 'race___2', 'race___3', 'race___4', 'race___5', 'race___6', 'income'
-	      , 'insurance', 'household', 'language','s2resp'];
+	      , 'insurance', 'household', 'education', 'language','s2resp'];
 
 longsurvey = ['health_medical_research_family_survey_timestamp', 'research', 'possible_research', 'research_types_adult', 'research_depends_why', 'children_in_home', 'children_research', 'research_types2_child', 'res_dep_why2_child', 'res_talk_family', 'research_feeling', 'q6_ans6_response', 'deid_data', 'q7_ans6_response', 'height_req', 'height_feet', 'height_in', 'height_value_cm', 'weight_req', 'weight_value_lbs', 'weight_value_kg', 'bp_hypten_self', 'chole_triigl_hyperlip_self', 'bloodsugar_diabetes_self', 'cancer_anytype_self', 'hpb_hprtnsn', 'chole_trig_hyperlip', 'elev_bs_diabetes', 'cancer_anytype', 'sex', 'other_sex', 'age', 'latino_origin', 'other_race', 'income', 'insurance', 'other_insurance', 'education', 'other_schooling', 'household', 'language', 'other_language'];
 

@@ -81,6 +81,11 @@ obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels
 obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
 
+# reordering the yes-no-maybe variables
+obd[,factors] <- sapply(obd[,factors],reOrderYesNo,simplify=F);
+# reordering the longer variables
+obd[,factors] <- sapply(obd[,factors],longFactorLev,simplify=F);
+
 #bmi factor
 obd$BMI = cut(obd$pat_bmi_pct, c(0,5,85,95,100)
               ,c("Underweight","Normal","Overweight","Obese"));
