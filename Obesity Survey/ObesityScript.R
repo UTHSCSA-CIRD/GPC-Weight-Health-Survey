@@ -90,8 +90,11 @@ obd[,factors] <- sapply(obd[,factors],reOrderYesNo,simplify=F);
 obd[,factors] <- sapply(obd[,factors],longFactorLev,simplify=F);
 
 #bmi factor
-obd$BMI = cut(obd$pat_bmi_pct, c(0,5,85,95,100)
+obd$BMI <- cut(obd$pat_bmi_pct, c(0,5,85,95,100)
               ,c("Underweight","Normal","Overweight","Obese"));
+#make the missing BMI values follow the same convention as the rest of the factors
+obd$BMI <- factor(obd$BMI,levels=c(NA,levels(obd$BMI)),labels=c('',levels(obd$BMI))
+                  ,exclude=NULL);
 
 for(ii in names(obd.backup)) 
   if(isTRUE(all.equal(as.character(obd.backup[[ii]]),as.character(obd[[ii]])))) 
