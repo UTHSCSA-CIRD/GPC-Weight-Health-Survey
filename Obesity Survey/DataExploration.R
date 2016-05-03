@@ -93,4 +93,14 @@ pcawrap(subset(samp,s2resp=='Yes')
 #'The closer a point is to the center, the more closely the column it 
 #'represents is correlated with the response variable in the center. Green 
 #'indicates positive correlations and yellow, inverse correlations.
-#'the response variable. Green 
+#'the response variable.
+#'
+#'One of the things `pcawrap()` does is send the input `data.frame` through 
+#'another function we developed for this type of project called `nprep()`.
+#'The latter coerces to numeric, centers, scales, and imputes data. This makes 
+#'it suitable not only for `sphpca()` and `fpca()` but also for good old 
+#'`heatmap()`. Let's try clustering respondents and variables...
+nsamp <- nprep(samp);
+heatmap(as.matrix(nsamp));
+#'Now let's try doing the heatmap of just the correlation matrix
+heatmap(cor(nsamp),symm=T);
