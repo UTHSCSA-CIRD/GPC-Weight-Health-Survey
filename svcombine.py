@@ -61,12 +61,13 @@ svconsensus = ['bloodsugar_diabetes_self','bp_hypten_self','cancer_anytype','can
 
 # manually configured fields that are currently to be allowed into the output data
 okayfields = ['site', 'state', 'contact_type', 'match_type', 'pat_sex', 'proj_bin,research_types_adult'
-	      , 'children_in_home', 'research_types2_child', 'res_talk_family', 'q6_ans6_response', 'deid_data'
+	      , 'children_in_home', 'research_types2_child', 'res_talk_family', 'q6_ans6_response'
 	      , 'q7_ans6_response', 'height_req', 'height_feet', 'height_in', 'weight_value_lbs'
 	      , 'bloodsugar_diabetes_self', 'other_sex', 'other_race', 'other_insurance','other_language'
 	      , 'health_medical_research_family_survey_completerecord_id','family_id', 'pat_age', 'pat_bmi_raw'
 	      , 'pat_bmi_pct', 'proj_id', 'patient_num', 'wave', 'invite_response_nature', 'preferred_contact_method'
-	      , 'survey_contact_method', 'tracker_form_complete', 'research', 'possible_research'
+	      , 'survey_contact_method', 'tracker_form_complete', 'research'
+	      , 'possible_research','children_research','research_feeling', 'deid_data'
 	      , 'research_accept_decisions___1', 'research_accept_decisions___2', 'research_accept_decisions___3'
 	      , 'research_accept_decisions___4', 'research_accept_decisions___5', 'research_accept_decisions___6'
 	      , 'research_accept_decisions___7', 'research_accept_dec_child___1', 'research_accept_dec_child___2'

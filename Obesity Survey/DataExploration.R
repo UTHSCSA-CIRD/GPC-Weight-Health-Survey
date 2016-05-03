@@ -5,7 +5,9 @@
 #' ---
 source('../ciRd.R');
 source('obesitySurveyHelpers.R');
-install.packages(c('party','rpart','psy'));
+if(!all(c(require(party),require(rpart),require(psy)))){
+  install.packages(c('party','rpart','psy'));
+}
 load('survSave.rdata');
 #'Some plots by race
 runByRaceVariable(samp, "possible_research","Interested in Being Contacted for Research")
@@ -24,12 +26,10 @@ mosaic(structable(site ~ surv_2, data = samp), shade = TRUE, legend = TRUE)
 
 #'categorical trees-- just playing with these for now. 
 #'This was the most interesting one I found
-library("party")
 fitp <- ctree(income ~ site + Race, data = samp)
 fitp;
 plot(fitp);
 #'Not as much a fan of this one, maybe Alex can work out what to do with it. 
-library("rpart")
 fitr <- rpart(income ~ site + Race, method = "class", data = samp)
 printcp(fitr);
 plotcp(fitr);
@@ -44,7 +44,6 @@ runByWilling2P(samp, "survey_contact_method") #People have a hard time saying no
 
 #'Plot spherical PCA (a.k.a. constellation) plot 
 #'of people who responded to survey-2
-library(psy);
 pcawrap(subset(samp,s2resp=='Yes')
         ,nbsphere=1 # this argument tells sphpca to draw just one sphere
         ,back=T     # ...which is translucent
