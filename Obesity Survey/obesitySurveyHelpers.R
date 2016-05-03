@@ -1,8 +1,8 @@
 runByRaceVariable <- function(data, fill, title = "", ylab = "Percent", xlab = "Race"){
   require(ggplot2)
   ggplot(data = data)+ 
-    geom_bar(aes_string(x = "PrefNotAnswer", fill = fill), position = "fill")+
-    geom_bar(aes_string(x = "Other", fill = fill), position = "fill")+ 
+    geom_bar(aes_string(x = "PreferNotAnswer", fill = fill), position = "fill")+
+    geom_bar(aes_string(x = "OtherRace", fill = fill), position = "fill")+ 
     geom_bar(aes_string(x = "American_Indian", fill = fill), position = "fill")+
     geom_bar(aes_string(x = "Asian", fill = fill), position = "fill")+ 
     geom_bar(aes_string(x = "Black", fill = fill), position = "fill")+ 
