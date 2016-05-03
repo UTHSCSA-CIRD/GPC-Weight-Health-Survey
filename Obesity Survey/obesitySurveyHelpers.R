@@ -82,6 +82,11 @@ reOrderYesNo<- function(col, midAnswers= c("maybe","unsure"), dontKnowAnswers = 
   #If the column contains a changable factor it will return the reordered factors of the column. 
   #orders as: blank, nonAnswer, 
   
+  #If you want to test this, here's an example with obd as the original and obdCop as the copy
+  #obdCop = obd
+  #for(ii in 1:75){ obdCop[,ii] = reOrderYesNo(obdCop[,ii])}
+  #Test: for(ii in names(obdCop)) {if(!identical(obdCop[[ii]],obd[[ii]])) print(table(obdCop[[ii]],obd[[ii]]))}
+  
   ##obd$income <- factor(obd$income, levels(obd$income)[c(8,2,4,3,7,5,6,1)])
   #uniqueness check 
   un = c(yes, no, midAnswers, dontKnowAnswers, nonAnswers, blank)
@@ -140,8 +145,7 @@ reOrderYesNo<- function(col, midAnswers= c("maybe","unsure"), dontKnowAnswers = 
     return(col)
   }
   #create the dynamic change statement
-  dyn = paste0("col = factor(col, levels(col)[c(", toString(indexes),")])" )
-  eval(parse(text=dyn))
+  col = factor(col, levels(col)[indexes])
   return(col)
 }
 
