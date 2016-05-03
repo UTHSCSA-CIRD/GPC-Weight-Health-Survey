@@ -16,18 +16,39 @@ runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Wil
     geom_bar(aes_string(x = "possible_research", fill = fill), position = "fill")+
     labs(title = title, y = ylab, x = xlab)
 }
-runGGPLOT <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE, position = "stack"){
+
+runGGPLOT <- function(data
+                      , x, fill, title = ""
+                      , ylab = "Percent", xlab = ""
+                      , omitNA_X=TRUE, omitNA_Y = FALSE
+                      , position = "stack", geomOpts=c('box','violin')){
   require(ggplot2)
+  # set which type of combo plot to use
+  geom_combo <- switch(match.arg(geomOpts)
+                       ,box=geom_boxplot,violin=geom_violin);
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
   }
   if(omitNA_Y){
     data = data[(data[,fill] !="0" & data[,fill] != ""),]
   }
-  ggplot(data = data)+ 
-    geom_bar(aes_string(x = x, fill = fill), position = position)+
-    labs(title = title, y = ylab, x = xlab)
+  out <- ggplot(data);
+  isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
+  if(all(isnum)){
+    out <- out + geom_point(aes_string(x=x,y=fill))+geom_smooth(aes_string(x=x,y=fill));
+  } # numeric vs numeric case
+  else if(!any(isnum)){
+    out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
+  } # discrete vs discrete case 
+  else if(isnum[1]){
+    out <- out + geom_combo(aes_string(x=fill,y=x)) + coord_flip();
+  } # x is numeric
+  else {
+    out <- out + geom_combo(aes_string(x=x,y=fill));
+  } # this leaves fill being numeric
+  out + labs(title = title, y = ylab, x = xlab);
 }
+
 ggMosaicPlot <- function(var1, var2){
   #Code by: http://stackoverflow.com/users/2119315/edwin
   #MOSAIC PLOT
