@@ -58,6 +58,15 @@ stringmap <- rbind(
   ,c('Less than $24 999','000000-024999')
   ,c('White/Caucasian','White')
   ,c('No_Kids','')
+  ,c('I have not completed any high school','NoHighSchool')
+  ,c('I have completed some high school  but I do not have a GED or diploma','SomeHighSchool')
+  ,c('I am a high school graduate or I have a GED (general equivalent diploma)','HighSchool')
+  ,c('I have completed some college  but I do not have a college degree','SomeCollege')
+  ,c('I completed an Associates degree (including occupational or academic degrees)','Associates')
+  ,c('I completed a Bachelors degree','Bachelors')
+  ,c('I completed a Masters degree','Masters')
+  ,c('I completed a Doctoral degree','Doctorate')
+  ,c(' I prefer not to answer','PreferNotAnswer')
 );
 
 colnamestringmap <- rbind(
@@ -99,6 +108,7 @@ stdLevels <- list(
     research_feelings=c('','PreferNotAnswer','Terrible','NotGoodIdea','Unsure','GoodIdea','Fantastic','Other')
     ,insurance=c('','PreferNotAnswer','Unsure','Uninsured','MedicareMedicaid','Private','Other')
     ,sex=c('PreferNotAnswer', 'Male','Female', 'Other')
+    ,education=c('','PreferNotAnswer','NoHighSchool','SomeHighSchool','HighSchool','SomeCollege','Associates','Bachelors','Masters','Doctorate','Other')
     );
 
 mapstrings <- function(xx,map=stringmap,...){
