@@ -4,13 +4,11 @@
 #' date: "May 2nd, 2016"
 #' ---
 
-print(getwd());
 #+ echo=FALSE
+library(knitr);
+opts_chunk()$set(echo=F)
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
-if(!all(c(require(party),require(rpart),require(psy)))){
-  install.packages(c('party','rpart','psy'));
-}
 load('survSave.rdata');
 resp <- 'deid_data';
 preds <- setdiff(names(samp),c('weight_value_kg'));
