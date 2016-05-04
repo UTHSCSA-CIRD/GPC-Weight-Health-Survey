@@ -21,7 +21,7 @@ presurveyvars <- c('site','contact_type','state','match_type'
 #'# Characteristics of survey respondents.
 #+ results='asis'
 for(jj in preds) {
-  cat("\n\n##",jj," vs ", resp); cat('\n');
+  cat("\n\n##",jj," vs ", resp);
   print(runGGPLOT(responded,jj,resp,xlab=jj,ylab=resp,geomOpts = 'p'));
   if(jj%in%factors&&jj!=resp)
     print(runGGPLOT(responded,jj,resp,position = 'fill',ylab='Fraction',xlab=jj));
