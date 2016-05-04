@@ -12,7 +12,7 @@ if(!all(c(require(party),require(rpart),require(psy)))){
   install.packages(c('party','rpart','psy'));
 }
 load('survSave.rdata');
-resp <- 'possible_research';
+resp <- 'children_research';
 preds <- names(samp);
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
