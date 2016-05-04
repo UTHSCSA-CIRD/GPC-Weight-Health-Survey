@@ -10,6 +10,7 @@ shinyUI(
           ), #end bargraph sidebar panel
           mainPanel(
     #        bsAlert("graphError"),
+            uiOutput("numeric",inline=T,visibility='hidden'),
             plotOutput("visPlot"),
             tableOutput("freqTable")
           )#end bargraph mainPanel
