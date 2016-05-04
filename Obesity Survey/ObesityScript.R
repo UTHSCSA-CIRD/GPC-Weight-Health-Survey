@@ -1,5 +1,4 @@
 #Obesity Script
-library(ggplot2)
 library(plyr)
 library(reshape)
 library(vcd)
