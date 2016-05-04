@@ -30,7 +30,7 @@ runGGPLOT <- function(data
                        ,box=geom_boxplot
                        ,violin=geom_violin
                        ,points={
-                         if(is.null(width)) width=0.25;
+                         if(is.null(width)) width=0.3;
                          if(is.null(alpha)) alpha=0.2;
                          geom_jitter
                          }
