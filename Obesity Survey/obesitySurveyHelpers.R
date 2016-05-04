@@ -51,10 +51,10 @@ runGGPLOT <- function(data
   } # discrete vs discrete case 
   else if(isnum[1]){
     ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
-    out <- out + geom_combo(aes_string(x=fill,y=x)) + coord_flip();
+    out <- out + geom_combo(aes_string(x=fill,y=x),width=width,alpha=alpha) + coord_flip();
   } # x is numeric
   else {
-    out <- out + geom_combo(aes_string(x=x,y=fill));
+    out <- out + geom_combo(aes_string(x=x,y=fill),width=width,alpha=alpha);
   } # fill is numeric
   out + labs(title = title, y = ylab, x = xlab);
 }
