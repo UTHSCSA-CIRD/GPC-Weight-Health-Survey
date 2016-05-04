@@ -16,6 +16,12 @@ preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
 #'# Site Deviations
 #'## All pre-survey answers missing
 #'No pat_sex reported 
+#'## invite_response_nature
+#'Only UTHSCSA, Iowa, CMH, and MCRF reported these
+#'## preferred_contact_method
+#'Only UTHSCSA, Iowa, and CMH reported these
+#'## survey_contact_method
+#'Only UTHSCSA and Iowa reported these
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
   ,very_unbalanced=c('Race')
