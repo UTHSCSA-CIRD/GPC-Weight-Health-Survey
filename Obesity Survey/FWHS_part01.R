@@ -4,7 +4,7 @@
 #' date: "May 2nd, 2016"
 #' ---
 
-#+ echo=FALSE
+#+ echo=FALSE,message=FALSE
 knitr::opts_chunk$set(echo=F);
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
