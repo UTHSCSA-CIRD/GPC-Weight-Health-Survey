@@ -10,6 +10,7 @@ library(ggplot2,quietly = T);
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
+resps <- c('possible_research','deid_data','children_research','research_feeling');
 resp <- 'possible_research';
 preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp'));
 factors <- vs(samp,'f');
