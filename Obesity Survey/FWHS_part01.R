@@ -16,7 +16,7 @@ responded <- subset(samp,s1s2resp=='Yes');
 presurveyvars <- c('site','contact_type','state','match_type','pat_age','pat_bmi_raw','pat_bmi_pct','pat_sex','invite_response_nature','s2resp','surv_2','s1s2resp');
 
 #'# Characteristics of survey respondents.
-#+ results='asis',echo=FALSE
+#+ results='asis'
 for(jj in preds) {
   cat("\n\n##",jj," vs ", resp); cat('\n');
   print(runGGPLOT(responded,jj,resp,xlab=jj,ylab=resp,geomOpts = 'v'));
