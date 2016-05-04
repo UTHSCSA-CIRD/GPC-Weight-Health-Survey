@@ -6,6 +6,7 @@
 
 #+ echo=FALSE,message=FALSE
 knitr::opts_chunk$set(echo=F);
+library(ggplot2,quietly = T);
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
