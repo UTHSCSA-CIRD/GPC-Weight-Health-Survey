@@ -11,7 +11,7 @@ source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
 resps <- c('possible_research','deid_data','children_research','research_feeling','res_talk_family','site');
-resp <- resps[6];
+resp <- resps[1];
 preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
 #'# Site Deviations
 #'## All pre-survey answers missing
@@ -60,9 +60,9 @@ presurveyvars <- c('site','contact_type','state','match_type'
 #+ results='asis'
 for(jj in preds) {
   cat("\n\n##",jj," vs ", resp);
-  #print(runGGPLOT(responded,jj,resp,xlab=jj,ylab=resp,geomOpts = 'p',omitNA_X = F));
-  print(runGGPLOT(responded,resp,jj,xlab=resp,ylab=jj,geomOpts = 'p',omitNA_X = F)); # the site version
+  print(runGGPLOT(responded,jj,resp,xlab=jj,ylab=resp,geomOpts = 'p',omitNA_X = F));
+  #print(runGGPLOT(responded,resp,jj,xlab=resp,ylab=jj,geomOpts = 'p',omitNA_X = F)); # the site version
   if(jj%in%factors&&jj!=resp)
-    #print(runGGPLOT(responded,jj,resp,position = 'fill',ylab='Fraction',xlab=jj,omitNA_X = F));
-    print(runGGPLOT(responded,resp,jj,position = 'fill',ylab='Fraction',xlab=resp,omitNA_X = F)); # the site version
+    print(runGGPLOT(responded,jj,resp,position = 'fill',ylab='Fraction',xlab=jj,omitNA_X = F));
+    #print(runGGPLOT(responded,resp,jj,position = 'fill',ylab='Fraction',xlab=resp,omitNA_X = F)); # the site version
 }
