@@ -11,7 +11,7 @@ source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
 resps <- c('possible_research','deid_data','children_research','research_feeling');
-resp <- resps[2];
+resp <- resps[3];
 preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp'));
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
