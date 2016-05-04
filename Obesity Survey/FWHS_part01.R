@@ -26,6 +26,8 @@ preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
 #'Only UTHSCSA, Iowa, MCW (or whoever goes after Iowa), and CMH reported these
 #'CMH reported *only* the complete ones.
 #'Wisc did not even have this field
+#'## children_in_home
+#'Wisc and UNMC got a reasonable amount of yes-es
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
   ,very_unbalanced=c('Race')
