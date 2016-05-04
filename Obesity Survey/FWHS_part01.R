@@ -1,5 +1,5 @@
 #' ---
-#' title: "GPC Family Height and Weight Survey, Part-1: Possible Research"
+#' title: "GPC Family Height and Weight Survey, Part-2: `r resp`"
 #' author: "Laura Manuel and Alex Bokov, UTHSCSA"
 #' date: "May 2nd, 2016"
 #' ---
@@ -11,7 +11,7 @@ source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
 resps <- c('possible_research','deid_data','children_research','research_feeling');
-resp <- 'possible_research';
+resp <- resps[2];
 preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp'));
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
