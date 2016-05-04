@@ -56,7 +56,8 @@ runGGPLOT <- function(data
   else {
     out <- out + geom_combo(aes_string(x=x,y=fill),width=width,alpha=alpha);
   } # fill is numeric
-  out + labs(title = title, y = ylab, x = xlab);
+  if(is.null(theme)) theme <- theme(axis.text.x=element_text(angle=45,hjust=1));
+  out + labs(title = title, y = ylab, x = xlab) + theme;
 }
 
 ggMosaicPlot <- function(var1, var2){
