@@ -77,6 +77,7 @@ stringmap <- rbind(
   ,c('sv_unmc','UNMC')
   ,c('sv_uthscsa','UTHSCSA')
   ,c('sv_wisc','WISC')
+  ,c('sv_utsw','UTSW')
 );
 
 colnamestringmap <- rbind(
