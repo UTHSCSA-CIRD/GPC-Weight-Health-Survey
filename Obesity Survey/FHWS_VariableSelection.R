@@ -46,11 +46,3 @@ presurvey<-samp[,presurveyvars];
 pcawrap(presurvey,'s1s2resp',pca='f',contraction='Yes');
 heatmap(cor(nprep(presurvey)),symm = T);
 
-#'# Characteristics of survey respondents.
-#+ results='asis',echo=FALSE
-for(ii in resps) for(jj in preds[c(5:10,58:63)]) {
-  cat("\n\n##",jj," vs ",ii); cat('\n');
-  print(runGGPLOT(responded,jj,ii,xlab=jj,ylab=ii,geomOpts = 'v'));
-  if(jj%in%factors&&jj!=ii)
-    print(runGGPLOT(responded,jj,ii,position = 'fill',ylab='Fraction',xlab=jj));
-}
