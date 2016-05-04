@@ -20,6 +20,8 @@ numfields <- vs(obd,'z',exclude=c('','None','0'));
 racenames <- grep('race___',names(obd),val=T);
 defaultNlevels <- 2;
 researchaccept <- grep('research_accept_dec',names(obd),val=T);
+# variables that are pseudo-IDs rather than actual data
+toOmit <- c('wave','family_id','proj_id','patient_num');
 
 # backup of just the systematically modified fields
 obd.backup <- obd;
@@ -96,6 +98,10 @@ obd$BMI <- cut(obd$pat_bmi_pct, c(0,5,85,95,100)
 obd$BMI <- factor(obd$BMI,levels=c(NA,levels(obd$BMI)),labels=c('',levels(obd$BMI))
                   ,exclude=NULL);
 
+# tracker_form_complete ought be a factor
+obd$tracker_form_complete <- factor(obd$tracker_form_complete,levels=0:2,labels=c('0','Partial','Complete'));
+
+
 for(ii in names(obd.backup)) 
   if(isTRUE(all.equal(as.character(obd.backup[[ii]]),as.character(obd[[ii]])))) 
     obd.backup[,ii]<-NULL;
@@ -105,4 +111,7 @@ names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 
 samp = pickSample(obd, .25)
 save(obd,rseed,obd.backup,samp, file = "survProcessed.rdata")
+# We delete the ID-type variables
+samp <- samp[,setdiff(names(samp),c(toOmit,textfields))];
+samp <- samp[,c(vs(samp,'f'),vs(samp))];
 save(samp,file="survSave.rdata")

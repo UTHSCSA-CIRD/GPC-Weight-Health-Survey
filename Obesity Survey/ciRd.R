@@ -67,6 +67,7 @@ stringmap <- rbind(
   ,c('I completed a Masters degree','Masters')
   ,c('I completed a Doctoral degree','Doctorate')
   ,c(' I prefer not to answer','PreferNotAnswer')
+  ,c('None','')
 );
 
 colnamestringmap <- rbind(

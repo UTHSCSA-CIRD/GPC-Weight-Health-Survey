@@ -41,11 +41,12 @@ runGGPLOT <- function(data
     out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
   } # discrete vs discrete case 
   else if(isnum[1]){
+    ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
     out <- out + geom_combo(aes_string(x=fill,y=x)) + coord_flip();
   } # x is numeric
   else {
     out <- out + geom_combo(aes_string(x=x,y=fill));
-  } # this leaves fill being numeric
+  } # fill is numeric
   out + labs(title = title, y = ylab, x = xlab);
 }
 
