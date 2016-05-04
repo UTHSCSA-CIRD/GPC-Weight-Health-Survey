@@ -61,6 +61,7 @@ runGGPLOT <- function(data
   out + labs(title = title, y = ylab, x = xlab) + theme;
 }
 
+
 #'fpSummary, a fool-proof summary in the sense that it always returns a count of NA's even if there are none.
 fpSummary <- function(xx){
   out <- summary(xx);

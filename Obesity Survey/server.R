@@ -12,6 +12,7 @@ shinyServer(
     #createAlert(session, "graphError", "gError", content = "Loading, please wait...", title = "Please wait", append = FALSE)
     #REPLACED loading functions
         load("survSave.rdata")
+    if((nr<-nrow(samp))>3000) samp<-samp[sample(1:nr,3000),];
     dataDic = lapply(samp, class)
     valsFactor = names(dataDic[dataDic == "factor"])
     valsNumeric = names(dataDic[dataDic == "numeric" | dataDic == "integer" ])
@@ -37,25 +38,27 @@ shinyServer(
       )
       if(input$barProportion) position = "fill"
       else position = "stack"
-      runGGPLOT(samp, input$xVal, input$plotFill , xlab = input$xVal, ylab = input$plotFill, omitNA_X = input$xOmit, omitNA_Y = input$fillOmit, position = position)
+      xx<-isolate(input$xVal); yy<-isolate(input$plotFill);
+      runGGPLOT(samp, xx, yy , xlab = xx, ylab = yy, omitNA_X = input$xOmit, omitNA_Y = input$fillOmit, position = position)
     })#end output$visPlot
     output$freqTable <- renderTable({
       validate(
         need(input$xVal, 'Please select an X Value.'),
         need(input$plotFill, 'Please select a fill value')
       )
+      xx<-isolate(input$xVal); yy<-isolate(input$plotFill);
       # The below should probably go into a standalone listener
-      whichnum <- c(input$xVal,input$plotFill)%in%valsNumeric;
-      if(input$xVal==input$plotFill) { # anything vs itself
-        cbind(summary(samp[,input$xVal]));
+      whichnum <- c(xx,yy)%in%valsNumeric;
+      if(xx==yy) { # anything vs itself
+        cbind(summary(samp[,xx]));
       } else if(all(whichnum)){ # numeric vs numeric
-        as.table(sapply(samp[,c(input$xVal,input$plotFill)],fpSummary));
+        as.table(sapply(samp[,c(xx,yy)],fpSummary));
       } else if(!any(whichnum)){ # discrete vs discrete
-        addmargins(table(samp[,c(input$xVal,input$plotFill)]));
+        addmargins(table(samp[,c(xx,yy)]));
       } else if(whichnum[1]){ # xVal is numeric
-        as.table(round(sapply(split(samp[,input$xVal],samp[,input$plotFill]),fpSummary)));
+        as.table(round(sapply(split(samp[,xx],samp[,yy]),fpSummary)));
       } else { # plotFill is numeric
-        as.table(round(sapply(split(samp[,input$plotFill],samp[,input$xVal]),fpSummary)));
+        as.table(round(sapply(split(samp[,yy],samp[,xx]),fpSummary)));
       }
     })# END OUTPUT freqTable
     output$consetllationSide <- renderUI({
