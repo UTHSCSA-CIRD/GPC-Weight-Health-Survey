@@ -23,7 +23,7 @@ runGGPLOT <- function(data
                       , omitNA_X = TRUE, omitNA_Y = FALSE
                       , position = "stack"
                       , geomOpts = c('box','violin','points')
-                      , width = NULL , alpha = NULL){
+                      , width = NULL , alpha = NULL, theme = NULL){
   require(ggplot2);
   # set which type of combo plot to use
   geom_combo <- switch(match.arg(geomOpts)
