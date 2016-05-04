@@ -1,5 +1,5 @@
 #' ---
-#' title: "GPC Family Height and Weight Survey, Part-2: `r resp`"
+#' title: "GPC Family Height and Weight Survey, Pairwise Comparisons"
 #' author: "Laura Manuel and Alex Bokov, UTHSCSA"
 #' date: "May 2nd, 2016"
 #' ---
