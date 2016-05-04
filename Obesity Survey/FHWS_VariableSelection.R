@@ -11,7 +11,7 @@ if(!all(c(require(party),require(rpart),require(psy),require(e1071)))){
   install.packages(c('party','rpart','psy','e1071'));
 }
 load('survSave.rdata');
-resps <- c('possible_research','children_research','deid_data','research_feeling');
+resps <- c('possible_research','children_research','deid_data','research_feeling','res_talk_family');
 preds <- names(samp);
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
