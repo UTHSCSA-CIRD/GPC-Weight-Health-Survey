@@ -7,8 +7,8 @@
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
 knitr::opts_chunk$set(echo=F);
-if(!all(c(require(party),require(rpart),require(psy)))){
-  install.packages(c('party','rpart','psy'));
+if(!all(c(require(party),require(rpart),require(psy),require(e1071)))){
+  install.packages(c('party','rpart','psy','e1071'));
 }
 load('survSave.rdata');
 resps <- c('possible_research','children_research','deid_data','research_feeling');
