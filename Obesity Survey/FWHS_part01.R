@@ -18,7 +18,7 @@ presurveyvars <- c('site','contact_type','state','match_type'
                    ,'invite_response_nature
                    ','s2resp','surv_2','s1s2resp');
 
-#'# Characteristics of survey respondents.
+#'# Covariates of `r resp` among survey respondents.
 #+ results='asis'
 for(jj in preds) {
   cat("\n\n##",jj," vs ", resp);
