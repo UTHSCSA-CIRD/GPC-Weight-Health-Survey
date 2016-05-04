@@ -5,11 +5,11 @@
 #' ---
 
 #+ echo=FALSE
-opts_chunk$set(echo=F);
+knitr::opts_chunk$set(echo=F);
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
-resp <- 'deid_data';
+resp <- 'possible_research';
 preds <- setdiff(names(samp),c('weight_value_kg'));
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
@@ -22,7 +22,7 @@ presurveyvars <- c('site','contact_type','state','match_type'
 #+ results='asis'
 for(jj in preds) {
   cat("\n\n##",jj," vs ", resp); cat('\n');
-  print(runGGPLOT(responded,jj,resp,xlab=jj,ylab=resp,geomOpts = 'v'));
+  print(runGGPLOT(responded,jj,resp,xlab=jj,ylab=resp,geomOpts = 'p'));
   if(jj%in%factors&&jj!=resp)
     print(runGGPLOT(responded,jj,resp,position = 'fill',ylab='Fraction',xlab=jj));
 }
