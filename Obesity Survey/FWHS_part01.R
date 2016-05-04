@@ -12,7 +12,7 @@ source('obesitySurveyHelpers.R');
 load('survSave.rdata');
 resps <- c('possible_research','deid_data','children_research','research_feeling');
 resp <- resps[4];
-preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp'));
+preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv2'));
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
   ,possibly_inconsistently_used=c('preferred_contact_method','survey_contact_method','tracker_form_complete')
@@ -21,9 +21,9 @@ var_groups <- list(
                   ,'PR_Child_DependsAbout','PR_Child_If_Spec','PR_Child_TiChild','PR_Child_Doctor_Op','PR_Child_Compensation','PR_Child_Involve_Child','PR_Child_Other'
                   ,'site'
                   ,'cancer_anytype_self'
-                  ,'insurance','education','household'
+                  ,'insurance','education','household','language','income','BMI'
                   )
-  ,interpretable_nodiff=c('cancer_anytype','sex','latino_origin','income')
+  ,interpretable_nodiff=c('cancer_anytype','sex','latino_origin','race')
   ,what_does_var_mean=c('height_req')
 );
 factors <- vs(samp,'f');
