@@ -11,7 +11,7 @@ source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
 resp <- 'possible_research';
-preds <- setdiff(names(samp),c('weight_value_kg'));
+preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp'));
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
 presurveyvars <- c('site','contact_type','state','match_type'
