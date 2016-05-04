@@ -68,9 +68,9 @@ shinyServer(
             uncorrelated (independent)."),
             hr(),
             p("Use these sliders to rotate the points until they become easy to see."),
-            sliderInput('constVSlider', "Y-Axis", min = 0, max = 180, value = 1, step = 5, round = 0, animate = anim),
-            sliderInput('constHSlider', "X-Axis", min = 0, max = 180, value = 1, step = 5, round = 0, animate = anim),
-            sliderInput('constFSlider', "Z-Axis", min = 0, max = 180, value = 1, step = 5, round = 0, animate = anim)
+            sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = anim),
+            sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = anim),
+            sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = anim)
           )
         })
       }#end else not focused PCA
