@@ -13,7 +13,10 @@ resp <- 'deid_data';
 preds <- setdiff(names(samp),c('weight_value_kg'));
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
-presurveyvars <- c('site','contact_type','state','match_type','pat_age','pat_bmi_raw','pat_bmi_pct','pat_sex','invite_response_nature','s2resp','surv_2','s1s2resp');
+presurveyvars <- c('site','contact_type','state','match_type'
+                   ,'pat_age','pat_bmi_raw','pat_bmi_pct','pat_sex'
+                   ,'invite_response_nature
+                   ','s2resp','surv_2','s1s2resp');
 
 #'# Characteristics of survey respondents.
 #+ results='asis'
