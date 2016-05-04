@@ -15,15 +15,17 @@ resp <- resps[4];
 preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv2'));
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
+  ,not_interesting=c('state')
   ,possibly_inconsistently_used=c('preferred_contact_method','survey_contact_method','tracker_form_complete')
   ,intepretable_diff=c('research','research_feeling','children_research','deid_data','res_talk_family'
+                  ,'invite_response_nature'
                   ,'PR_Me_DependsAbout','PR_Me_If_Spec','PR_Me_Time','PR_Me_Doctor_Op','PR_Me_Compensation','PR_Me_Involve_Child','PR_Me_Other'
                   ,'PR_Child_DependsAbout','PR_Child_If_Spec','PR_Child_TiChild','PR_Child_Doctor_Op','PR_Child_Compensation','PR_Child_Involve_Child','PR_Child_Other'
                   ,'site'
                   ,'cancer_anytype_self'
                   ,'insurance','education','household','language','income','BMI'
                   )
-  ,interpretable_nodiff=c('cancer_anytype','sex','latino_origin','race')
+  ,interpretable_nodiff=c('cancer_anytype','sex','latino_origin','race','pat_sex')
   ,what_does_var_mean=c('height_req')
 );
 factors <- vs(samp,'f');
