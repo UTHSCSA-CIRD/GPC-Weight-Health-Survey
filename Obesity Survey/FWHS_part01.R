@@ -10,9 +10,9 @@ library(ggplot2,quietly = T);
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
-resps <- c('possible_research','deid_data','children_research','research_feeling','res_talk_family');
-resp <- resps[5];
-preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv2'));
+resps <- c('possible_research','deid_data','children_research','research_feeling','res_talk_family','site');
+resp <- resps[6];
+preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
   ,very_unbalanced=c('Race')
