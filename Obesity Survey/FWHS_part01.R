@@ -22,6 +22,10 @@ preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
 #'Only UTHSCSA, Iowa, and CMH reported these
 #'## survey_contact_method
 #'Only UTHSCSA and Iowa reported these
+#'## tracker_form_complete
+#'Only UTHSCSA, Iowa, MCW (or whoever goes after Iowa), and CMH reported these
+#'CMH reported *only* the complete ones.
+#'Wisc did not even have this field
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
   ,very_unbalanced=c('Race')
