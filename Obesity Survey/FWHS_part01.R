@@ -26,7 +26,7 @@ var_groups <- list(
                   ,'insurance','education','household','language','income','BMI'
                   )
   ,interpretable_nodiff=c('cancer_anytype','sex','latino_origin','race','pat_sex')
-  ,what_does_var_mean=c('height_req')
+  ,what_does_var_mean=c('height_req','weight_req')
 );
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
