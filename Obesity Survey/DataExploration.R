@@ -3,7 +3,7 @@
 #' author: "Laura Manuel and Alex Bokov"
 #' date: "May 2nd, 2016"
 #' ---
-source('../ciRd.R');
+source('ciRd.R');
 source('obesitySurveyHelpers.R');
 if(!all(c(require(party),require(rpart),require(psy)))){
   install.packages(c('party','rpart','psy'));

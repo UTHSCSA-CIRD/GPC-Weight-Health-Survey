@@ -5,7 +5,7 @@ library(reshape)
 library(vcd)
 
 # some handy functions
-source('../ciRd.R');
+source('ciRd.R');
 source('obesitySurveyHelpers.R');
 
 rseed <- 6062016;
