@@ -21,11 +21,15 @@ runGGPLOT <- function(data
                       , x, fill, title = ""
                       , ylab = "Percent", xlab = ""
                       , omitNA_X=TRUE, omitNA_Y = FALSE
-                      , position = "stack", geomOpts=c('box','violin')){
+                      , position = "stack"
+                      , geomOpts=c('box','violin','points')){
   require(ggplot2)
   # set which type of combo plot to use
   geom_combo <- switch(match.arg(geomOpts)
-                       ,box=geom_boxplot,violin=geom_violin);
+                       ,box=geom_boxplot
+                       ,violin=geom_violin
+                       ,points=geom_jitter
+                       );
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
   }
