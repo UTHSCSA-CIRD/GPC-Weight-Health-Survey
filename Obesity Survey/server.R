@@ -21,9 +21,9 @@ shinyServer(
     output$graphSidePanel <- renderUI({
       fluidRow(
         p("Currently only barplots are available, please make your selections."),
-        selectInput("xVal", "X Value", valsFactor ),
+        selectInput("xVal", "X Value", valsNonText ),
         checkboxInput("xOmit", "Omit blanks?", value = TRUE),
-        selectInput("plotFill", "Fill Value", valsFactor),
+        selectInput("plotFill", "Fill Value", valsNonText),
         checkboxInput("fillOmit", "Omit blanks?", value = FALSE),
         p("Additional Barplot features:"),
         checkboxInput("barProportion", "Compare proportions", value = FALSE)
@@ -44,8 +44,19 @@ shinyServer(
         need(input$xVal, 'Please select an X Value.'),
         need(input$plotFill, 'Please select a fill value')
       )
-      out <- table(samp[,c(input$xVal,input$plotFill)]);
-      if(input$xVal==input$plotFill) out else addmargins(out);
+      # The below should probably go into a standalone listener
+      whichnum <- c(input$xVal,input$plotFill)%in%valsNumeric;
+      if(input$xVal==input$plotFill) { # anything vs itself
+        cbind(summary(samp[,input$xVal]));
+      } else if(all(whichnum)){ # numeric vs numeric
+        as.table(sapply(samp[,c(input$xVal,input$plotFill)],fpSummary));
+      } else if(!any(whichnum)){ # discrete vs discrete
+        addmargins(table(samp[,c(input$xVal,input$plotFill)]));
+      } else if(whichnum[1]){ # xVal is numeric
+        as.table(round(sapply(split(samp[,input$xVal],samp[,input$plotFill]),fpSummary)));
+      } else { # plotFill is numeric
+        as.table(round(sapply(split(samp[,input$plotFill],samp[,input$xVal]),fpSummary)));
+      }
     })# END OUTPUT freqTable
     output$consetllationSide <- renderUI({
       if(input$focusedPCA){

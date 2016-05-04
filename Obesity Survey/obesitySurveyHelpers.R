@@ -26,6 +26,7 @@ runGGPLOT <- function(data
                       , width = NULL , alpha = NULL, theme = NULL){
   require(ggplot2);
   # set which type of combo plot to use
+  if(is.null(alpha)) alpha=1;
   geom_combo <- switch(match.arg(geomOpts)
                        ,box=geom_boxplot
                        ,violin=geom_violin
@@ -59,6 +60,14 @@ runGGPLOT <- function(data
   if(is.null(theme)) theme <- theme(axis.text.x=element_text(angle=45,hjust=1));
   out + labs(title = title, y = ylab, x = xlab) + theme;
 }
+
+#'fpSummary, a fool-proof summary in the sense that it always returns a count of NA's even if there are none.
+fpSummary <- function(xx){
+  out <- summary(xx);
+  if(!"NA's"%in%names(out)) out["NA's"]<-0;
+  out;
+}
+
 
 ggMosaicPlot <- function(var1, var2){
   #Code by: http://stackoverflow.com/users/2119315/edwin
