@@ -13,6 +13,11 @@ load('survSave.rdata');
 resps <- c('possible_research','deid_data','children_research','research_feeling');
 resp <- resps[4];
 preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp'));
+var_groups <- list(
+  uninterpetable=c('contact_type','match_type')
+  ,possibly_inconsistently_used=c('preferred_contact_method','survey_contact_method','tracker_form_complete')
+  ,intepretable=c('research')
+)
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
 presurveyvars <- c('site','contact_type','state','match_type'
