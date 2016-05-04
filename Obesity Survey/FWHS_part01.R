@@ -5,8 +5,7 @@
 #' ---
 
 #+ echo=FALSE
-library(knitr);
-opts_chunk()$set(echo=F)
+opts_chunk$set(echo=F);
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');

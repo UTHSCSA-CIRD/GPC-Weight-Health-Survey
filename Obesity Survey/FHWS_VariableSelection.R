@@ -6,7 +6,7 @@
 #+ echo=FALSE
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
-knitr::opts_chunk()$set(echo=F);
+knitr::opts_chunk$set(echo=F);
 if(!all(c(require(party),require(rpart),require(psy)))){
   install.packages(c('party','rpart','psy'));
 }
