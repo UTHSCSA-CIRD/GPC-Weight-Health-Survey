@@ -16,7 +16,7 @@ preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp'));
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
   ,possibly_inconsistently_used=c('preferred_contact_method','survey_contact_method','tracker_form_complete')
-  ,intepretable=c('research','research_feeling'
+  ,intepretable=c('research','research_feeling','children_research','deid_data','res_talk_family'
                   ,'PR_Me_DependsAbout','PR_Me_If_Spec','PR_Me_Time','PR_Me_Doctor_Op','PR_Me_Compensation','PR_Me_Involve_Child','PR_Me_Other'
                   ,'PR_Child_DependsAbout','PR_Child_If_Spec','PR_Child_TiChild','PR_Child_Doctor_Op','PR_Child_Compensation','PR_Child_Involve_Child','PR_Child_Other'
                   )
