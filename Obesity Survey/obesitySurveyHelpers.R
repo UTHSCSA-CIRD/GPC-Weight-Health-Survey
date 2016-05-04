@@ -20,12 +20,21 @@ runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Wil
 runGGPLOT <- function(data
                       , x, fill, title = ""
                       , ylab = "Percent", xlab = ""
-                      , omitNA_X=TRUE, omitNA_Y = FALSE
-                      , position = "stack", geomOpts=c('box','violin')){
-  require(ggplot2)
+                      , omitNA_X = TRUE, omitNA_Y = FALSE
+                      , position = "stack"
+                      , geomOpts = c('box','violin','points')
+                      , width = NULL , alpha = NULL){
+  require(ggplot2);
   # set which type of combo plot to use
   geom_combo <- switch(match.arg(geomOpts)
-                       ,box=geom_boxplot,violin=geom_violin);
+                       ,box=geom_boxplot
+                       ,violin=geom_violin
+                       ,points={
+                         if(is.null(width)) width=0.3;
+                         if(is.null(alpha)) alpha=0.2;
+                         geom_jitter
+                         }
+                       );
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
   }
@@ -42,10 +51,10 @@ runGGPLOT <- function(data
   } # discrete vs discrete case 
   else if(isnum[1]){
     ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
-    out <- out + geom_combo(aes_string(x=fill,y=x)) + coord_flip();
+    out <- out + geom_combo(aes_string(x=fill,y=x),width=width,alpha=alpha) + coord_flip();
   } # x is numeric
   else {
-    out <- out + geom_combo(aes_string(x=x,y=fill));
+    out <- out + geom_combo(aes_string(x=x,y=fill),width=width,alpha=alpha);
   } # fill is numeric
   out + labs(title = title, y = ylab, x = xlab);
 }

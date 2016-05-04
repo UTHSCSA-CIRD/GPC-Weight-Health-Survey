@@ -3,12 +3,12 @@
 #' author: "Laura Manuel and Alex Bokov, UTHSCSA"
 #' date: "May 2nd, 2016"
 #' ---
-
-#+ echo=FALSE
+#+ echo=FALSE,message=FALSE
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
-if(!all(c(require(party),require(rpart),require(psy)))){
-  install.packages(c('party','rpart','psy'));
+knitr::opts_chunk$set(echo=F);
+if(!all(c(require(party),require(rpart),require(psy),require(e1071)))){
+  install.packages(c('party','rpart','psy','e1071'));
 }
 load('survSave.rdata');
 resps <- c('possible_research','children_research','deid_data','research_feeling');
@@ -19,7 +19,7 @@ presurveyvars <- c('site','contact_type','state','match_type','pat_age','pat_bmi
 
 #'# All Variables
 #'## Willingness to participate, among survey-2 respondents.
-#+ fig.width=10, fig.height=10, echo=FALSE
+#+ fig.width=10, fig.height=10
 for(ii in resps) 
   pcawrap(responded,respvar = ii,pca='f',contraction='Yes');
 
@@ -27,7 +27,7 @@ pcawrap(responded);
 heatmap(cor(nprep(responded)),symm = T);
 
 #'## Proportion of each question answered
-#+ fig.height=10,echo=FALSE,fig.width=10
+#+ fig.height=10,fig.width=10
 mar.backup <- par()$mar
 par(mar=c(15,4,4,2)+0.1);
 plot(sapply(samp,function(xx) mean(!xx%in%c('','0')&!is.na(xx)))
@@ -37,7 +37,7 @@ axis(side=1,at=1:67,labels=names(samp),las=2);
 par(mar=mar.backup);
 
 #'## Answered first or second survey
-#+ fig.width=10, fig.height=10, echo=FALSE
+#+ fig.width=10, fig.height=10
 presurvey<-samp[,presurveyvars];
 pcawrap(presurvey,'s1s2resp',pca='f',contraction='Yes');
 heatmap(cor(nprep(presurvey)),symm = T);
