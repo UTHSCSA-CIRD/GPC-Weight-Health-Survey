@@ -3,7 +3,6 @@
 #' author: "Laura Manuel and Alex Bokov, UTHSCSA"
 #' date: "May 2nd, 2016"
 #' ---
-
 #+ echo=FALSE
 source('ciRd.R');
 source('obesitySurveyHelpers.R');
