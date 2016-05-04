@@ -20,15 +20,20 @@ runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Wil
 runGGPLOT <- function(data
                       , x, fill, title = ""
                       , ylab = "Percent", xlab = ""
-                      , omitNA_X=TRUE, omitNA_Y = FALSE
+                      , omitNA_X = TRUE, omitNA_Y = FALSE
                       , position = "stack"
-                      , geomOpts=c('box','violin','points')){
-  require(ggplot2)
+                      , geomOpts = c('box','violin','points')
+                      , width = NULL , alpha = NULL){
+  require(ggplot2);
   # set which type of combo plot to use
   geom_combo <- switch(match.arg(geomOpts)
                        ,box=geom_boxplot
                        ,violin=geom_violin
-                       ,points=geom_jitter
+                       ,points={
+                         if(is.null(width)) width=0.25;
+                         if(is.null(alpha)) alpha=0.2;
+                         geom_jitter
+                         }
                        );
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
