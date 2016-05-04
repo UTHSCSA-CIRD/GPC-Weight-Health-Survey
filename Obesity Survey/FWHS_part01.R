@@ -15,7 +15,7 @@ resp <- resps[6];
 preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
 #'# Site Deviations
 #'## All pre-survey answers missing
-#'No pat_sex reported 
+#'Wisc
 #'## invite_response_nature
 #'Only UTHSCSA, Iowa, CMH, and MCRF reported these
 #'## preferred_contact_method
@@ -28,6 +28,10 @@ preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
 #'Wisc did not even have this field
 #'## children_in_home
 #'Wisc and UNMC got a reasonable amount of yes-es
+#'## BMI
+#'Wisc, UNMC, and MCW missing this 
+#'## pat_bmi_pct
+#'Wisc, UNMC, MCW missing this
 var_groups <- list(
   uninterpetable=c('contact_type','match_type')
   ,very_unbalanced=c('Race')
