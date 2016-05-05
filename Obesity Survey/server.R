@@ -55,7 +55,7 @@ shinyServer(
     output$pointUIOpts <- renderUI({
       verticalLayout(
         sliderInput('widthSlide', "Point Size or Jitter Width", min = 0, max = 3, value = 0.3, step = .1, round = FALSE),
-        sliderInput('alphaSlide', "Point Transparency", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
+        sliderInput('alphaSlide', "Point Opacity", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
         checkboxInput('pointJitter', "Jitter the Points?")
       )
     })
