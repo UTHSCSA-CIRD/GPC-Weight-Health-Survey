@@ -45,7 +45,7 @@ runGGPLOT <- function(data
   out <- ggplot(data);
   isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
   if(all(isnum)){
-    out <- out + geom_point(aes_string(x=x,y=fill))+geom_smooth(aes_string(x=x,y=fill));
+    out <- out + geom_point(aes_string(x=x,y=fill)) #+geom_smooth(aes_string(x=x,y=fill));
   } # numeric vs numeric case
   else if(!any(isnum)){
     out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
