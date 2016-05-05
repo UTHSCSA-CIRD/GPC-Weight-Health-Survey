@@ -32,6 +32,6 @@ shinyUI(
       ))#End sidbarLayout/TabPanel CONSTELLATIONS
     
     ),#end tabsetPanel
-    HTML('<footer><center> <hr>TABSI v1.0.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.</center></footer>')
+    HTML('<footer><center> <hr>TABSI v1.0.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.<br/>For more information, please contact informatics@uthscsa.edu</center></footer>')
   )#end fluidPage
 )
