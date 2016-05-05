@@ -50,7 +50,7 @@ runGGPLOT <- function(data
   else {
     if(is.null(alpha)) alpha <- 1;
     if(!any(isnum)){ # start discrete vs discrete case
-        out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
+        out <- out + geom_bar(aes_string(x=x,fill=fill),position=position) + geom_quantile();
         } # discrete vs discrete case
     else if(isnum[1]){ # start x is numeric case
         ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
