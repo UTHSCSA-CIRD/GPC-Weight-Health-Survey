@@ -22,6 +22,7 @@ runGGPLOT <- function(data
                       , ylab = "Percent", xlab = ""
                       , omitNA_X = TRUE, omitNA_Y = FALSE
                       , position = "stack"
+                      , isnum = c(is.numeric(data[[x]]),is.numeric(data[[fill]]))
                       , geomOpts = c('box','violin','points')
                       , width = NULL , alpha = NULL, theme = NULL){
   require(ggplot2);
@@ -38,7 +39,6 @@ runGGPLOT <- function(data
   if(omitNA_X){data = data[(data[,x] !="0" & data[,x] != ""),]}
   if(omitNA_Y){data = data[(data[,fill] !="0" & data[,fill] != ""),]}
   out <- ggplot(data);
-  isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
   if(all(isnum)){ # start numeric vs numeric case
     if(is.null(alpha)) alpha <- 0.3;
     out <- out + geom_point(aes_string(x=x,y=fill),alpha=alpha);
