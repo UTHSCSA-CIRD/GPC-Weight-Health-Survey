@@ -16,47 +16,38 @@ runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Wil
     geom_bar(aes_string(x = "possible_research", fill = fill), position = "fill")+
     labs(title = title, y = ylab, x = xlab)
 }
-
-runGGPLOT <- function(data
-                      , x, fill, title = ""
-                      , ylab = "Percent", xlab = ""
-                      , omitNA_X = TRUE, omitNA_Y = FALSE
-                      , position = "stack"
-                      , geomOpts = c('box','violin','points')
-                      , width = NULL , alpha = NULL){
-  require(ggplot2);
-  # set which type of combo plot to use
-  geom_combo <- switch(match.arg(geomOpts)
-                       ,box=geom_boxplot
-                       ,violin=geom_violin
-                       ,points={
-                         if(is.null(width)) width=0.3;
-                         if(is.null(alpha)) alpha=0.2;
-                         geom_jitter
-                         }
-                       );
+runGGPLOTFF <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE, position = "stack"){
+  require(ggplot2)
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
   }
   if(omitNA_Y){
     data = data[(data[,fill] !="0" & data[,fill] != ""),]
   }
-  out <- ggplot(data);
-  isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
-  if(all(isnum)){
-    out <- out + geom_point(aes_string(x=x,y=fill))+geom_smooth(aes_string(x=x,y=fill));
-  } # numeric vs numeric case
-  else if(!any(isnum)){
-    out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
-  } # discrete vs discrete case 
-  else if(isnum[1]){
-    ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
-    out <- out + geom_combo(aes_string(x=fill,y=x),width=width,alpha=alpha) + coord_flip();
-  } # x is numeric
-  else {
-    out <- out + geom_combo(aes_string(x=x,y=fill),width=width,alpha=alpha);
-  } # fill is numeric
-  out + labs(title = title, y = ylab, x = xlab);
+  ggplot(data = data)+ 
+    geom_bar(aes_string(x = x, fill = fill), position = position)+
+    labs(title = title, y = ylab, x = xlab)
+}
+runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", style = "Box plot", ...){
+  require(ggplot2)
+  styleOpts = c("Box plot", "Violin", "Points")
+  if(!style %in% styleOpts) stop(paste("Error, style must be one of the following: ", toString(styleOpts)))
+  if(style == "Points") return(runGGPLOTNN(data, x, y, title, ylab, xlab, ...))
+  p = ggplot(data = data, aes_string(x = x, y = y)) + labs(title = title, y = ylab, x = xlab)
+  switch(style
+         , "Box plot" = {p = p + geom_boxplot()} 
+         , "Violin" = {p = p + geom_violin()})
+    p
+}
+runGGPLOTNN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", width = 0.3, alpha = 0.2, pstyle = "jitter" ){
+  require(ggplot2)
+  p = ggplot(data = data, aes_string(x = x, y = y)) + labs(title = title, y = ylab, x = xlab)
+  if(pstyle == "jitter"){
+    p = p + geom_jitter(width = width, alpha = alpha)
+  }else{
+    p = p+ geom_point(size = width, alpha = alpha)
+  }
+  p
 }
 
 ggMosaicPlot <- function(var1, var2){
