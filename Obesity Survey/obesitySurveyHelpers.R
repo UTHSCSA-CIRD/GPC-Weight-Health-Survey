@@ -35,7 +35,6 @@ runGGPLOT <- function(data
                          geom_jitter
                          }
                        );
-  if(is.null(alpha)) alpha=1;
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
   }
@@ -45,8 +44,8 @@ runGGPLOT <- function(data
   out <- ggplot(data);
   isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
   if(all(isnum)){
-    out <- out + geom_point(aes_string(x=x,y=fill))
-    #+geom_smooth(aes_string(x=x,y=fill));
+    if(is.null(alpha)) alpha=0.2;
+    out <- out + geom_point(aes_string(x=x,y=fill),alpha=alpha);
   } # numeric vs numeric case
   else if(!any(isnum)){
     out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
