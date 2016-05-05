@@ -32,7 +32,7 @@ runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", sty
   require(ggplot2)
   styleOpts = c("Box plot", "Violin", "Points")
   if(!style %in% styleOpts) stop(paste("Error, style must be one of the following: ", toString(styleOpts)))
-  if(style == "Points") return(runGGPLOTNN(samp, x, y, title, ylab, xlab, ...))
+  if(style == "Points") return(runGGPLOTNN(data, x, y, title, ylab, xlab, ...))
   p = ggplot(data = data, aes_string(x = x, y = y)) + labs(title = title, y = ylab, x = xlab)
   switch(style
          , "Box plot" = {p = p + geom_boxplot()} 

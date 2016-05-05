@@ -54,7 +54,7 @@ shinyServer(
     })#end OUTPUT subSelectionOpts
     output$pointUIOpts <- renderUI({
       verticalLayout(
-        sliderInput('widthSlide', "Point Width", min = 0, max = 3, value = 0.3, step = .1, round = FALSE),
+        sliderInput('widthSlide', "Point Size or Jitter Width", min = 0, max = 3, value = 0.3, step = .1, round = FALSE),
         sliderInput('alphaSlide', "Point Transparency", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
         checkboxInput('pointJitter', "Jitter the Points?")
       )
@@ -149,9 +149,9 @@ shinyServer(
             uncorrelated (independent)."),
             hr(),
             p("Use these sliders to rotate the points until they become easy to see."),
-            sliderInput('constVSlider', "Y-Axis", min = 0, max = 180, value = 1, step = 5, round = 0),
-            sliderInput('constHSlider', "X-Axis", min = 0, max = 180, value = 1, step = 5, round = 0),
-            sliderInput('constFSlider', "Z-Axis", min = 0, max = 180, value = 1, step = 5, round = 0)
+            sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0),
+            sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0),
+            sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0)
           )
         })
       }#end else not focused PCA
