@@ -26,7 +26,6 @@ runGGPLOT <- function(data
                       , width = NULL , alpha = NULL, theme = NULL){
   require(ggplot2);
   # set which type of combo plot to use
-  if(is.null(alpha)) alpha=1;
   geom_combo <- switch(match.arg(geomOpts)
                        ,box=geom_boxplot
                        ,violin=geom_violin
@@ -36,6 +35,7 @@ runGGPLOT <- function(data
                          geom_jitter
                          }
                        );
+  if(is.null(alpha)) alpha=1;
   if(omitNA_X){
     data = data[(data[,x] !="0" & data[,x] != ""),]
   }
