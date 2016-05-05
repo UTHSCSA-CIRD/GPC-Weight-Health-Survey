@@ -6,7 +6,6 @@
 
 #+ echo=FALSE
 opts_chunk$set(echo=F);
-source('ciRd.R');
 source('obesitySurveyHelpers.R');
 load('survSave.rdata');
 resp <- 'deid_data';

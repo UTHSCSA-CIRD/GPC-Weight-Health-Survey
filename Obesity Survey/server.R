@@ -5,7 +5,6 @@ library(shinyjs)
 library(e1071);
 library(psy);
 source("obesitySurveyHelpers.R")
-source("ciRd.R")
 
 shinyServer(
   function(input, output, session){

@@ -1,11 +1,9 @@
 #Obesity Script
-library(ggplot2)
 library(plyr)
 library(reshape)
 library(vcd)
 
 # some handy functions
-source('ciRd.R');
 source('obesitySurveyHelpers.R');
 
 rseed <- 6062016;
