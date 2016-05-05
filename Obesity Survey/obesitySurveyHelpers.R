@@ -1,21 +1,46 @@
-runByRaceVariable <- function(data, fill, title = "", ylab = "Percent", xlab = "Race"){
-  require(ggplot2)
-  ggplot(data = data)+ 
-    geom_bar(aes_string(x = "PreferNotAnswer", fill = fill), position = "fill")+
-    geom_bar(aes_string(x = "OtherRace", fill = fill), position = "fill")+ 
-    geom_bar(aes_string(x = "American_Indian", fill = fill), position = "fill")+
-    geom_bar(aes_string(x = "Asian", fill = fill), position = "fill")+ 
-    geom_bar(aes_string(x = "Black", fill = fill), position = "fill")+ 
-    geom_bar(aes_string(x = "White", fill = fill), position = "fill")+ 
-    labs(title = title, y = ylab, x = xlab) +
-    theme(axis.text.x=element_text(angle=45, hjust = 1))
+runGGPLOT <- function(data
+                      , x, fill, title = ""
+                      , ylab = "Percent", xlab = ""
+                      , omitNA_X = TRUE, omitNA_Y = FALSE
+                      , position = "stack"
+                      , geomOpts = c('box','violin','points')
+                      , width = NULL , alpha = NULL, theme = NULL){
+  require(ggplot2);
+  # set which type of combo plot to use
+  geom_combo <- switch(match.arg(geomOpts)
+                       ,box=geom_boxplot
+                       ,violin=geom_violin
+                       ,points={
+                         if(is.null(width)) width=0.3;
+                         if(is.null(alpha)) alpha=0.2;
+                         geom_jitter
+                       }
+  );
+  if(omitNA_X){
+    data = data[(data[,x] !="0" & data[,x] != ""),]
+  }
+  if(omitNA_Y){
+    data = data[(data[,fill] !="0" & data[,fill] != ""),]
+  }
+  out <- ggplot(data);
+  isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
+  if(all(isnum)){
+    out <- out + geom_point(aes_string(x=x,y=fill)) #+geom_smooth(aes_string(x=x,y=fill));
+  } # numeric vs numeric case
+  else if(!any(isnum)){
+    out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
+  } # discrete vs discrete case 
+  else if(isnum[1]){
+    ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
+    out <- out + geom_combo(aes_string(x=fill,y=x),width=width,alpha=alpha) + coord_flip();
+  } # x is numeric
+  else {
+    out <- out + geom_combo(aes_string(x=x,y=fill),width=width,alpha=alpha);
+  } # fill is numeric
+  if(is.null(theme)) theme <- theme(axis.text.x=element_text(angle=45,hjust=1));
+  out + labs(title = title, y = ylab, x = xlab) + theme;
 }
-runByWilling2P <- function(data, fill, title = "", ylab = "Percent", xlab = "Willing To Participate?"){
-  require(ggplot2)
-  ggplot(data = data)+ 
-    geom_bar(aes_string(x = "possible_research", fill = fill), position = "fill")+
-    labs(title = title, y = ylab, x = xlab)
-}
+
 runGGPLOTFF <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE, position = "stack"){
   require(ggplot2)
   if(omitNA_X){
@@ -28,6 +53,7 @@ runGGPLOTFF <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", 
     geom_bar(aes_string(x = x, fill = fill), position = position)+
     labs(title = title, y = ylab, x = xlab)
 }
+
 runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", style = "Box plot", ...){
   require(ggplot2)
   styleOpts = c("Box plot", "Violin", "Points")
@@ -39,6 +65,7 @@ runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", sty
          , "Violin" = {p = p + geom_violin()})
     p
 }
+
 runGGPLOTNN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", width = 0.3, alpha = 0.2, pstyle = "jitter" ){
   require(ggplot2)
   p = ggplot(data = data, aes_string(x = x, y = y)) + labs(title = title, y = ylab, x = xlab)
