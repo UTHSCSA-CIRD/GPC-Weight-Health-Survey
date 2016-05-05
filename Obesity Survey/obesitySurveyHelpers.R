@@ -30,33 +30,32 @@ runGGPLOT <- function(data
                        ,box=geom_boxplot
                        ,violin=geom_violin
                        ,points={
-                         if(is.null(width)) width=0.3;
-                         if(is.null(alpha)) alpha=0.2;
-                         geom_jitter
+                         if(is.null(width)) width <- 0.3;
+                         if(is.null(alpha)) alpha <- 0.2;
+                         geom_jitter;
                          }
                        );
-  if(omitNA_X){
-    data = data[(data[,x] !="0" & data[,x] != ""),]
-  }
-  if(omitNA_Y){
-    data = data[(data[,fill] !="0" & data[,fill] != ""),]
-  }
+  if(omitNA_X){data = data[(data[,x] !="0" & data[,x] != ""),]}
+  if(omitNA_Y){data = data[(data[,fill] !="0" & data[,fill] != ""),]}
   out <- ggplot(data);
   isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
-  if(all(isnum)){
-    if(is.null(alpha)) alpha=0.2;
+  if(all(isnum)){ # start numeric vs numeric case
+    if(is.null(alpha)) alpha <- 0.3;
     out <- out + geom_point(aes_string(x=x,y=fill),alpha=alpha);
-  } # numeric vs numeric case
-  else if(!any(isnum)){
-    out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
-  } # discrete vs discrete case 
-  else if(isnum[1]){
-    ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
-    out <- out + geom_combo(aes_string(x=fill,y=x),width=width,alpha=alpha) + coord_flip();
-  } # x is numeric
+  } # end numeric vs numeric case
   else {
-    out <- out + geom_combo(aes_string(x=x,y=fill),width=width,alpha=alpha);
-  } # fill is numeric
+    if(is.null(alpha)) alpha <- 1;
+    if(!any(isnum)){ # start discrete vs discrete case
+        out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
+        } # discrete vs discrete case
+    else if(isnum[1]){ # start x is numeric case
+        ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
+        out <- out + geom_combo(aes_string(x=fill,y=x),width=width,alpha=alpha) + coord_flip();
+        } # end x is numeric case
+    else { # start fill is numeric case
+      out <- out + geom_combo(aes_string(x=x,y=fill),width=width,alpha=alpha);
+      } # end fill is numeric case
+    } # end case  checks 
   if(is.null(theme)) theme <- theme(axis.text.x=element_text(angle=45,hjust=1));
   out + labs(title = title, y = ylab, x = xlab) + theme;
 }
