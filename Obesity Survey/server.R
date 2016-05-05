@@ -56,11 +56,11 @@ shinyServer(
       } else if(!any(whichnum)){ # discrete vs discrete
         addmargins(table(samp[,c(xx,yy)]));
       } else if(whichnum[1]){ # xVal is numeric
-        as.table(round(sapply(split(samp[,xx],samp[,yy]),fpSummary)));
+        as.table(sapply(split(samp[,xx],samp[,yy]),fpSummary));
       } else { # plotFill is numeric
-        as.table(round(sapply(split(samp[,yy],samp[,xx]),fpSummary)));
+        as.table(sapply(split(samp[,yy],samp[,xx]),fpSummary));
       }
-    })# END OUTPUT freqTable
+    },auto=T)# END OUTPUT freqTable
     output$consetllationSide <- renderUI({
       if(input$focusedPCA){
         return({verticalLayout(
