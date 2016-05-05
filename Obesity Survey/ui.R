@@ -29,7 +29,7 @@ shinyUI(
         )#end constellation mainpanel
       ))#End sidbarLayout/TabPanel CONSTELLATIONS
     
-    )#end tabsetPanel
+    ),#end tabsetPanel
+    HTML('<footer> This is a test of the shiny app footer system.</footer>')
   )#end fluidPage
-  #
 )
