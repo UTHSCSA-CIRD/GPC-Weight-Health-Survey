@@ -39,7 +39,6 @@ shinyServer(
       if(input$barProportion) position = "fill"
       else position = "stack"
       xx<-isolate(input$xVal); yy<-isolate(input$plotFill);
-      plot(xx,yy,data=samp);
       runGGPLOT(samp, xx, yy , xlab = xx, ylab = yy, omitNA_X = input$xOmit, omitNA_Y = input$fillOmit, position = position)
     })#end output$visPlot
     output$freqTable <- renderTable({
