@@ -45,7 +45,7 @@ runGGPLOT <- function(data
   out <- ggplot(data);
   isnum<-c(is.numeric(data[[x]]),is.numeric(data[[fill]]));
   if(all(isnum)){
-    out <- out + geom_point(aes_string(x=x,y=fill)) + geom_density_2d(geom = "raster", aes(fill = ..density..), contour = FALSE); 
+    out <- out + geom_point(aes_string(x=x,y=fill)) + geom_density_2d(aes_string(x=x,y=fill)); 
     #+ geom_point(aes_string(x=x,y=fill))
     #+geom_smooth(aes_string(x=x,y=fill));
   } # numeric vs numeric case
