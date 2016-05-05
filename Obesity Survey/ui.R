@@ -9,7 +9,7 @@ shinyUI(
             uiOutput("graphSidePanel")
           ), #end bargraph sidebar panel
           mainPanel(
-    #        bsAlert("graphError"),
+            bsAlert("graphError"),
             plotOutput("visPlot"),
             tableOutput("freqTable")
           )#end bargraph mainPanel
@@ -23,23 +23,8 @@ shinyUI(
         mainPanel(
           plotOutput("constellationPlot")
         )#end constellation mainpanel
-      )),#End sidbarLayout/TabPanel CONSTELLATIONS
-    tabPanel("Box Plot",sidebarLayout(
-      sidebarPanel( # BoxPlot
-        uiOutput("boxPlotSide")
-      ),#end boxPlot sideBar
-      mainPanel(
-        plotOutput("boxPlot")
-      )#end BoxPlot mainpanel
-    )),#End sidbarLayout/TabPanel BOXPLOTTAB
-    tabPanel("Violin",sidebarLayout(
-      sidebarPanel( # Violin
-        uiOutput("violinPlotSide")
-      ),#end violinPlot sideBar
-      mainPanel(
-        plotOutput("violinPlot")
-      )#end violinPlot mainpanel
-    ))#End sidbarLayout/TabPanel VIOLINPLOTTAB
+      ))#End sidbarLayout/TabPanel CONSTELLATIONS
+    
     )#end tabsetPanel
   )#end fluidPage
   #

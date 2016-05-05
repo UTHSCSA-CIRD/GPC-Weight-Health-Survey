@@ -21,31 +21,112 @@ shinyServer(
     output$graphSidePanel <- renderUI({
       fluidRow(
         p("Currently only barplots are available, please make your selections."),
-        selectInput("xVal", "X Value", valsFactor ),
-        checkboxInput("xOmit", "Omit blanks?", value = TRUE),
-        selectInput("plotFill", "Fill Value", valsFactor),
-        checkboxInput("fillOmit", "Omit blanks?", value = FALSE),
-        p("Additional Barplot features:"),
-        checkboxInput("barProportion", "Compare proportions", value = FALSE)
+        selectInput("xVal", "X Value", valsNonText ),
+        selectInput("yVal", "Fill Value", valsNonText),
+        uiOutput("subSelectionOpts")
       )
     })#end output$graphSidePanel
-    
+    output$subSelectionOpts <- renderUI({
+      if(input$xVal %in% valsFactor){
+        if(input$yVal %in% valsFactor){
+          verticalLayout(
+            p("Additional Barplot features:"),
+            checkboxInput("xOmit", "Omit blanks in X?", value = TRUE),
+            checkboxInput("yOmit", "Omit blanks in Y?", value = FALSE),
+            radioButtons("barProportion", "Bar Plot Format", choices = c("Compare proportions", "Show actual values"), selected = "Show actual values")
+          )
+        }else{
+          verticalLayout(
+            radioButtons("boxViolin", "Which visualization?", c("Box plot", "Violin", "Points"), selected = "Box plot"),
+            conditionalPanel(condition = "input.boxViolin == 'Points'", uiOutput("pointUIOpts"))#This may end disastrously...
+          )
+        }
+      }else{
+        if(input$yVal %in% valsFactor){
+          verticalLayout(
+            radioButtons("boxViolin", "Which visualization?", c("Box plot", "Violin", "Points"), selected = "Box plot"),
+            conditionalPanel(condition = "input.boxViolin == 'Points'", uiOutput("pointUIOpts"))#This may end disastrously...
+          )
+        }else{
+          uiOutput("pointUIOpts")
+        }
+      }
+    })#end OUTPUT subSelectionOpts
+    output$pointUIOpts <- renderUI({
+      verticalLayout(
+        sliderInput('widthSlide', "Point Width", min = 0, max = 3, value = 0.3, step = .1, round = FALSE),
+        sliderInput('alphaSlide', "Point Transparency", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
+        checkboxInput('pointJitter', "Jitter the Points?")
+      )
+    })
     output$visPlot <- renderPlot({
       validate(
         need(input$xVal, 'Please select an X Value.'),
-        need(input$plotFill, 'Please select a fill value')
+        need(input$yVal, 'Please select a Y value')
       )
-      if(input$barProportion) position = "fill"
-      else position = "stack"
-      runGGPLOT(samp, input$xVal, input$plotFill , xlab = input$xVal, ylab = input$plotFill, omitNA_X = input$xOmit, omitNA_Y = input$fillOmit, position = position)
+      session$sendCustomMessage(type = "bsAlertClose", "gError")
+      if(input$xVal %in% valsFactor){
+        if(input$yVal %in% valsFactor){
+          #factor factor
+          validate(need(input$barProportion, "UI not fully generated, please wait."))
+          if(input$barProportion == "Compare proportions") position = "fill"
+          else position = "stack"
+          runGGPLOTFF(samp, input$xVal, input$yVal , xlab = input$xVal, ylab = input$yVal, omitNA_X = input$xOmit, omitNA_Y = input$yOmit, position = position)
+        }else{
+          #factor number
+          validate(need(input$boxViolin, "UI not fully generated, please wait."))
+          if(input$boxViolin == "Points"){
+            validate(
+              need(input$widthSlide,"UI has not finished rendering, please wait"),
+              need(input$alphaSlide,"UI has not finished rendering, please wait")
+            )
+            if(input$pointJitter) style = "jitter"
+            else style = "point"
+            runGGPLOTFN(samp,input$xVal, input$yVal, xlab = input$xVal, ylab = input$yVal, style = input$boxViolin, width = input$widthSlide, alpha = input$alphaSlide, pstyle = style)
+          }else{
+            runGGPLOTFN(samp,input$xVal, input$yVal, xlab = input$xVal, ylab = input$yVal, style = input$boxViolin)
+          }
+        }
+      }else{
+        if(input$yVal %in% valsFactor){
+          #number, factor
+          validate(need(input$boxViolin, "UI not fully generated, please wait."))
+          createAlert(session,"graphError","gError", content ="Axis inverted to keep your distribution variable numeric.", title= "Warning", append = FALSE)
+          if(input$boxViolin == "Points"){
+            validate(
+              need(input$widthSlide,"UI has not finished rendering, please wait"),
+              need(input$alphaSlide,"UI has not finished rendering, please wait")
+            )
+            if(input$pointJitter) style = "jitter"
+            else style = "point"
+            p = runGGPLOTFN(samp,input$yVal, input$xVal, xlab = input$yVal, ylab = input$xVal, style = input$boxViolin, width = input$widthSlide, alpha = input$alphaSlide, pstyle = style)
+            p = p + coord_flip()
+            return(p)
+          }else{
+            p = runGGPLOTFN(samp,input$yVal, input$xVal, xlab = input$yVal, ylab = input$xVal, style = input$boxViolin) 
+            p = p + coord_flip()
+            return(p)
+          }
+        }else{
+          validate(
+            need(input$widthSlide,"UI has not finished rendering, please wait"),
+            need(input$alphaSlide,"UI has not finished rendering, please wait")
+          )
+          if(input$pointJitter) style = "jitter"
+          else style = "point"
+          runGGPLOTNN(samp,input$xVal, input$yVal,input$xVal, xlab = input$xVal, ylab = input$yVal, width = input$widthSlide, alpha = input$alphaSlide, pstyle = style)
+        }
+      }
     })#end output$visPlot
     output$freqTable <- renderTable({
       validate(
         need(input$xVal, 'Please select an X Value.'),
-        need(input$plotFill, 'Please select a fill value')
+        need(input$yVal, 'Please select a Y value')
       )
-      out <- table(samp[,c(input$xVal,input$plotFill)]);
-      if(input$xVal==input$plotFill) out else addmargins(out);
+      if(input$xVal %in% valsFactor & input$yVal %in% valsFactor){
+        out <- table(samp[,c(input$xVal,input$yVal)]);
+        if(input$xVal==input$yVal) out else addmargins(out);
+      }
     })# END OUTPUT freqTable
     output$consetllationSide <- renderUI({
       if(input$focusedPCA){
