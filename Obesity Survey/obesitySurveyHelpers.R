@@ -44,13 +44,13 @@ runGGPLOT <- function(data
     out <- out + if(x==fill) { # no point in x~x scatterplot, so show distribution 
         geom_histogram(aes_string(x=x)) 
       } else {
-        geom_point(aes_string(x=x,y=fill),alpha=alpha)
+        geom_point(aes_string(x=x,y=fill),alpha=alpha) + geom_quantile();
       };
   } # end numeric vs numeric case
   else {
     if(is.null(alpha)) alpha <- 1;
     if(!any(isnum)){ # start discrete vs discrete case
-        out <- out + geom_bar(aes_string(x=x,fill=fill),position=position) + geom_quantile();
+        out <- out + geom_bar(aes_string(x=x,fill=fill),position=position);
         } # discrete vs discrete case
     else if(isnum[1]){ # start x is numeric case
         ylab <- c(ylab,xlab); xlab <- ylab[1]; ylab <- ylab[2];
