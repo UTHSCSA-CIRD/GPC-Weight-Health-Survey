@@ -1,3 +1,4 @@
+library(shinyBS);
 shinyUI(
   fluidPage(
     titlePanel("Obesity Survey Sample Data Review"),
@@ -9,7 +10,7 @@ shinyUI(
             uiOutput("graphSidePanel")
           ), #end bargraph sidebar panel
           mainPanel(
-            bsAlert("graphError"),
+            bsAlert("gError"),
             plotOutput("visPlot"),
             tableOutput("freqTable")
           )#end bargraph mainPanel
