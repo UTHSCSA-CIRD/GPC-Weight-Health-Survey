@@ -4,7 +4,7 @@ library(shinyjs)
 
 shinyUI(
   fluidPage(
-    HTML("<span style='font-size:35px'><span style ='color:orange'>T</span><span style ='color:#B2B200'>a</span><span style ='color:orange'>b</span><span style ='color:#B2B200'>s</span><span style ='color:orange'>i</span></span> <span style='font-size:15px'> <span style ='color:orange'>   Table </span><span style ='color:#B2B200'>Analyzer, </span><span style ='color:orange'>Browser,</span><span style ='color:#B2B200'> and Summarizer </span><span style ='color:orange'> for Informatics</span></span>
+    HTML("<span style='font-size:35px'><span style ='color:orange'>T</span><span style ='color:#B2B200'>A</span><span style ='color:orange'>B</span><span style ='color:#B2B200'>S</span><span style ='color:orange'>I</span></span> <span style='font-size:15px'> <span style ='color:orange'>   Table </span><span style ='color:#B2B200'>Analyzer, </span><span style ='color:orange'>Browser,</span><span style ='color:#B2B200'> and Summarizer </span><span style ='color:orange'> for Informatics</span></span>
          <p>Clinical Informatics Research Division (CIRD), University of Texas Health Science Center at San Antonio (UTHSCSA)</h5></p>"),
     titlePanel("Obesity Survey Sample Data Review"),
     tabsetPanel(
