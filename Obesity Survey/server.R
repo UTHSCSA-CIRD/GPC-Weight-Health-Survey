@@ -17,7 +17,7 @@ shinyServer(
     valsNumeric = names(dataDic[dataDic == "numeric" | dataDic == "integer" ])
     valsNonText = c(valsFactor, valsNumeric)
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
-    anim <- animationOptions(loop=T,interval=1500);
+    
     output$graphSidePanel <- renderUI({
       fluidRow(
         p("Currently only barplots are available, please make your selections."),
@@ -149,15 +149,9 @@ shinyServer(
             uncorrelated (independent)."),
             hr(),
             p("Use these sliders to rotate the points until they become easy to see."),
-<<<<<<< HEAD
-            sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = anim),
-            sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = anim),
-            sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = anim)
-=======
             sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0),
             sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0),
             sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0)
->>>>>>> Lauras_Alex_ShinyBranch
           )
         })
       }#end else not focused PCA
