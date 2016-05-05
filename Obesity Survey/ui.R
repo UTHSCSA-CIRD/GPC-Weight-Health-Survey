@@ -6,7 +6,7 @@ shinyUI(
   fluidPage(
     titlePanel("Obesity Survey Sample Data Review"),
     tabsetPanel(
-      tabPanel("Bar Graph", #tabpanel for the bargraph
+      tabPanel("Graphs", #tabpanel for the bargraph
         sidebarLayout(#BARGRAPH
           sidebarPanel(
             #Graph options
