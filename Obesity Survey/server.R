@@ -208,6 +208,10 @@ shinyServer(
       ggplot(samp, aes_string(input$violinPlotX, input$violinPlotY)) +
         geom_violin()
     })#End plot for boxPlot
-    
+    ### THIS CODE IS USED FOR PORTAL R SO THAT THE R SESSION ENDS WHEN THE BROWSER IS CLOSED!!
+#     session$onSessionEnded(function() { 
+#       stopApp()
+#       q("no") 
+#     })
   }
 )
