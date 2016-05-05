@@ -44,7 +44,7 @@ runGGPLOT <- function(data
     out <- out + if(x==fill) { # no point in x~x scatterplot, so show distribution 
         geom_histogram(aes_string(x=x)) 
       } else {
-        geom_point(aes_string(x=x,y=fill),alpha=alpha) + geom_quantile();
+        geom_point(aes_string(x=x,y=fill),alpha=alpha);
       };
   } # end numeric vs numeric case
   else {
