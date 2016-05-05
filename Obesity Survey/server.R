@@ -21,7 +21,7 @@ shinyServer(
       fluidRow(
         p("Currently only barplots are available, please make your selections."),
         selectInput("xVal", "X Value", valsNonText ),
-        selectInput("yVal", "Fill Value", valsNonText),
+        selectInput("yVal", "Y Value", valsNonText),
         uiOutput("subSelectionOpts")
       )
     })#end output$graphSidePanel
@@ -90,7 +90,8 @@ shinyServer(
         if(input$yVal %in% valsFactor){
           #number, factor
           validate(need(input$boxViolin, "UI not fully generated, please wait."))
-          createAlert(session,"graphError","gError", content ="Axis inverted to keep your distribution variable numeric.", title= "Warning", append = FALSE)
+          # I, Alex shall buy Laura dinner if anybody ever encounters a problem caused by commenting out the following line:
+          #createAlert(session,"graphError","gError", content ="Axis inverted to keep your distribution variable numeric.", title= "Warning", append = FALSE)
           if(input$boxViolin == "Points"){
             validate(
               need(input$widthSlide,"UI has not finished rendering, please wait"),
