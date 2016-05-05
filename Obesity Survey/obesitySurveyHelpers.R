@@ -41,7 +41,11 @@ runGGPLOT <- function(data
   out <- ggplot(data);
   if(all(isnum)){ # start numeric vs numeric case
     if(is.null(alpha)) alpha <- 0.3;
-    out <- out + geom_point(aes_string(x=x,y=fill),alpha=alpha);
+    out <- out + if(x==fill) { # no point in x~x scatterplot, so show distribution 
+        geom_histogram(aes_string(x=x)) 
+      } else {
+        geom_point(aes_string(x=x,y=fill),alpha=alpha)
+      };
   } # end numeric vs numeric case
   else {
     if(is.null(alpha)) alpha <- 1;
