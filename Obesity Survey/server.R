@@ -12,7 +12,7 @@ shinyServer(
     #createAlert(session, "graphError", "gError", content = "Loading, please wait...", title = "Please wait", append = FALSE)
     #REPLACED loading functions
         load("survSave.rdata")
-    if((nr<-nrow(samp))>3000) samp<-samp[sample(1:nr,3000),];
+    #if((nr<-nrow(samp))>3000) samp<-samp[sample(1:nr,3000),];
     dataDic = lapply(samp, class)
     valsFactor = names(dataDic[dataDic == "factor"])
     valsNumeric = names(dataDic[dataDic == "numeric" | dataDic == "integer" ])
