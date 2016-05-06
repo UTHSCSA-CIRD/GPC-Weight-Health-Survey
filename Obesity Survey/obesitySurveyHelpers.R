@@ -63,6 +63,7 @@ fpSummary <- function(xx){
   out <- summary(xx);
   if(!"NA's"%in%names(out)) out["NA's"]<-0;
   out;
+}
 
 runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", style = "Box plot", ...){
   require(ggplot2)
