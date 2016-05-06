@@ -4,7 +4,7 @@ library(shinyjs)
 
 shinyUI(
   fluidPage(
-    HTML("<span style='font-size:35px'><span style ='color:orange'>T</span><span style ='color:#B2B200'>a</span><span style ='color:orange'>b</span><span style ='color:#B2B200'>s</span><span style ='color:orange'>i</span></span> <span style='font-size:15px'> <span style ='color:orange'>   Table </span><span style ='color:#B2B200'>Analyzer, </span><span style ='color:orange'>Browser,</span><span style ='color:#B2B200'> and Summarizer </span><span style ='color:orange'> for Informatics</span></span>
+    HTML("<span style='font-size:35px'><span style ='color:orange'>T</span><span style ='color:#B2B200'>A</span><span style ='color:orange'>B</span><span style ='color:#B2B200'>S</span><span style ='color:orange'>I</span></span> <span style='font-size:15px'> <span style ='color:orange'>   Table </span><span style ='color:#B2B200'>Analyzer, </span><span style ='color:orange'>Browser,</span><span style ='color:#B2B200'> and Summarizer </span><span style ='color:orange'> for Informatics</span></span>
          <p>Clinical Informatics Research Division (CIRD), University of Texas Health Science Center at San Antonio (UTHSCSA)</h5></p>"),
     titlePanel("Obesity Survey Sample Data Review"),
     tabsetPanel(
@@ -32,6 +32,6 @@ shinyUI(
       ))#End sidbarLayout/TabPanel CONSTELLATIONS
     
     ),#end tabsetPanel
-    HTML('<footer><center> <hr>TABSI v1.0.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.</center></footer>')
+    HTML('<footer><center> <hr>TABSI v1.0.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.<br/>For more information, please contact informatics@uthscsa.edu</center></footer>')
   )#end fluidPage
 )
