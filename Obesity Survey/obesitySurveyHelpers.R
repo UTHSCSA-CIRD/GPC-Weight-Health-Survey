@@ -282,6 +282,16 @@ stringmap <- rbind(
   ,c('I completed a Doctoral degree','Doctorate')
   ,c(' I prefer not to answer','PreferNotAnswer')
   ,c('None','')
+  ,c('sv_cmh','CMH')
+  ,c('sv_kumc','KUMC')
+  ,c('sv_mcrf','MCRF')
+  ,c('sv_mcw','MCW')
+  ,c('sv_uiowa','IOWA')
+  ,c('sv_umn','UMN')
+  ,c('sv_unmc','UNMC')
+  ,c('sv_uthscsa','UTHSCSA')
+  ,c('sv_wisc','WISC')
+  ,c('sv_utsw','UTSW')
 );
 
 colnamestringmap <- rbind(
