@@ -22,7 +22,7 @@ shinyUI(
         )),#end sidebarLayout/TabPanel BARGRAPH
       tabPanel("Constellation",sidebarLayout(
         sidebarPanel(fluidRow( # CONSTELLATIONS
-            checkboxInput("constSurv2RespOnly","Only Survey 2 Respondants?"),
+            checkboxInput("constSurv2RespOnly","Only Survey 2 Respondents?"),
             checkboxInput("focusedPCA", "Focused PCA Plot?"),
             uiOutput("consetllationSide")
         )),#end constellation sideBar
