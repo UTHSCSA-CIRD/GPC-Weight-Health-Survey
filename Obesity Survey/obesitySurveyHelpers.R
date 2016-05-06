@@ -54,6 +54,12 @@ runGGPLOTFF <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", 
     labs(title = title, y = ylab, x = xlab)
 }
 
+#'fpSummary, a fool-proof summary in the sense that it always returns a count of NA's even if there are none.
+fpSummary <- function(xx){
+  out <- summary(xx);
+  if(!"NA's"%in%names(out)) out["NA's"]<-0;
+  out;
+
 runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", style = "Box plot", ...){
   require(ggplot2)
   styleOpts = c("Box plot", "Violin", "Points")
