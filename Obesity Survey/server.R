@@ -19,7 +19,7 @@ shinyServer(
     
     output$graphSidePanel <- renderUI({
       fluidRow(
-        p("Currently only barplots are available, please make your selections."),
+        p("Please select two variables to plot against each other."),
         selectInput("xVal", "X Value", valsNonText ),
         selectInput("yVal", "Y Value", valsNonText),
         uiOutput("subSelectionOpts")
