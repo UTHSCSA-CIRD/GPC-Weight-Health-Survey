@@ -51,11 +51,16 @@ runGGPLOTFF <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", 
   }
   ggplot(data = data)+ 
     geom_bar(aes_string(x = x, fill = fill), position = position)+
-    labs(title = title, y = ylab, x = xlab)
+    labs(title = title, y = ylab, x = xlab)+
+    guides(fill = guide_legend(reverse = TRUE))+
+    scale_fill_discrete(guide = guide_legend(reverse = TRUE))
 }
 
-runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", style = "Box plot", ...){
+runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", style = "Box plot", omitNA_X= TRUE, ...){
   require(ggplot2)
+  if(omitNA_X){
+    data = data[(data[,x] !="0" & data[,x] != ""),]
+  }
   styleOpts = c("Box plot", "Violin", "Points")
   if(!style %in% styleOpts) stop(paste("Error, style must be one of the following: ", toString(styleOpts)))
   if(style == "Points") return(runGGPLOTNN(data, x, y, title, ylab, xlab, ...))
@@ -66,13 +71,13 @@ runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", sty
     p
 }
 
-runGGPLOTNN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", width = 0.3, alpha = 0.2, pstyle = "jitter" ){
+runGGPLOTNN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", width = 0.3, size = 1, alpha = 0.2, pstyle = "jitter" ){
   require(ggplot2)
   p = ggplot(data = data, aes_string(x = x, y = y)) + labs(title = title, y = ylab, x = xlab)
   if(pstyle == "jitter"){
-    p = p + geom_jitter(width = width, alpha = alpha)
+    p = p + geom_jitter(width = width, size = size, alpha = alpha)
   }else{
-    p = p+ geom_point(size = width, alpha = alpha)
+    p = p+ geom_point(size = size, alpha = alpha)
   }
   p
 }
