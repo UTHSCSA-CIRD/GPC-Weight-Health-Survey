@@ -94,7 +94,11 @@ shinyServer(
         uiOutput("jitter"),
         sliderInput('sizeSlide', "Point Size", min = 0, max = 5, value = 1, step = .5, round = FALSE),
         sliderInput('alphaSlide', "Point Opacity", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
-        checkboxInput('pointJitter', "Jitter the Points?")
+        if(input$xVal %in% valsNumeric){
+          checkboxInput('pointJitter', "Jitter the Points?")
+        }else{
+          checkboxInput('pointJitter', "Jitter the Points?", value = TRUE)
+        }
       )
     })
     
