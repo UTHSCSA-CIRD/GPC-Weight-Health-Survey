@@ -1,9 +1,9 @@
-library(shinyBS)
-library(shiny)
-library(ggplot2)
-library(shinyjs)
-library(e1071);
-library(psy);
+require(shinyBS)
+require(shiny)
+require(ggplot2)
+require(shinyjs)
+require(e1071);
+require(psy);
 source("obesitySurveyHelpers.R")
 
 shinyServer(
@@ -157,12 +157,14 @@ shinyServer(
         }
       }else{#else X is numeric (Note, the issue where Y is a factor is handled by the UI render hot swapping them.)
           validate(
-            need(input$widthSlide, warningRender),
+            need(input$sizeSlide, warningRender),
             need(input$alphaSlide, warningRender)
           )
-          if(input$pointJitter) style = "jitter"
-          else style = "point"
-          p = runGGPLOTNN(pdata,input$xVal, input$yVal,input$xVal, xlab = input$xVal, ylab = input$yVal, width = input$widthSlide, alpha = input$alphaSlide, pstyle = style)
+          if(input$pointJitter) {
+            validate(need(input$widthSlide, warningRender))
+            style = "jitter"
+          }else style = "point"
+          p = runGGPLOTNN(pdata,input$xVal, input$yVal,input$xVal, xlab = input$xVal, ylab = input$yVal, width = input$widthSlide,size = input$sizeSlide, alpha = input$alphaSlide, pstyle = style)
       }
       if(input$coordFlop){
         p + coord_flip()
@@ -171,17 +173,52 @@ shinyServer(
       }
       
     })#end output$visPlot
-    
-    output$freqTable <- renderTable({
+    output$summaryRegion <- renderUI({
       validate(
         need(input$xVal, warningRender),
         need(input$yVal, warningRender)
       )
       if(input$xVal %in% valsFactor & input$yVal %in% valsFactor){
-        out <- table(samp[,c(input$xVal,input$yVal)]);
-        if(input$xVal==input$yVal) out else addmargins(out);
+        tableOutput("freqTable")
+      }else{
+        if(input$yVal %in% valsNumeric){
+          verticalLayout(
+            p("Summary"),
+            tableOutput("summaryTable")#originally had the summary(lm()) after this, but I like just the summary table better- leaving the render table in case we decide to re-add it.
+          )
+        }
       }
-    })# END OUTPUT freqTable
+    })
+    output$freqTable <- renderTable({#validation done before this is called, no need to repeat
+      if(input$surv2RespOnly){
+        pdata = filtered
+      }else{
+        pdata = samp
+      }
+      addmargins(table(pdata[,c(input$xVal,input$yVal)]))
+    })
+    
+    output$summaryTable <- renderTable({
+      if(input$surv2RespOnly){
+        pdata = filtered
+      }else{
+        pdata = samp
+      }
+      if(input$xVal %in% valsFactor){
+        as.table(sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary))
+      }else{
+        as.table(sapply(pdata[,c(input$xVal,input$yVal)],fpSummary))
+      }
+    })
+    
+    output$lmTable <- renderTable({
+      if(input$surv2RespOnly){
+        pdata = filtered
+      }else{
+        pdata = samp
+      }
+      summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
+    })
     
     output$consetllationSide <- renderUI({
       if(input$focusedPCA){

@@ -40,7 +40,12 @@ runGGPLOT <- function(data
   if(is.null(theme)) theme <- theme(axis.text.x=element_text(angle=45,hjust=1));
   out + labs(title = title, y = ylab, x = xlab) + theme;
 }
-
+#'fpSummary, a fool-proof summary in the sense that it always returns a count of NA's even if there are none.
+fpSummary <- function(xx){
+  out <- summary(xx);
+  if(!"NA's"%in%names(out)) out["NA's"]<-0;
+  out;
+}
 runGGPLOTFF <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE, position = "stack"){
   require(ggplot2)
   if(omitNA_X){

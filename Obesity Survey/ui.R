@@ -17,7 +17,7 @@ shinyUI(
           mainPanel(
             bsAlert("graphError"),
             plotOutput("visPlot"),
-            tableOutput("freqTable")
+            uiOutput("summaryRegion")#this makes it easier to adaptively display the summary
           )#end bargraph mainPanel
         )),#end sidebarLayout/TabPanel BARGRAPH
       tabPanel("Constellation",sidebarLayout(
