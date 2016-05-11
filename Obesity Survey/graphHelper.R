@@ -9,7 +9,7 @@ getPointPlot <- function(pdata, input, type){
     validate(need(input$widthSlide, warningRender))
     style = "jitter"
   }else style = "point"
-  if(type =='FN')if(input$xOmit)pdata = pdata[(pdata[,x] !="0" & pdata[,x] != ""),]
+  if(type =='FN')if(input$xOmit)pdata = pdata[(pdata[,input$xVal] !="0" & pdata[,input$xVal] != ""),]
   pColor = NULL
   pShape = NULL
   if(input$pointColor != "No color") pColor = input$pointColor

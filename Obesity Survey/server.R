@@ -264,22 +264,18 @@ shinyServer(
             uncorrelated (independent).
             White filled circles are on the surface of the sphere that is away from the observer and the red ones are currently facing the observer."),
             hr(),
-            p("Use these sliders to rotate the points until they become easy to see."),
-            sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0),
-            sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0),
-            sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0)
+            p("Use these sliders to rotate the points until they become easy to see. Note: The rotation play buttons might not perform well when running TABSIE from CD or on a slower computer."),
+            sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE),
+            sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE),
+            sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE)
           )
         })
       }#end else not focused PCA
     })#END OUTPUT constellationSide 
     
     output$constellationPlot <- renderPlot({
-      if(exists("input$constSurv2RespOnly")){
-        if(constSurv2RespOnly){
-          pdata = filtered
-        }else{
-          pdata = samp
-        }
+      if(input$constSurv2RespOnly){
+        pdata = filtered
       }else{
         pdata = samp
       }
