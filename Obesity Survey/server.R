@@ -20,18 +20,49 @@ shinyServer(
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
     
     output$graphSidePanel <- renderUI({
-      fluidRow(
-        shinyjs::useShinyjs(),
-        inlineCSS(list(.disabled = "color:grey")),
-        div(id = "filterFlagDiv",
-        checkboxInput("surv2RespOnly","Only Survey 2 Respondants?")
-        ),
-        selectInput("xVal", "X Value", valsNonText ),
-        selectInput("yVal", "Y Value", valsNonText),
-        uiOutput("subSelectionOpts"),
-        checkboxInput("coordFlop","Flip Coordinate Plains (X->Y, Y->X)")
-      )
+      tabsetPanel(
+        tabPanel("Basic",
+          verticalLayout(
+            shinyjs::useShinyjs(),
+            inlineCSS(list(.disabled = "color:grey")),
+            div(id = "filterFlagDiv",
+            checkboxInput("surv2RespOnly","Only Survey 2 Respondants?")
+            ),
+            selectInput("xVal", "X Value", valsNonText ),
+            selectInput("yVal", "Y Value", valsNonText),
+            uiOutput("subSelectionOpts"),
+            checkboxInput("coordFlop","Flip Coordinate Plains (X->Y, Y->X)")
+          )
+        ),#end basic tab
+        tabPanel("Advanced",
+           verticalLayout(
+             shinyjs::useShinyjs(),
+             a(id="toggleTheme", "Show/hide theme options", href ="#"),
+             shinyjs::hidden(div(id="themeDiv",
+                 p("Sorry, no theme options yet, this is just a place holder for when we have them.")
+             )),#end div "theme
+             a(id="togglePoint", "Show/hide point options", href ="#"),
+             shinyjs::hidden(div(id="pointDiv",
+               p("Note: These options will only have an effect on point graphs."),
+               selectInput("pointColor", "Color Value", c("No color", valsNonText), selected = "No color"),
+               selectInput("pointShape", "Shape Value", c("No shape", valsFactor), selected = "No shape")
+             )),#end div "theme
+             a(id="toggleViolin", "Show/hide violin options", href ="#"),
+             shinyjs::hidden(div(id="violinDiv",
+                                 p("Note: These options will only have an effect on violin graphs.")
+             ))#end div "theme
+           )
+        )#end advanced tab
+      )#end tab panel
     })#end output$graphSidePanel
+    observe({
+      validate(
+        need(input$xVal, "")
+      )
+      shinyjs::onclick("toggleTheme", toggle(id = "themeDiv", anim= TRUE))
+      shinyjs::onclick("togglePoint", toggle(id = "pointDiv", anim= TRUE))
+      shinyjs::onclick("toggleViolin", toggle(id = "violinDiv", anim= TRUE))
+    })
     
     #this observe handles the enabling and disabling of the "filter" text based on if it has
     #any effect on the graph.
