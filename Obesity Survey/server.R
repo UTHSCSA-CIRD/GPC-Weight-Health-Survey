@@ -5,6 +5,7 @@ require(shinyjs)
 require(e1071);
 require(psy);
 source("obesitySurveyHelpers.R")
+source("graphHelper.R")
 
 shinyServer(
   function(input, output, session){
@@ -15,7 +16,10 @@ shinyServer(
     valsFactor = names(dataDic[dataDic == "factor"])
     valsNumeric = names(dataDic[dataDic == "numeric" | dataDic == "integer" ])
     valsNonText = c(valsFactor, valsNumeric)
-    warningRender = "User interface has not finished rendering, please wait."
+    #NOTE! ggplot will only apply a shape to the first 6 levels of a factor, thus we will only show
+    #factors with 6 or fewer factor levels!
+    valsShape = valsFactor[sapply(valsFactor, function(x) length(levels(samp[,x])))<=6]
+    
     filtered = subset(samp,s2resp=='Yes')
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
     
@@ -39,22 +43,26 @@ shinyServer(
              shinyjs::useShinyjs(),
              a(id="toggleTheme", "Show/hide theme options", href ="#"),
              shinyjs::hidden(div(id="themeDiv",
-                 p("Sorry, no theme options yet, this is just a place holder for when we have them.")
+                 textInput("titleField", "Graph Title", value = "", placeholder = "Enter the graph's title."),
+                 textInput("xLab", "X-Axis Label", value = ""),
+                 textInput("yLab", "Y-Axis Label", value = ""),
+                 actionButton("clearTheme", "Clear Theme Form")
              )),#end div "theme
              a(id="togglePoint", "Show/hide point options", href ="#"),
              shinyjs::hidden(div(id="pointDiv",
                p("Note: These options will only have an effect on point graphs."),
                selectInput("pointColor", "Color Value", c("No color", valsNonText), selected = "No color"),
-               selectInput("pointShape", "Shape Value", c("No shape", valsFactor), selected = "No shape")
-             )),#end div "theme
-             a(id="toggleViolin", "Show/hide violin options", href ="#"),
-             shinyjs::hidden(div(id="violinDiv",
-                                 p("Note: These options will only have an effect on violin graphs.")
-             ))#end div "theme
+               selectInput("pointShape", "Shape Value", c("No shape", valsShape), selected = "No shape")
+             ))#end div point options
            )
         )#end advanced tab
       )#end tab panel
     })#end output$graphSidePanel
+    observeEvent(input$clearTheme, {
+      updateTextInput(session, "titleField", value = "")
+      updateTextInput(session, "xLab", value = "")
+      updateTextInput(session, "yLab", value = "")
+    })
     observe({
       validate(
         need(input$xVal, "")
@@ -168,35 +176,20 @@ shinyServer(
           validate(need(input$barProportion, warningRender))
           if(input$barProportion == "Compare proportions") position = "fill"
           else position = "stack"
-          p = runGGPLOTFF(pdata, input$xVal, input$yVal , xlab = input$xVal, ylab = input$yVal, omitNA_X = input$xOmit, omitNA_Y = input$yOmit, position = position)
+          p = runGGPLOTFF(pdata, input$xVal, input$yVal , omitNA_X = input$xOmit, omitNA_Y = input$yOmit, position = position)
         }else{
           #factor number
           validate(need(input$boxViolin, warningRender))
           if(input$boxViolin == "Points"){
-            validate(
-              need(input$sizeSlide, warningRender),
-              need(input$alphaSlide, warningRender)
-            )
-            if(input$pointJitter) {
-              validate(need(input$widthSlide, warningRender))
-              style = "jitter"
-            }else style = "point"
-            p = runGGPLOTFN(pdata,input$xVal, input$yVal, xlab = input$xVal, ylab = input$yVal, style = input$boxViolin, width = input$widthSlide, size = input$sizeSlide, alpha = input$alphaSlide, pstyle = style, omitNA_X = input$xOmit)
-          }else{
-            p = runGGPLOTFN(pdata,input$xVal, input$yVal, xlab = input$xVal, ylab = input$yVal, style = input$boxViolin, omitNA_X = input$xOmit)
+            p = getPointPlot(pdata, input, "FN")
+            }else{
+            p = runGGPLOTFN(pdata,input$xVal, input$yVal, style = input$boxViolin, omitNA_X = input$xOmit)
           }
         }
       }else{#else X is numeric (Note, the issue where Y is a factor is handled by the UI render hot swapping them.)
-          validate(
-            need(input$sizeSlide, warningRender),
-            need(input$alphaSlide, warningRender)
-          )
-          if(input$pointJitter) {
-            validate(need(input$widthSlide, warningRender))
-            style = "jitter"
-          }else style = "point"
-          p = runGGPLOTNN(pdata,input$xVal, input$yVal,input$xVal, xlab = input$xVal, ylab = input$yVal, width = input$widthSlide,size = input$sizeSlide, alpha = input$alphaSlide, pstyle = style)
+          p = getPointPlot(pdata, input, "NN")
       }
+      p = addTheme(p, input)
       if(input$coordFlop){
         p + coord_flip()
       }else{
