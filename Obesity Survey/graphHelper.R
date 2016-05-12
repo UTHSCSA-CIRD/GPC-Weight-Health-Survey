@@ -59,5 +59,6 @@ addTheme <- function(p, input){
   if(input$xLab != "" | input$yLab != ""){
     p = p + labs(x = input$xLab, y = input$yLab)
   }
+  p = p+theme(text = element_text(size = input$textSize), axis.text.x = element_text(angle = input$xLabRotation, vjust = input$xLabHeight))
   p
 }

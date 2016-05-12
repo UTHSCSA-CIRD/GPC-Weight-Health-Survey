@@ -46,7 +46,10 @@ shinyServer(
                  textInput("titleField", "Graph Title", value = "", placeholder = "Enter the graph's title."),
                  textInput("xLab", "X-Axis Label", value = ""),
                  textInput("yLab", "Y-Axis Label", value = ""),
-                 actionButton("clearTheme", "Clear Theme Form")
+                 sliderInput("textSize", "Text Size", min = 5, max = 30,step = 1, value = 15),
+                 sliderInput("xLabRotation", "X Label Text Rotation", min = 0, max = 90, step = 5, value = 0),
+                 sliderInput("xLabHeight", "X Label Location", min = -1, max = 1, step = .1, value = 0),
+                 actionButton("clearTheme", "Reset Theme")
              )),#end div "theme
              a(id="toggleBox", "Show/hide box plot options", href ="#"),
              shinyjs::hidden(div(id="boxDiv",
@@ -74,6 +77,9 @@ shinyServer(
       updateTextInput(session, "titleField", value = "")
       updateTextInput(session, "xLab", value = "")
       updateTextInput(session, "yLab", value = "")
+      updateSliderInput(session, "textSize", value = 15)
+      updateSliderInput(session, "xLabRotation", value = 0)
+      updateSliderInput(session, "xLabHeight", value = 0)
     })
     observe({
       validate(
