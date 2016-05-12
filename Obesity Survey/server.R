@@ -48,6 +48,18 @@ shinyServer(
                  textInput("yLab", "Y-Axis Label", value = ""),
                  actionButton("clearTheme", "Clear Theme Form")
              )),#end div "theme
+             a(id="toggleBox", "Show/hide box plot options", href ="#"),
+             shinyjs::hidden(div(id="boxDiv",
+                 p("Note: These options will only have an effect on box plots."),
+                 checkboxInput("boxColor", "Add Color?", value = TRUE)
+             )),#end div box options
+             a(id="toggleViolin", "Show/hide violin options", href ="#"),
+             shinyjs::hidden(div(id="violinDiv",
+                 p("Note: These options will only have an effect on violin graphs."),
+                 checkboxInput("violinColor", "Add Color?", value = TRUE),
+                 checkboxInput("violinBoxOpt", "Add internal boxplot?", value = TRUE),
+                 checkboxInput("violinTrim", "Trim Edges?", value = TRUE)
+             )),#end div Violin options
              a(id="togglePoint", "Show/hide point options", href ="#"),
              shinyjs::hidden(div(id="pointDiv",
                p("Note: These options will only have an effect on point graphs."),
@@ -70,6 +82,7 @@ shinyServer(
       shinyjs::onclick("toggleTheme", toggle(id = "themeDiv", anim= TRUE))
       shinyjs::onclick("togglePoint", toggle(id = "pointDiv", anim= TRUE))
       shinyjs::onclick("toggleViolin", toggle(id = "violinDiv", anim= TRUE))
+      shinyjs::onclick("toggleBox", toggle(id = "boxDiv", anim= TRUE))
     })
     
     #this observe handles the enabling and disabling of the "filter" text based on if it has
@@ -180,11 +193,10 @@ shinyServer(
         }else{
           #factor number
           validate(need(input$boxViolin, warningRender))
-          if(input$boxViolin == "Points"){
-            p = getPointPlot(pdata, input, "FN")
-            }else{
-            p = runGGPLOTFN(pdata,input$xVal, input$yVal, style = input$boxViolin, omitNA_X = input$xOmit)
-          }
+          switch(input$boxViolin,
+                 "Points" = {p = getPointPlot(pdata, input, "FN")},
+                 "Violin" = {p = getViolinPlot(pdata, input)},
+                 "Box plot" = {p = getBoxPlot(pdata, input)})
         }
       }else{#else X is numeric (Note, the issue where Y is a factor is handled by the UI render hot swapping them.)
           p = getPointPlot(pdata, input, "NN")
@@ -195,7 +207,6 @@ shinyServer(
       }else{
         p
       }
-      
     })#end output$visPlot
     output$summaryRegion <- renderUI({
       validate(

@@ -5,28 +5,16 @@ getPointPlot <- function(pdata, input, type){
     need(input$sizeSlide, warningRender),
     need(input$alphaSlide, warningRender)
   )
+  if(type =='FN')if(input$xOmit)pdata = pdata[(pdata[,input$xVal] !="0" & pdata[,input$xVal] != ""),]
+  p = ggplot(data = pdata, aes_string(x = input$xVal, y = input$yVal))
   if(input$pointJitter) {
     validate(need(input$widthSlide, warningRender))
-    style = "jitter"
-  }else style = "point"
-  if(type =='FN')if(input$xOmit)pdata = pdata[(pdata[,input$xVal] !="0" & pdata[,input$xVal] != ""),]
-  pColor = NULL
-  pShape = NULL
-  if(input$pointColor != "No color") pColor = input$pointColor
-  if(input$pointShape != "No shape") pShape = input$pointShape
-  runGGPLOTNN(pdata,input$xVal, input$yVal, width = input$widthSlide, size = input$sizeSlide, alpha = input$alphaSlide, pstyle = style, pColor = pColor, pShape = pShape)
-}
-
-runGGPLOTNN <- function(data, x, y, width = 0.3, size = 1, alpha = 0.2, pstyle = "jitter", pColor = "black", pShape = 1){
-  require(ggplot2)
-  p = ggplot(data = data, aes_string(x = x, y = y))
-  if(!is.null(pColor))p = p + aes_string(colour = pColor)
-  if(!is.null(pShape))p = p + aes_string(shape = pShape)
-  if(pstyle == "jitter"){
-    p = p + geom_jitter(width = width, size = size, alpha = alpha)
-  }else{
-    p = p+ geom_point(size = size, alpha = alpha)
+    p = p + geom_jitter(width = input$widthSlide, size = input$sizeSlide, alpha = input$alphaSlide)
+  }else {
+    p = p+ geom_point(size = input$sizeSlide, alpha = input$alphaSlide)
   }
+  if(input$pointColor != "No color") p = p + aes_string(colour = pColor)
+  if(input$pointShape != "No shape") p = p + aes_string(shape = pShape)
   p
 }
 
@@ -44,17 +32,23 @@ runGGPLOTFF <- function(data, x, fill, omitNA_X=TRUE, omitNA_Y = FALSE, position
     scale_fill_discrete(guide = guide_legend(reverse = TRUE))
 }
 
-runGGPLOTFN <- function(data, x, y, style = "Box plot", omitNA_X= TRUE, ...){
-  require(ggplot2)
-  if(omitNA_X){
-    data = data[(data[,x] !="0" & data[,x] != ""),]
+getViolinPlot <- function(pdata, input){
+  if(input$xOmit)pdata = pdata[(pdata[,input$xVal] !="0" & pdata[,input$xVal] != ""),]
+  p = ggplot(data = pdata, aes_string(x = input$xVal, y = input$yVal))
+  if(input$violinColor){
+    p = p + geom_violin(aes_string(fill = input$xVal), trim = input$violinTrim)
+  }else{
+    p = p + geom_violin(trim = input$violinTrim)
   }
-  styleOpts = c("Box plot", "Violin")
-  if(!style %in% styleOpts) stop(paste("Error, style must be one of the following: ", toString(styleOpts)))
-  p = ggplot(data = data, aes_string(x = x, y = y))
-  switch(style
-         , "Box plot" = {p = p + geom_boxplot()} 
-         , "Violin" = {p = p + geom_violin()})
+  if(input$violinBoxOpt){
+    p = p + geom_boxplot(width = 0.1, fill = "white")
+  }
+  p
+}
+getBoxPlot <- function(pdata, input){
+  if(input$xOmit)pdata = pdata[(pdata[,input$xVal] !="0" & pdata[,input$xVal] != ""),]
+  p = ggplot(data = pdata, aes_string(x = input$xVal, y = input$yVal))+ geom_boxplot()
+  if(input$boxColor) p = p + aes_string(fill = input$xVal)
   p
 }
 addTheme <- function(p, input){
