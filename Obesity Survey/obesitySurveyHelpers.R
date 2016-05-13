@@ -1,3 +1,15 @@
+toggleMaster <- function(toggleOn, toggleAll){
+  #Down and dirty method to toggle things on and off-- hopefully this does work...
+  toggleOff = toggleAll[!toggleAll %in% toggleOn]
+  if(length(toggleOn) > 0)sapply(toggleOn, function(x){shinyjs::show(id = x, anim= TRUE) })
+  if(length(toggleOff) > 0)sapply(toggleOff, function(x){shinyjs::hide(id = x, anim= TRUE) })
+}
+
+
+
+
+
+
 runGGPLOT <- function(data
                       , x, fill, title = ""
                       , ylab = "Percent", xlab = ""

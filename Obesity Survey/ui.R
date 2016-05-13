@@ -1,7 +1,7 @@
 library(shinyBS)
 library(shiny)
 library(shinyjs)
-
+##################TOP##################################################################
 shinyUI(
   fluidPage(theme = "bootstrap.min.css", 
     tags$head(tags$script(src = "popOver.js")),
@@ -10,17 +10,80 @@ shinyUI(
     titlePanel("Obesity Survey Sample Data Review"),
     tabsetPanel(
       tabPanel("Graphs",  #tabpanel for the bargraph
-        sidebarLayout(#BARGRAPH
+        sidebarLayout(
           sidebarPanel(
-            #Graph options
-            uiOutput("graphSidePanel")
-          ), #end bargraph sidebar panel
+######################SideBar Graph#######################################################
+######### BASIC PANEL- Sidebar Graph #####################################################################
+          tabsetPanel(
+            tabPanel("Basic",
+                     verticalLayout(
+                       shinyjs::useShinyjs(),
+                       inlineCSS(list(.disabled = "color:grey")),
+                       div(id = "filterFlagDiv",
+                           checkboxInput("surv2RespOnly","Only Survey 2 Respondants?")
+                       ),
+                       uiOutput("xy"),
+                       shinyjs::hidden(div(id= "xOmitDiv",
+                           checkboxInput("xOmit", "Omit blanks in X?", value = TRUE))),
+                       shinyjs::hidden(div(id= "barPlotDiv",
+                           checkboxInput("yOmit", "Omit blanks in Y?", value = FALSE),
+                           radioButtons("barProportion", "Bar Plot Format", choices = c("Compare proportions", "Show actual values"), selected = "Show actual values"))),
+                       shinyjs::hidden(div(id="FNDiv",
+                           radioButtons("boxViolin", "Which visualization?", c("Box plot", "Violin", "Points"), selected = "Box plot"))),
+                       shinyjs::hidden(div(id= "pointDiv",
+                           shinyjs::hidden(div(id= "jitterDiv",
+                              sliderInput('widthSlide', "Jitter Width", min = 0, max = 1, value = 0.3, step = .1, round = FALSE))),
+                           sliderInput('sizeSlide', "Point Size", min = 0, max = 5, value = 1, step = .5, round = FALSE),
+                           sliderInput('alphaSlide', "Point Opacity", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
+                           checkboxInput('pointJitter', "Jitter the Points?"))),
+                       checkboxInput("coordFlop","Rotate Graph")
+                     )
+            ),#end basic tab
+######### ADVANCED PANEL- Sidebar Graph #####################################################################
+            tabPanel("Advanced",
+                     verticalLayout(
+                       shinyjs::useShinyjs(),
+                       a(id="toggleTheme", "Theme: Show/hide options", href ="#"),
+                       shinyjs::hidden(div(id="themeDiv",
+                                           textInput("titleField", "Graph Title", value = "", placeholder = "Enter the graph's title."),
+                                           textInput("xLab", "X-Axis Label", value = ""),
+                                           textInput("yLab", "Y-Axis Label", value = ""),
+                                           sliderInput("textSize", "Text Size", min = 5, max = 30,step = 1, value = 15),
+                                           sliderInput("xLabRotation", "X Label Text Rotation", min = 0, max = 90, step = 5, value = 0),
+                                           sliderInput("xLabHeight", "X Label Location", min = -1, max = 1, step = .1, value = 0),
+                                           actionButton("clearTheme", "Reset Theme")
+                       )),#end div "theme
+                       a(id="toggleBox", "Box plot: Show/hide options", href ="#"),
+                       shinyjs::hidden(div(id="boxDiv",
+                                           p("Note: These options will only have an effect on box plots."),
+                                           checkboxInput("boxColor", "Add Color?", value = TRUE)
+                       )),#end div box options
+                       a(id="toggleViolin", "Violin: Show/hide options", href ="#"),
+                       shinyjs::hidden(div(id="violinDiv",
+                                           p("Note: These options will only have an effect on violin graphs."),
+                                           checkboxInput("violinColor", "Add Color?", value = TRUE),
+                                           checkboxInput("violinBoxOpt", "Add internal boxplot?", value = TRUE),
+                                           checkboxInput("violinTrim", "Trim Edges?", value = TRUE)
+                       )),#end div Violin options
+                       a(id="togglePoint", "Point: Show/hide options", href ="#"),
+                       shinyjs::hidden(div(id="pointAdvDiv",
+                                           p("Note: These options will only have an effect on point graphs."),
+                                           selectInput("pointColor", "Color Value", c("No color"), selected = "No color"),
+                                           selectInput("pointShape", "Shape Value", c("No shape"), selected = "No shape")
+                                           
+                       ))#end div point options
+                     )
+            )#end advanced tab
+          )#end tab panel
+          ), #end graph sidebar panel
+######### MAIN PANEL- Graph #####################################################################
           mainPanel(
             bsAlert("graphError"),
             plotOutput("visPlot"),
             uiOutput("summaryRegion")#this makes it easier to adaptively display the summary
           )#end bargraph mainPanel
         )),#end sidebarLayout/TabPanel BARGRAPH
+######### CONSTELLATION #########################################################################
       tabPanel("Constellation",sidebarLayout(
         sidebarPanel(fluidRow( # CONSTELLATIONS
             checkboxInput("constSurv2RespOnly","Only Survey 2 Respondants?"),
@@ -29,7 +92,25 @@ shinyUI(
             div(style="display:inline-block",
             HTML("<a herf='#' id='btn-2' class='btn btn-primary btn-xs' data-toggle='popover' data-placement= 'auto bottom' title='Focused PCA Plot' data-content='A <b>focused</b> PCA allows you to create a constelation map that revolves around a specific point. The closer a point is to the center, the more closely the column it 
             represents is correlated with the response variable in the center.'>?</a>")),
-            uiOutput("consetllationSide")
+            shinyjs::hidden(div(id="focusedPCADiv",
+                                hr(),
+                                p("The closer a point is to the center, the more closely the column it 
+                                    represents is correlated with the response variable in the center. Green 
+                                    indicates positive correlations and yellow, inverse correlations."),
+                                hr(),
+                                uiOutput("PCAVariable"))),
+            div(id="constellationDiv",
+                              hr(),
+                              p("Each point is a column from the dataset. The closer they are together the 
+                                  stronger their positive correlation, and the closer they are to 180 degrees,
+                                  the stronger their negative correlation. Variables 90 degrees to each other are 
+                                  uncorrelated (independent).
+                                  White filled circles are on the surface of the sphere that is away from the observer and the red ones are currently facing the observer."),
+                              hr(),
+                              p("Use these sliders to rotate the points until they become easy to see. Note: The rotation play buttons might not perform well when running TABSIE from CD or on a slower computer."),
+                              sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE),
+                              sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE),
+                              sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE))
         )),#end constellation sideBar
         mainPanel(
           plotOutput("constellationPlot",height="800px")

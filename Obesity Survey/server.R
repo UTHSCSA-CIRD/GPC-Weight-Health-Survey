@@ -19,60 +19,12 @@ shinyServer(
     #NOTE! ggplot will only apply a shape to the first 6 levels of a factor, thus we will only show
     #factors with 6 or fewer factor levels!
     valsShape = valsFactor[sapply(valsFactor, function(x) length(levels(samp[,x])))<=6]
-    
+    graphDivs = c("xOmitDiv", "barPlotDiv", "FNDiv", "pointDiv", "jitterDiv")
+    constDivs = c("focusedPCADiv","constellationDiv")
     filtered = subset(samp,s2resp=='Yes')
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
     
-    output$graphSidePanel <- renderUI({
-      tabsetPanel(
-        tabPanel("Basic",
-          verticalLayout(
-            shinyjs::useShinyjs(),
-            inlineCSS(list(.disabled = "color:grey")),
-            div(id = "filterFlagDiv",
-            checkboxInput("surv2RespOnly","Only Survey 2 Respondants?")
-            ),
-            selectInput("xVal", "X Value", valsNonText ),
-            selectInput("yVal", "Y Value", valsNonText),
-            uiOutput("subSelectionOpts"),
-            checkboxInput("coordFlop","Rotate Graph")
-          )
-        ),#end basic tab
-        tabPanel("Advanced",
-           verticalLayout(
-             shinyjs::useShinyjs(),
-             a(id="toggleTheme", "Show/hide theme options", href ="#"),
-             shinyjs::hidden(div(id="themeDiv",
-                 textInput("titleField", "Graph Title", value = "", placeholder = "Enter the graph's title."),
-                 textInput("xLab", "X-Axis Label", value = ""),
-                 textInput("yLab", "Y-Axis Label", value = ""),
-                 sliderInput("textSize", "Text Size", min = 5, max = 30,step = 1, value = 15),
-                 sliderInput("xLabRotation", "X Label Text Rotation", min = 0, max = 90, step = 5, value = 0),
-                 sliderInput("xLabHeight", "X Label Location", min = -1, max = 1, step = .1, value = 0),
-                 actionButton("clearTheme", "Reset Theme")
-             )),#end div "theme
-             a(id="toggleBox", "Show/hide box plot options", href ="#"),
-             shinyjs::hidden(div(id="boxDiv",
-                 p("Note: These options will only have an effect on box plots."),
-                 checkboxInput("boxColor", "Add Color?", value = TRUE)
-             )),#end div box options
-             a(id="toggleViolin", "Show/hide violin options", href ="#"),
-             shinyjs::hidden(div(id="violinDiv",
-                 p("Note: These options will only have an effect on violin graphs."),
-                 checkboxInput("violinColor", "Add Color?", value = TRUE),
-                 checkboxInput("violinBoxOpt", "Add internal boxplot?", value = TRUE),
-                 checkboxInput("violinTrim", "Trim Edges?", value = TRUE)
-             )),#end div Violin options
-             a(id="togglePoint", "Show/hide point options", href ="#"),
-             shinyjs::hidden(div(id="pointDiv",
-               p("Note: These options will only have an effect on point graphs."),
-               selectInput("pointColor", "Color Value", c("No color", valsNonText), selected = "No color"),
-               selectInput("pointShape", "Shape Value", c("No shape", valsShape), selected = "No shape")
-             ))#end div point options
-           )
-        )#end advanced tab
-      )#end tab panel
-    })#end output$graphSidePanel
+####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
       updateTextInput(session, "titleField", value = "")
       updateTextInput(session, "xLab", value = "")
@@ -81,33 +33,71 @@ shinyServer(
       updateSliderInput(session, "xLabRotation", value = 0)
       updateSliderInput(session, "xLabHeight", value = 0)
     })
+######## DIV BOX CONTROL for ADVANCED PANEL #################
     observe({
       validate(
         need(input$xVal, "")
       )
       shinyjs::onclick("toggleTheme", toggle(id = "themeDiv", anim= TRUE))
-      shinyjs::onclick("togglePoint", toggle(id = "pointDiv", anim= TRUE))
+      shinyjs::onclick("togglePoint", {
+        toggle(id = "pointAdvDiv", anim= TRUE)
+        updateSelectInput(session, "pointColor", choices = c("No color", valsNonText))
+        updateSelectInput(session, "pointShape", choices = c("No shape", valsShape))
+        })
       shinyjs::onclick("toggleViolin", toggle(id = "violinDiv", anim= TRUE))
       shinyjs::onclick("toggleBox", toggle(id = "boxDiv", anim= TRUE))
     })
     
-    #this observe handles the enabling and disabling of the "filter" text based on if it has
-    #any effect on the graph.
+################ DIV BOX CONTROL for GRAPH PANEL ######################################
     observe({
       validate(
         need(input$xVal,""),
         need(input$yVal, "")
       )
+      xf = (input$xVal %in% valsFactor)
+      yf = (input$yVal %in% valsFactor)
       enabled = TRUE
-      if(input$xVal %in% valsNumeric){
-        #feel free to make this more elegantly R
-        if(all(filtered[is.finite(filtered[,input$xVal]),input$xVal] == samp[is.finite(samp[,input$xVal]),input$xVal])){
-          enabled = FALSE
+      
+      if(xf){
+        if(yf){
+          #both factors
+          toggleOn = c("barPlotDiv", "xOmitDiv")
+          toggleMaster(toggleOn, graphDivs)
+        }else{
+          #X is factor y is numeric
+          toggleOn = c("xOmitDiv", "FNDiv")
+          if(input$boxViolin == "Points"){
+            toggleOn = c(toggleOn, "pointDiv")
+            if(input$pointJitter){
+              toggleOn = c(toggleOn, "jitterDiv")
+            }
+          }
+          toggleMaster(toggleOn, graphDivs)
         }
-      }
-      if(input$yVal %in% valsNumeric){
-        if(all(filtered[is.finite(filtered[,input$yVal]),input$yVal] == samp[is.finite(samp[,input$yVal]),input$yVal])){
-          enabled = FALSE
+      }else{
+        #X is numeric
+        if(yf){
+          #Oops! X is numeric Y is a factor! 
+          tmp = input$yVal
+          updateSelectInput(session, "yVal", selected = input$xVal)
+          updateSelectInput(session, "xVal", selected = tmp)
+          #This method will be recalled, so lets escape with a return.
+          return()
+        }else{
+          #Y is also numeric!
+          if(all(filtered[is.finite(filtered[,input$xVal]),input$xVal] == samp[is.finite(samp[,input$xVal]),input$xVal])){
+            enabled = FALSE
+          }
+          if(all(filtered[is.finite(filtered[,input$yVal]),input$yVal] == samp[is.finite(samp[,input$yVal]),input$yVal])){
+            enabled = FALSE
+          }
+          #activate the necessary divs: point and jitter
+          if(input$pointJitter){
+            toggleOn = c(toggleOn, "pointDiv", "jitterDiv")
+          }else{
+            c(toggleOn, "pointDiv")
+          }
+          toggleMaster(toggleOn, graphDivs)
         }
       }
       if(enabled){
@@ -118,58 +108,45 @@ shinyServer(
         shinyjs::disable("surv2RespOnly")
       }
     })
-    
-    output$subSelectionOpts <- renderUI({
-      if(input$xVal %in% valsFactor){
-        if(input$yVal %in% valsFactor){
+############### DIV BOX CONTROL FOR CONSTELLATION #################
+    observe({
+      if(input$focusedPCA){
+        toggleOn = c("focusedPCADiv")
+        toggleMaster(toggleOn, constDivs)
+      }else{
+        toggleOn = c("constellationDiv")
+        toggleMaster(toggleOn, constDivs)
+      }
+    })
+##############UI OUTPUTS####################################
+#These are only here because in later TABSIE we'll allow users to upload their own datasets, so drop downs will need to
+#be dynamically generated.
+    output$xy <-renderUI({
+      verticalLayout(
+        selectInput("xVal", "X Value", valsNonText ),
+        selectInput("yVal", "Y Value", valsNonText)
+      )
+    })
+    output$PCAVariable <-renderUI({
+      selectInput("constResponseVar","Response Variable", valsNonText)
+    })
+    output$summaryRegion <- renderUI({
+      validate(
+        need(input$xVal, warningRender),
+        need(input$yVal, warningRender)
+      )
+      if(input$xVal %in% valsFactor & input$yVal %in% valsFactor){
+        tableOutput("freqTable")
+      }else{
+        if(input$yVal %in% valsNumeric){
           verticalLayout(
-            p("Additional Barplot features:"),
-            checkboxInput("xOmit", "Omit blanks in X?", value = TRUE),
-            checkboxInput("yOmit", "Omit blanks in Y?", value = FALSE),
-            radioButtons("barProportion", "Bar Plot Format", choices = c("Compare proportions", "Show actual values"), selected = "Show actual values")
-            )
-        }else{
-          verticalLayout(
-            checkboxInput("xOmit", "Omit blanks in X?", value = TRUE),
-            radioButtons("boxViolin", "Which visualization?", c("Box plot", "Violin", "Points"), selected = "Box plot"),
-            conditionalPanel(condition = "input.boxViolin == 'Points'", uiOutput("pointUIOpts"))#This may end disastrously...
+            p("Summary"),
+            tableOutput("summaryTable")#originally had the summary(lm()) after this, but I like just the summary table better- leaving the render table in case we decide to re-add it.
           )
         }
-      }else{
-        if(input$yVal %in% valsFactor){
-          #Testing hot swap of x and y to force factors into X
-          tmp = input$yVal
-          updateSelectInput(session, "yVal", selected = input$xVal)
-          updateSelectInput(session, "xVal", selected = tmp)
-        }else{
-          uiOutput("pointUIOpts")
-        }
-      }
-    })#end OUTPUT subSelectionOpts
-    
-    output$pointUIOpts <- renderUI({
-      verticalLayout(
-        uiOutput("jitter"),
-        sliderInput('sizeSlide', "Point Size", min = 0, max = 5, value = 1, step = .5, round = FALSE),
-        sliderInput('alphaSlide', "Point Opacity", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
-        if(input$xVal %in% valsNumeric){
-          checkboxInput('pointJitter', "Jitter the Points?")
-        }else{
-          checkboxInput('pointJitter', "Jitter the Points?", value = TRUE)
-        }
-      )
-    })
-    
-    output$jitter <- renderUI({
-      validate(
-        need(isolate(input$alphaSlide), warningRender)
-      )
-      if(input$pointJitter){
-        #jitter
-        sliderInput('widthSlide', "Jitter Width", min = 0, max = 1, value = 0.3, step = .1, round = FALSE)
       }
     })
-    
+########## RENDER PLOT OUTPUT ################################
     output$visPlot <- renderPlot({
       validate(
         need(input$xVal, warningRender),
@@ -214,22 +191,30 @@ shinyServer(
         p
       }
     })#end output$visPlot
-    output$summaryRegion <- renderUI({
-      validate(
-        need(input$xVal, warningRender),
-        need(input$yVal, warningRender)
-      )
-      if(input$xVal %in% valsFactor & input$yVal %in% valsFactor){
-        tableOutput("freqTable")
+    
+    output$constellationPlot <- renderPlot({
+      if(input$constSurv2RespOnly){
+        pdata = filtered
       }else{
-        if(input$yVal %in% valsNumeric){
-          verticalLayout(
-            p("Summary"),
-            tableOutput("summaryTable")#originally had the summary(lm()) after this, but I like just the summary table better- leaving the render table in case we decide to re-add it.
-          )
-        }
+        pdata = samp
       }
-    })
+      if(input$focusedPCA){
+        validate(
+          need(input$constResponseVar, warningRender)
+        )
+        pcawrap(pdata, respvar = input$constResponseVar,pca='f', contraction='Yes')
+      }else{
+        validate(
+          need(input$constVSlider, warningRender),
+          need(input$constHSlider, warningRender),
+          need(input$constFSlider, warningRender)
+        )
+        pcawrap(pdata, nbsphere=1, back=T,v=input$constVSlider,
+                h=input$constHSlider,f=input$constFSlider)
+        
+      }
+    })#END PLOT constellationPlot
+######### RENDER TABLES ###########################################    
     output$freqTable <- renderTable({#validation done before this is called, no need to repeat
       if(input$surv2RespOnly){
         pdata = filtered
@@ -261,57 +246,8 @@ shinyServer(
       summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
     })
     
-    output$consetllationSide <- renderUI({
-      if(input$focusedPCA){
-        return({verticalLayout(
-          hr(),
-          p("The closer a point is to the center, the more closely the column it 
-            represents is correlated with the response variable in the center. Green 
-            indicates positive correlations and yellow, inverse correlations."),
-          hr(),
-          selectInput("constResponseVar","Response Variable", valsNonText)
-        )})
-      }else{
-        return({
-          verticalLayout(
-            hr(),
-            p("Each point is a column from the dataset. The closer they are together the 
-            stronger their positive correlation, and the closer they are to 180 degrees,
-            the stronger their negative correlation. Variables 90 degrees to each other are 
-            uncorrelated (independent).
-            White filled circles are on the surface of the sphere that is away from the observer and the red ones are currently facing the observer."),
-            hr(),
-            p("Use these sliders to rotate the points until they become easy to see. Note: The rotation play buttons might not perform well when running TABSIE from CD or on a slower computer."),
-            sliderInput('constVSlider', "Y-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE),
-            sliderInput('constHSlider', "X-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE),
-            sliderInput('constFSlider', "Z-Axis", min = 0, max = 360, value = 1, step = 5, round = 0, animate = TRUE)
-          )
-        })
-      }#end else not focused PCA
-    })#END OUTPUT constellationSide 
+########## PORTABLE R CODE#############    
     
-    output$constellationPlot <- renderPlot({
-      if(input$constSurv2RespOnly){
-        pdata = filtered
-      }else{
-        pdata = samp
-      }
-      if(input$focusedPCA){
-        validate(
-          need(input$constResponseVar, warningRender)
-        )
-        pcawrap(pdata, respvar = input$constResponseVar,pca='f', contraction='Yes')
-      }else{
-        validate(
-          need(input$constVSlider, warningRender),
-          need(input$constHSlider, warningRender),
-          need(input$constFSlider, warningRender)
-        )
-        pcawrap(pdata, nbsphere=1, back=T,v=input$constVSlider,
-                  h=input$constHSlider,f=input$constFSlider)
-        
-      }
-    })#END PLOT constellationPlot
     ### THIS CODE IS USED FOR PORTAL R SO THAT THE R SESSION ENDS WHEN THE BROWSER IS CLOSED!!
 #      session$onSessionEnded(function() { 
 #        stopApp()

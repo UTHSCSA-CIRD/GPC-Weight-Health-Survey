@@ -13,8 +13,9 @@ getPointPlot <- function(pdata, input, type){
   }else {
     p = p+ geom_point(size = input$sizeSlide, alpha = input$alphaSlide)
   }
-  if(input$pointColor != "No color") p = p + aes_string(colour = pColor)
-  if(input$pointShape != "No shape") p = p + aes_string(shape = pShape)
+  
+  if(input$pointColor != "No color") p = p + aes_string(colour = input$pointColor)
+  if(input$pointShape != "No shape") p = p + aes_string(shape = input$pointShape)
   p
 }
 
