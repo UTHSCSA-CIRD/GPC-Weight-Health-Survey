@@ -3,12 +3,13 @@ library(shiny)
 library(shinyjs)
 
 shinyUI(
-  fluidPage(
+  fluidPage(theme = "bootstrap.min.css", 
+    tags$head(tags$script(src = "popOver.js")),
     HTML("<span style='font-size:35px'><span style ='color:orange'>T</span><span style ='color:#B2B200'>A</span><span style ='color:orange'>B</span><span style ='color:#B2B200'>S</span><span style ='color:orange'>I</span><span style='color:#B2B200'>E</span></span> <span style='font-size:15px'> <span style ='color:orange'>   Table </span><span style ='color:#B2B200'>Analyzer, </span><span style ='color:orange'>Browser,</span><span style ='color:#B2B200'> and Summarizer </span><span style ='color:orange'> for Informatics</span><span style ='color:#B2B200'> Exploration</span></span>
          <p>Clinical Informatics Research Division (CIRD), University of Texas Health Science Center at San Antonio (UTHSCSA)</h5></p>"),
     titlePanel("Obesity Survey Sample Data Review"),
     tabsetPanel(
-      tabPanel("Graphs", #tabpanel for the bargraph
+      tabPanel("Graphs",  #tabpanel for the bargraph
         sidebarLayout(#BARGRAPH
           sidebarPanel(
             #Graph options
@@ -23,7 +24,11 @@ shinyUI(
       tabPanel("Constellation",sidebarLayout(
         sidebarPanel(fluidRow( # CONSTELLATIONS
             checkboxInput("constSurv2RespOnly","Only Survey 2 Respondants?"),
-            checkboxInput("focusedPCA", "Focused PCA Plot?"),
+            div(style="display:inline-block",
+            checkboxInput("focusedPCA", "Focused PCA Plot?")),
+            div(style="display:inline-block",
+            HTML("<a herf='#' id='btn-2' class='btn btn-primary btn-xs' data-toggle='popover' data-placement= 'auto bottom' title='Focused PCA Plot' data-content='A <b>focused</b> PCA allows you to create a constelation map that revolves around a specific point. The closer a point is to the center, the more closely the column it 
+            represents is correlated with the response variable in the center.'>?</a>")),
             uiOutput("consetllationSide")
         )),#end constellation sideBar
         mainPanel(

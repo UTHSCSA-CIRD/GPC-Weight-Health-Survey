@@ -35,7 +35,7 @@ shinyServer(
             selectInput("xVal", "X Value", valsNonText ),
             selectInput("yVal", "Y Value", valsNonText),
             uiOutput("subSelectionOpts"),
-            checkboxInput("coordFlop","Flip Coordinate Plains (X->Y, Y->X)")
+            checkboxInput("coordFlop","Rotate Graph")
           )
         ),#end basic tab
         tabPanel("Advanced",
@@ -127,7 +127,7 @@ shinyServer(
             checkboxInput("xOmit", "Omit blanks in X?", value = TRUE),
             checkboxInput("yOmit", "Omit blanks in Y?", value = FALSE),
             radioButtons("barProportion", "Bar Plot Format", choices = c("Compare proportions", "Show actual values"), selected = "Show actual values")
-          )
+            )
         }else{
           verticalLayout(
             checkboxInput("xOmit", "Omit blanks in X?", value = TRUE),
@@ -175,7 +175,7 @@ shinyServer(
         need(input$xVal, warningRender),
         need(input$yVal, warningRender)
       )
-      #This is the easiest and most adaptable way to handle the narrowing options.
+      #This is the easiest and most adaptable way to handle the filtering options.
       #We can expand it to an entire method later and just use pdata as the graphing
       #option instead of if this, pass a subset, just always pass pdata. or Plot-data
       #since this is pass by promise not changing the data only creates a pointer, otherwise
