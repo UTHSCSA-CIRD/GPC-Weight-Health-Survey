@@ -27,15 +27,16 @@ shinyUI(
                            checkboxInput("xOmit", "Omit blanks in X?", value = TRUE))),
                        shinyjs::hidden(div(id= "barPlotDiv",
                            checkboxInput("yOmit", "Omit blanks in Y?", value = FALSE),
-                           radioButtons("barProportion", "Bar Plot Format", choices = c("Compare proportions", "Show actual values"), selected = "Show actual values"))),
+                           radioButtons("barProportion", dictBarProportions, choices = c("Compare proportions", "Show actual values"), selected = "Show actual values"))),
                        shinyjs::hidden(div(id="FNDiv",
-                           radioButtons("boxViolin", "Which visualization?", c("Box plot", "Violin", "Points"), selected = "Box plot"))),
+                           radioButtons("boxViolin", dictFN, c("Box plot", "Violin", "Points"), selected = "Box plot"))),
                        shinyjs::hidden(div(id= "pointDiv",
                            shinyjs::hidden(div(id= "jitterDiv",
-                              sliderInput('widthSlide', "Jitter Width", min = 0, max = 1, value = 0.3, step = .1, round = FALSE))),
+                                sliderInput('widthSlide', dictJitterWidth, min = 0, max = 1, value = 0.3, step = .1, round = FALSE)
+                              )),
                            sliderInput('sizeSlide', "Point Size", min = 0, max = 5, value = 1, step = .5, round = FALSE),
-                           sliderInput('alphaSlide', "Point Opacity", min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
-                           checkboxInput('pointJitter', "Jitter the Points?"))),
+                           sliderInput('alphaSlide', dictPointOpacity, min = 0, max = 1, value = 0.2, step = .1, round = FALSE),
+                           checkboxInput('pointJitter', dicJitter))),
                        checkboxInput("coordFlop","Rotate Graph")
                      )
             ),#end basic tab

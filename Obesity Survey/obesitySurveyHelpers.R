@@ -4,9 +4,12 @@ toggleMaster <- function(toggleOn, toggleAll){
   if(length(toggleOn) > 0)sapply(toggleOn, function(x){shinyjs::show(id = x, anim= TRUE) })
   if(length(toggleOff) > 0)sapply(toggleOff, function(x){shinyjs::hide(id = x, anim= TRUE) })
 }
-
-
-
+htmlLabelInfo <- function(label = "This is a label.", title="PopUp Title", content="PopUpContext"){
+  html1 = "<a herf= '#' class='btn btn-primary btn-xs' data-toggle='popover' data-placement= 'auto bottom' title='"
+  html2 = "' data-content='"
+  html3 = "'>?</a>"
+  return (HTML(paste(label, html1,title, html2, content, html3)))
+}
 
 
 

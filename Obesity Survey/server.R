@@ -93,9 +93,9 @@ shinyServer(
           }
           #activate the necessary divs: point and jitter
           if(input$pointJitter){
-            toggleOn = c(toggleOn, "pointDiv", "jitterDiv")
+            toggleOn = c("pointDiv", "jitterDiv")
           }else{
-            c(toggleOn, "pointDiv")
+            toggleOn = c("pointDiv")
           }
           toggleMaster(toggleOn, graphDivs)
         }
