@@ -1,3 +1,18 @@
+toggleMaster <- function(toggleOn, toggleAll){
+  #Down and dirty method to toggle things on and off-- hopefully this does work...
+  toggleOff = toggleAll[!toggleAll %in% toggleOn]
+  if(length(toggleOn) > 0)sapply(toggleOn, function(x){shinyjs::show(id = x, anim= TRUE) })
+  if(length(toggleOff) > 0)sapply(toggleOff, function(x){shinyjs::hide(id = x, anim= TRUE) })
+}
+htmlLabelInfo <- function(label = "This is a label.", title="PopUp Title", content="PopUpContext"){
+  html1 = "<a herf= '#' class='btn btn-primary btn-xs' data-toggle='popover' data-placement= 'auto bottom' title='"
+  html2 = "' data-content='"
+  html3 = "'>?</a>"
+  return (HTML(paste(label, html1,title, html2, content, html3)))
+}
+
+
+
 runGGPLOT <- function(data
                       , x, fill, title = ""
                       , ylab = "Percent", xlab = ""
@@ -44,20 +59,12 @@ runGGPLOT <- function(data
   if(is.null(theme)) theme <- theme(axis.text.x=element_text(angle=45,hjust=1));
   out + labs(title = title, y = ylab, x = xlab) + theme;
 }
-
-runGGPLOTFF <- function(data, x, fill, title = "", ylab = "Percent", xlab = "", omitNA_X=TRUE, omitNA_Y = FALSE, position = "stack"){
-  require(ggplot2)
-  if(omitNA_X){
-    data = data[(data[,x] !="0" & data[,x] != ""),]
-  }
-  if(omitNA_Y){
-    data = data[(data[,fill] !="0" & data[,fill] != ""),]
-  }
-  ggplot(data = data)+ 
-    geom_bar(aes_string(x = x, fill = fill), position = position)+
-    labs(title = title, y = ylab, x = xlab)
+#'fpSummary, a fool-proof summary in the sense that it always returns a count of NA's even if there are none.
+fpSummary <- function(xx){
+  out <- summary(xx);
+  if(!"NA's"%in%names(out)) out["NA's"]<-0;
+  out;
 }
-
 #'fpSummary, a fool-proof summary in the sense that it always returns a count of NA's even if there are none.
 fpSummary <- function(xx){
   out <- summary(xx);
@@ -65,28 +72,7 @@ fpSummary <- function(xx){
   out;
 }
 
-runGGPLOTFN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", style = "Box plot", ...){
-  require(ggplot2)
-  styleOpts = c("Box plot", "Violin", "Points")
-  if(!style %in% styleOpts) stop(paste("Error, style must be one of the following: ", toString(styleOpts)))
-  if(style == "Points") return(runGGPLOTNN(data, x, y, title, ylab, xlab, ...))
-  p = ggplot(data = data, aes_string(x = x, y = y)) + labs(title = title, y = ylab, x = xlab)
-  switch(style
-         , "Box plot" = {p = p + geom_boxplot()} 
-         , "Violin" = {p = p + geom_violin()})
-    p
-}
 
-runGGPLOTNN <- function(data, x, y, title = "", ylab = "Percent", xlab = "", width = 0.3, alpha = 0.2, pstyle = "jitter" ){
-  require(ggplot2)
-  p = ggplot(data = data, aes_string(x = x, y = y)) + labs(title = title, y = ylab, x = xlab)
-  if(pstyle == "jitter"){
-    p = p + geom_jitter(width = width, alpha = alpha)
-  }else{
-    p = p+ geom_point(size = width, alpha = alpha)
-  }
-  p
-}
 
 ggMosaicPlot <- function(var1, var2){
   #Code by: http://stackoverflow.com/users/2119315/edwin
