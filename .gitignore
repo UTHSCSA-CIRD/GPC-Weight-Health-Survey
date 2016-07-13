@@ -1,12 +1,20 @@
 # History files
-.Rhistory
-.Rapp.history
+*.Rhistory
+*.Rapp.history
+*.Rproj
+*.rdata
+*.html
+dd_sqlscript.sql
 
 # Session Data files
-.RData
+*.RData
 
 # Example code in package build process
 *-Ex.R
+*.db
+*.txt
+*.Rproj
+*.csv
 
 # RStudio files
 .Rproj.user/
@@ -17,3 +25,16 @@ vignettes/*.pdf
 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
+
+# Python
+*.pyc
+
+# Kate
+*.kate-swp
+
+# LibreOffice
+.~lock.*.od*#
+
+# This project
+sitesettings.py
+.Rproj.user
