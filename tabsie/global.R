@@ -3,7 +3,7 @@
 source("obesitySurveyHelpers.R")
 warningRender = "User interface has not finished rendering, please wait."
 
-######################DICTIONARY!##################
+######################DICTIONARY!###################
 #Post Dictionary- This is android style. In android aps all of the text in the app is 
 #stored in a "dictionary" that can be hot-swapped in the event of a change of language.
 #That way nothing is hard coded.
