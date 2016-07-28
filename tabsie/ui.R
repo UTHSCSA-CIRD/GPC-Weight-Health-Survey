@@ -120,7 +120,7 @@ shinyUI(
         ))#End sidbarLayout/TabPanel CONSTELLATIONS
       
       ),#end tabsetPanel
-    HTML('<footer><center> <hr>TABSIE v1.1.1, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.<br/>For more information, please contact <a href="mailto:RUPERTD@uthscsa.edu">rupertd@uthscsa.edu</a></center></footer>')
+    HTML('<footer><center> <hr>TABSIE v1.2.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.<br/>For more information, please contact <a href="mailto:RUPERTD@uthscsa.edu">rupertd@uthscsa.edu</a></center></footer>')
     )#end fluidPage
   ),#end main app div: id= "TABSIEApp"
   div(id= "AuthPage", 
