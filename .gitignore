@@ -38,3 +38,4 @@ vignettes/*.pdf
 # This project
 sitesettings.py
 .Rproj.user
+*.xlsx
