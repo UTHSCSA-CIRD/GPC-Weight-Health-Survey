@@ -4,6 +4,7 @@ require(ggplot2)
 require(shinyjs)
 require(e1071);
 require(psy);
+require(digest);
 source("obesitySurveyHelpers.R")
 source("graphHelper.R")
 
@@ -23,9 +24,11 @@ shinyServer(
     constDivs = c("focusedPCADiv","constellationDiv")
     filtered = subset(samp,s2resp=='Yes')
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
-    
+    valAuth = FALSE ## is the current session authenticated?
+    authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
+      if (!valAuth) return;#break processing of not authorized.
       updateTextInput(session, "titleField", value = "")
       updateTextInput(session, "xLab", value = "")
       updateTextInput(session, "yLab", value = "")
@@ -35,6 +38,7 @@ shinyServer(
     })
 ######## DIV BOX CONTROL for ADVANCED PANEL #################
     observe({
+      if (!valAuth) return;#break processing of not authorized.
       validate(
         need(input$xVal, "")
       )
@@ -50,6 +54,7 @@ shinyServer(
     
 ################ DIV BOX CONTROL for GRAPH PANEL ######################################
     observe({
+      if (!valAuth) return;#break processing of not authorized.
       validate(
         need(input$xVal,""),
         need(input$yVal, "")
@@ -110,6 +115,7 @@ shinyServer(
     })
 ############### DIV BOX CONTROL FOR CONSTELLATION #################
     observe({
+      if (!valAuth) return;#break processing of not authorized.
       if(input$focusedPCA){
         toggleOn = c("focusedPCADiv")
         toggleMaster(toggleOn, constDivs)
@@ -122,6 +128,7 @@ shinyServer(
 #These are only here because in later TABSIE we'll allow users to upload their own datasets, so drop downs will need to
 #be dynamically generated.
     output$xy <-renderUI({
+      if (!valAuth) return;#break processing of not authorized.
       verticalLayout(
         selectInput("xVal", "X Value", valsNonText ),
         selectInput("yVal", "Y Value", valsNonText)
@@ -148,6 +155,7 @@ shinyServer(
     })
 ########## RENDER PLOT OUTPUT ################################
     output$visPlot <- renderPlot({
+      if (!valAuth) return;#break processing of not authorized.
       validate(
         need(input$xVal, warningRender),
         need(input$yVal, warningRender)
@@ -193,6 +201,7 @@ shinyServer(
     })#end output$visPlot
     
     output$constellationPlot <- renderPlot({
+      if (!valAuth) return;#break processing of not authorized.
       if(input$constSurv2RespOnly){
         pdata = filtered
       }else{
@@ -216,6 +225,7 @@ shinyServer(
     })#END PLOT constellationPlot
 ######### RENDER TABLES ###########################################    
     output$freqTable <- renderTable({#validation done before this is called, no need to repeat
+      if (!valAuth) return;#break processing of not authorized.
       if(input$surv2RespOnly){
         pdata = filtered
       }else{
@@ -225,6 +235,7 @@ shinyServer(
     })
     
     output$summaryTable <- renderTable({
+      if (!valAuth) return;#break processing of not authorized.
       if(input$surv2RespOnly){
         pdata = filtered
       }else{
@@ -238,6 +249,7 @@ shinyServer(
     })
     
     output$lmTable <- renderTable({
+      if (!valAuth) return;#break processing of not authorized.
       if(input$surv2RespOnly){
         pdata = filtered
       }else{
@@ -246,6 +258,23 @@ shinyServer(
       summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
     })
     
+########## Authentication Reactive #########
+    observeEvent(input$authButton,{
+      ##processes authentication.
+      session$sendCustomMessage(type = "bsAlertClose", "aError")
+      if(authAttempts >= 10){ 
+        createAlert(session, "authError", "aError", content = "Maximum authentications attempts reached.", title = "Warning", append = FALSE)
+        return
+      }
+      authAttempts = authAttempts + 1
+      if(digest(isolate(input$authPassword), algo = "sha512", ascii = TRUE) == authHash){
+        valAuth = TRUE
+        toggle(id = "AuthPage", anim= TRUE)
+        toggle(id = "TABSIEApp",anim = TRUE)
+      }else{
+        createAlert(session, "authError", "aError", content = "Invalid pin.", title = "Warning", append = FALSE)
+      }
+    })
 ########## PORTABLE R CODE#############    
     
     ### THIS CODE IS USED FOR PORTAL R SO THAT THE R SESSION ENDS WHEN THE BROWSER IS CLOSED!!
