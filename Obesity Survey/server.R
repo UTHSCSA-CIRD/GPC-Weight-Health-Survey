@@ -10,23 +10,72 @@ source("graphHelper.R")
 
 shinyServer(
   function(input, output, session){
-    #createAlert(session, "graphError", "gError", content = "Loading, please wait...", title = "Please wait", append = FALSE)
+    
+    #The data package now reads in:
+      #serverData - a list of data frames. Data Frame one should be the default. All data frames
+                  ## should have the SAME columns. They should merely be subsets of the original.
+      #serverDataDic - A list of definitions ofr the filters: E.g. c("Not filtered", "Filtered)
+      #serverHash - the hash function for the server authentication. If you don't want an 
+                  ## authentication screen make this = ""
     #REPLACED loading functions
         load("survSave.rdata")
-    dataDic = lapply(samp, class)
+    ##Since we have old .rdata files and we're putting a lot more "assumptions" on what the user will have in the 
+    ##.rdata file I'll do some checks to make sure that the 3 expected files are either there or
+    ##can be faked. (i.e. the only one that HAS to be there is serverData and it needs at least one data frame.)
+    if(!exists("serverData")){
+      createAlert(session, "systemError", "dError", content = "There is an error with the supplied data file. serverData does not exist! You have no data! Please upload a new .rdata package and try again.", title = "ERROR!", append = TRUE)
+      pData = data.frame(factor(c("Alex", "Alfredo", "Dean", "Laura", "Margie")),
+                         factor(c("Deputy Director", "Director", "Programmer", "Programmer", "Life Saver")),
+                         c(3,NA, 1,2,4),
+                         factor(c("Faded Charcoal","", "Faded Charcoal", "Red", "Yellow")));
+      colnames(pData) = c("Name", "Role", "Cube", "Fav_Color")
+      serverData = list(pData)
+      serverDataDic = c("No Filter")
+      serverHash = ""
+    }else{
+      if(!exists("serverDataDic")){
+        serverDataDic = c("No Filter")
+      }else{
+        #if we do have filters loaded, add them to the select.
+        updateSelectInput(session, inputId = "filter", choices = serverDataDic, selected = serverDataDic[1])
+        updateSelectInput(session, inputId = "filterCon", choices = serverDataDic, selected = serverDataDic[1])
+        toggle(id = "filterFlagDiv", anim= FALSE)
+        toggle(id = "filterFlagDivCon", anim= FALSE)
+      }
+      if(!exists("serverHash")){
+        serverHash = ""
+      }
+      pData = getpData(serverDataDic[1],serverDataDic,serverData);
+    }
+    dataDic = lapply(pData, class)
     valsFactor = names(dataDic[dataDic == "factor"])
     valsNumeric = names(dataDic[dataDic == "numeric" | dataDic == "integer" ])
     valsNonText = c(valsFactor, valsNumeric)
     #NOTE! ggplot will only apply a shape to the first 6 levels of a factor, thus we will only show
     #factors with 6 or fewer factor levels!
-    valsShape = valsFactor[sapply(valsFactor, function(x) length(levels(samp[,x])))<=6]
+    valsShape = valsFactor[sapply(valsFactor, function(x) length(levels(pData[,x])))<=6]
     graphDivs = c("xOmitDiv", "barPlotDiv", "FNDiv", "pointDiv", "jitterDiv")
     constDivs = c("focusedPCADiv","constellationDiv")
-    filtered = subset(samp,s2resp=='Yes')
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
+    if(serverHash == "") { # if there is no hash for this one, we skip the authentication screen.
+      valAuth = TRUE;
+      toggle(id = "AuthPage", anim= FALSE)
+      toggle(id = "TABSIEApp",anim = FALSE)
+    }
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
     
+####### TITLE VIEWER  ######################
+    output$TitleString <-renderUI({
+      if(exists("serverTitle")){
+        titlePanel(serverTitle)
+      }
+    })
+    output$Statement <-renderUI({
+      if(exists("serverStatement")){
+        eval(serverStatement)
+      }
+    })
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
       if (!valAuth) return;#break processing of not authorized.
@@ -62,8 +111,6 @@ shinyServer(
       )
       xf = (input$xVal %in% valsFactor)
       yf = (input$yVal %in% valsFactor)
-      enabled = TRUE
-      twist = 
       if(xf){
         if(yf){
           #both factors
@@ -92,12 +139,6 @@ shinyServer(
           return()
         }else{
           #Y is also numeric!
-          if(all(filtered[is.finite(filtered[,input$xVal]),input$xVal] == samp[is.finite(samp[,input$xVal]),input$xVal])){
-            enabled = FALSE
-          }
-          if(all(filtered[is.finite(filtered[,input$yVal]),input$yVal] == samp[is.finite(samp[,input$yVal]),input$yVal])){
-            enabled = FALSE
-          }
           #activate the necessary divs: point and jitter
           if(input$pointJitter){
             toggleOn = c("pointDiv", "jitterDiv")
@@ -106,13 +147,6 @@ shinyServer(
           }
           toggleMaster(toggleOn, graphDivs)
         }
-      }
-      if(enabled){
-        shinyjs::removeClass("filterFlagDiv", "disabled")
-        shinyjs::enable("surv2RespOnly")
-      }else{
-        shinyjs::addClass("filterFlagDiv", "disabled")
-        shinyjs::disable("surv2RespOnly")
       }
     })
 ############### DIV BOX CONTROL FOR CONSTELLATION #################
@@ -168,11 +202,7 @@ shinyServer(
       #since this is pass by promise not changing the data only creates a pointer, otherwise
       #we were going to change the data anyway (unless the UI for a type of graph wasn't finished
       #rendering, but it's still better to have this here rather than in each if)
-      if(input$surv2RespOnly){
-        pdata = filtered
-      }else{
-        pdata = samp
-      }
+      pdata = getpData(input$filter, serverDataDic, serverData)
       p = NULL
       #if there is an alert message open, close it.
       session$sendCustomMessage(type = "bsAlertClose", "gError")
@@ -204,11 +234,7 @@ shinyServer(
     
     output$constellationPlot <- renderPlot({
       if (!valAuth) return;#break processing of not authorized.
-      if(input$constSurv2RespOnly){
-        pdata = filtered
-      }else{
-        pdata = samp
-      }
+      pdata = getpData(input$filterCon, serverDataDic, serverData)
       if(input$focusedPCA){
         validate(
           need(input$constResponseVar, warningRender)
@@ -228,21 +254,13 @@ shinyServer(
 ######### RENDER TABLES ###########################################    
     output$freqTable <- renderTable({#validation done before this is called, no need to repeat
       if (!valAuth) return;#break processing of not authorized.
-      if(input$surv2RespOnly){
-        pdata = filtered
-      }else{
-        pdata = samp
-      }
+      pdata = getpData(input$filter, serverDataDic, serverData)
       addmargins(table(pdata[,c(input$xVal,input$yVal)]))
     })
     
     output$summaryTable <- renderTable({
       if (!valAuth) return;#break processing of not authorized.
-      if(input$surv2RespOnly){
-        pdata = filtered
-      }else{
-        pdata = samp
-      }
+      pdata = getpData(input$filter, serverDataDic, serverData)
       if(input$xVal %in% valsFactor){
         as.table(sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary))
       }else{
@@ -252,25 +270,20 @@ shinyServer(
     
     output$lmTable <- renderTable({
       if (!valAuth) return;#break processing of not authorized.
-      if(input$surv2RespOnly){
-        pdata = filtered
-      }else{
-        pdata = samp
-      }
+      pdata = getpData(input$filter, serverDataDic, serverData)
       summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
     })
     
 ########## Authentication Reactive #########
     observeEvent(input$authButton,{
       ##processes authentication.
-      browser();
       session$sendCustomMessage(type = "bsAlertClose", "aError")
       if(authAttempts >= 10){ 
         createAlert(session, "authError", "aError", content = "Maximum authentications attempts reached.", title = "Warning", append = TRUE)
         return
       }
       authAttempts <<- authAttempts + 1
-      if(digest(isolate(input$authPassword), algo = "sha512", ascii = TRUE) == serverPin){
+      if(digest(isolate(input$authPassword), algo = "sha512", ascii = TRUE) == serverHash){
         valAuth = TRUE
         toggle(id = "AuthPage", anim= TRUE)
         toggle(id = "TABSIEApp",anim = TRUE)

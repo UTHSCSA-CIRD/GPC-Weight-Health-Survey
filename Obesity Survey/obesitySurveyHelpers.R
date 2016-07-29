@@ -10,8 +10,24 @@ htmlLabelInfo <- function(label = "This is a label.", title="PopUp Title", conte
   html3 = "'>?</a>"
   return (HTML(paste(label, html1,title, html2, content, html3)))
 }
-
-
+getpData<- function(filterOption, filterDic, dataList){
+  #this function is another of those nice little functions that does something easy, but 
+  #that we don't want to have to program elsewhere.
+  line = which(filterDic == filterOption) #which filter is activated?
+  
+  if(!any(line)){
+    #Well! That's not supposed to happen! If we don't return things break, so we'll return the
+    #default.
+    createAlert(session, "systemError", "dError", content = "There is an error with the supplied data file. The filter you have selected does not exist. Resetting to default filter.", title = "ERROR!", append = TRUE)
+    return(dataList[[1]])
+  }
+  if(line > length(dataList)){
+    #Well.... someone created more filter options in their dict than actually exists... 
+    createAlert(session, "systemError", "dError", content = "There is an error with the supplied data file. The filter you have selected does not exist. Resetting to default filter.", title = "ERROR!", append = TRUE)
+    return(dataList[[1]])
+  }
+  return (dataList[[line]])
+}##END getpData
 
 runGGPLOT <- function(data
                       , x, fill, title = ""
