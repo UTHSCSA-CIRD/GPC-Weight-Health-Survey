@@ -3,7 +3,6 @@
 source("obesitySurveyHelpers.R")
 warningRender = "User interface has not finished rendering, please wait."
 ##hash of authentication password
-authHash = "XXXXX"
 ######################DICTIONARY!##################
 #Post Dictionary- This is android style. In android aps all of the text in the app is 
 #stored in a "dictionary" that can be hot-swapped in the event of a change of language.

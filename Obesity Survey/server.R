@@ -26,6 +26,7 @@ shinyServer(
     #session$sendCustomMessage(type = "bsAlertClose", "gError")
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
+    
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
       if (!valAuth) return;#break processing of not authorized.
@@ -62,7 +63,7 @@ shinyServer(
       xf = (input$xVal %in% valsFactor)
       yf = (input$yVal %in% valsFactor)
       enabled = TRUE
-      
+      twist = 
       if(xf){
         if(yf){
           #both factors
@@ -84,6 +85,7 @@ shinyServer(
         if(yf){
           #Oops! X is numeric Y is a factor! 
           tmp = input$yVal
+          ## Per Alex's request 7-27-2016 making this correction transparent to the user. 
           updateSelectInput(session, "yVal", selected = input$xVal)
           updateSelectInput(session, "xVal", selected = tmp)
           #This method will be recalled, so lets escape with a return.
@@ -261,13 +263,14 @@ shinyServer(
 ########## Authentication Reactive #########
     observeEvent(input$authButton,{
       ##processes authentication.
+      browser();
       session$sendCustomMessage(type = "bsAlertClose", "aError")
       if(authAttempts >= 10){ 
-        createAlert(session, "authError", "aError", content = "Maximum authentications attempts reached.", title = "Warning", append = FALSE)
+        createAlert(session, "authError", "aError", content = "Maximum authentications attempts reached.", title = "Warning", append = TRUE)
         return
       }
-      authAttempts = authAttempts + 1
-      if(digest(isolate(input$authPassword), algo = "sha512", ascii = TRUE) == authHash){
+      authAttempts <<- authAttempts + 1
+      if(digest(isolate(input$authPassword), algo = "sha512", ascii = TRUE) == serverPin){
         valAuth = TRUE
         toggle(id = "AuthPage", anim= TRUE)
         toggle(id = "TABSIEApp",anim = TRUE)
