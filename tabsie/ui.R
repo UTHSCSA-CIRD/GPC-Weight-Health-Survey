@@ -8,7 +8,9 @@ shinyUI(
       HTML("<span style='font-size:35px'><span style ='color:orange'>T</span><span style ='color:#B2B200'>A</span><span style ='color:orange'>B</span><span style ='color:#B2B200'>S</span><span style ='color:orange'>I</span><span style='color:#B2B200'>E</span></span> <span style='font-size:15px'> <span style ='color:orange'>   Table </span><span style ='color:#B2B200'>Analyzer, </span><span style ='color:orange'>Browser,</span><span style ='color:#B2B200'> and Summarizer </span><span style ='color:orange'> for Informatics</span><span style ='color:#B2B200'> Exploration</span></span>
            <p>Clinical Informatics Research Division (CIRD), University of Texas Health Science Center at San Antonio (UTHSCSA)</h5></p>"),
       shinyjs::hidden(div(id= "TABSIEApp",
-      titlePanel("Obesity Survey Sample Data Review"),
+      uiOutput("TitleString"),
+      uiOutput("Statement"),
+      bsAlert("systemError"),
       tabsetPanel(
         tabPanel("Graphs",  #tabpanel for the bargraph
           sidebarLayout(
@@ -19,10 +21,9 @@ shinyUI(
               tabPanel("Basic",
                        verticalLayout(
                          shinyjs::useShinyjs(),
-                         inlineCSS(list(.disabled = "color:grey")),
-                         div(id = "filterFlagDiv",
-                             checkboxInput("surv2RespOnly","Only Survey 2 Respondants?")
-                         ),
+                         shinyjs::hidden(div(id= "filterFlagDiv",
+                             selectInput("filter", "Filter", c("No Filter"), "No Filter")
+                         )),
                          uiOutput("xy"),
                          shinyjs::hidden(div(id= "xOmitDiv",
                              checkboxInput("xOmit", "Omit blanks in X?", value = TRUE))),
@@ -88,7 +89,9 @@ shinyUI(
   ######### CONSTELLATION #########################################################################
         tabPanel("Constellation",sidebarLayout(
           sidebarPanel(fluidRow( # CONSTELLATIONS
-            checkboxInput("constSurv2RespOnly","Only Survey 2 Respondents?"),
+              shinyjs::hidden(div(id= "filterFlagDivCon",
+                                selectInput("filterCon", "Filter", c("No Filter"), "No Filter")
+              )),
               div(style="display:inline-block",
               checkboxInput("focusedPCA", "Focused PCA Plot?")),
               div(style="display:inline-block",
@@ -120,7 +123,7 @@ shinyUI(
         ))#End sidbarLayout/TabPanel CONSTELLATIONS
       
       ),#end tabsetPanel
-    HTML('<footer><center> <hr>TABSIE v1.2.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.<br/>For more information, please contact <a href="mailto:RUPERTD@uthscsa.edu">rupertd@uthscsa.edu</a></center></footer>')
+    HTML('<footer><center> <hr>TABSIE v1.2.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.<br/>For more information, please contact <a href="mailto:informatics@uthscsa.edu">informatics@uthscsa.edu</a></center></footer>')
     )#end fluidPage
   ),#end main app div: id= "TABSIEApp"
   div(id= "AuthPage", 
