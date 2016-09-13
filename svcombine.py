@@ -90,8 +90,11 @@ colrepls = {
   };
 
 # exclusion criteria
-svexclude = ' and '.join([" site != 'sv_utsw' "]);
-ddexclude = ' and '.join([" site != 'dd_utsw' "]);
+# We are rehabilitating UTSW! Welcome to the dataset.
+#svexclude = ' and '.join([" site != 'sv_utsw' "]);
+svexclude = ' and 1';
+#ddexclude = ' and '.join([" site != 'dd_utsw' "]);
+ddexclude = ' and 1';
 
 # connect to this badboy...
 cn = sq.connect(pthddsqldb);

@@ -160,6 +160,8 @@ cn.execute("create table sv_summ01 as select "+",".join(['site']+['typect({0}) {
 cn.execute("create table sv_summ02 as select "+",".join(['site']+['valct({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified group by site union all select "+",".join(["'ALL' site"]+['valct({0}) {0}'.format(ii) for ii in svunqcols])+" from sv_unified")
 
 """
+
+# Does this generate any input?
 tocoal =  ",".join([ii[0] for ii in cn.execute("select distinct `Variable / Field Name` from allsites where `Form Name` != 'tracker_form' and `Field Type` = 'checkbox' and site != 'dd_utsw';").fetchall()]);
 
 
