@@ -114,7 +114,7 @@ if os.path.isfile('sitesettings.py'):
 
 # radio and dropdown elements from data dictionaries 
 # (each value is a different integer code in the corresponding column)
-codestrings = cn.execute("select distinct `Variable / Field Name`,`Choices, Calculations, OR Slider Labels` from allsites where `Field Type` in ('dropdown','radio')"+" and "+ddexclude).fetchall();
+codestrings = cn.execute("select distinct `Variable / Field Name`,`Choices, Calculations, OR Slider Labels` from allsites where `Field Type` in ('dropdown','radio')"+ddexclude).fetchall();
 
 # codestrings is now used to create key-value pairs in acodes where the column name is the key
 # and the list of text descriptions is the value e.g. ['Yes', 'No', 'I prefer to not answer']
@@ -124,7 +124,7 @@ for xx in codestrings:
 
 # now we pull the checkbox elements from the data dictionaries
 # (each value is a 1 in its own column, and 0 if that box was not checked)
-codestrings = cn.execute("select distinct `Variable / Field Name`,`Choices, Calculations, OR Slider Labels` from allsites where `Field Type` = 'checkbox'"+" and "+ddexclude).fetchall();
+codestrings = cn.execute("select distinct `Variable / Field Name`,`Choices, Calculations, OR Slider Labels` from allsites where `Field Type` = 'checkbox'"+ddexclude).fetchall();
 
 # add these to acodes
 for xx in codestrings:
@@ -146,7 +146,7 @@ cn.execute("update sv_unified set s2resp = 1 where coalesce("+",".join(longsurve
 dataout = cn.execute("select "+",".join([" cd2str('{0}',{0}) {0} ".format(xx) 
 					 if xx in acodes.keys() else xx 
 					 for xx in sv_colnames 
-					 if xx in okayfields])+" from sv_unified where "+svexclude).fetchall();
+					 if xx in okayfields])+" from sv_unified where 1 "+svexclude).fetchall();
 out = open('testoutput.csv','w');
 out.truncate();
 out.write('"'+'"\t"'.join([xx for xx in sv_colnames
