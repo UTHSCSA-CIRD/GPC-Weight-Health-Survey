@@ -4,7 +4,7 @@
 #' date: "October 11, 2016"
 #' ---
 #+ include=FALSE,cache=FALSE,echo=FALSE
-require(xtable);
+require(xtable);require(magrittr)
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
 dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
@@ -13,62 +13,68 @@ setwd(dir);
 load(datafile);
 
 #'
-#' Who did and did not respond to survey-1, by site and patient sex?
+#'### Who did and did not respond to survey-1, by site and patient sex?
 #+ results="asis",echo=FALSE
 print(xtable(with(obd,addmargins(table(site,s1s2resp:pat_sex))),digits=0),
       type='html');
 #' 
-#' Who did and did not respond to survey-2, by site and patient sex?
+#'### Who did and did not respond to survey-2, by site and patient sex?
 #+ results="asis",echo=FALSE
 print(xtable(with(obd,addmargins(table(site,s2resp:pat_sex))),digits=0),
       type='html');
 
 #' 
-#' Among the survey-2 respondents only, research attitudes by site.
+#'### Among the survey-2 respondents only, research attitudes 
+#'
+#'#### ...by site.
 #+ results="asis",echo=FALSE
 print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(site,possible_research))),digits=0),
       type='html');
 #'
-#' ...by patient sex.
-#+ results="asis",echo=FALSE
+#'#### ...by patient sex.
+#+ pat_sex,results="asis",echo=FALSE
 print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(pat_sex,possible_research))),digits=0),
       type='html');
 
 #'
-#'  ...by respondent sex.
-#+ results="asis",echo=FALSE
+#'#### ...by respondent sex.
+#+ respondent_sex,results="asis",echo=FALSE
 print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(sex,possible_research))),digits=0),
       type='html');
 
 #'
-#'  ...by patient age.
-#+ results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(cut(pat_age,10),possible_research))),digits=0),
-      type='html');
+#'#### ...by patient age.
+#+ pat_age,results="asis",echo=FALSE
+subset(obd,s2resp=='Yes') %>% 
+  with(addmargins(table(cut(pat_age,10),possible_research,exclude=NULL))) -> .temp;
+rownames(.temp)[is.na(rownames(.temp))] <- '';
+xtable(.temp,digits=0) %>% print(type='html');
 
 #'
-#'  ...by income
-#+ results="asis",echo=FALSE
+#'#### ...by income
+#+ income,results="asis",echo=FALSE
 print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(income,possible_research))),digits=0),
       type='html');
 
 #'
-#'  ...by insurance.
-#+ results="asis",echo=FALSE
+#'####  ...by insurance.
+#+ insurance,results="asis",echo=FALSE
 print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(insurance,possible_research))),digits=0),
       type='html');
 
 #'
-#'  ...by patient BMI category
+#'#### ...by patient BMI category
 #+ results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(BMI,possible_research))),digits=0),
-      type='html');
+subset(obd,s2resp=='Yes') %>% 
+  with(addmargins(table(BMI,possible_research))) %>% xtable(digits=0) %>% 
+  print(type='html');
 
 #'
-#'  ...by latino origin
+#'####  ...by latino origin
 #+ results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(latino_origin,possible_research))),digits=0),
-      type='html');
+subset(obd,s2resp=='Yes') %>% 
+  with(addmargins(table(latino_origin,possible_research))) %>% xtable(digits=0) %>% 
+  print(type='html');
 #' Here is how we would do the hypothesis test...
 #with(subset(obd,s2resp=='Yes'),chisq.test(table(latino_origin,possible_research),simulate=T));
 
