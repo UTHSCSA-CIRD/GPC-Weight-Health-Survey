@@ -1,5 +1,5 @@
 #' ---
-#' title: "Obesity Descriptive Tabular Results"
+#' title: "Obesity Descriptive Tabular Results, by Site."
 #' author: "Alex F. Bokov"
 #' date: "October 11, 2016"
 #' ---
@@ -12,69 +12,44 @@ dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
 setwd(dir);
 load(datafile);
 
-#'
-#'### Who did and did not respond to survey-1, by site and patient sex?
+#' These are the names of our response variables:
+responses <- list(
+  's1s2resp'=c('Responded to Survey 1?'),
+  'invite_response_nature'=c('What was the response to Survey-1? (yes/no/bad-addr)'),
+  's2resp'=c('Responded to Survey-2?'),
+  'possible_research'=c('Willing to participate in research? (yes/maybe/no)'),
+  'children_research'=c('Willing for children to participate in research? (yes/maybe/no)'),
+  'res_talk_family'=c('Willing to talk to friends/family about research? (yes/maybe/no)'),
+  'research_feeling'=c('How feel about medical information being used for research? (from "Fantastic" to "Terrible")'),
+  'deid_data'=c('How feel about de-identified data being used for research? (from "Fantastic" to "Terrible")')
+);
+#' These are the columns for responses that are not "close-enough to yes"
+nonAffirmative <- c('Other','NotGoodIdea','Terrible','PreferNotAnswer','No',
+                    'Bad Address','(Missing)','Missing');
+
+#' ## Full sampling frames
+#' ### `r .ii<-'s1s2resp'; responses[[.ii]]`
 #+ results="asis",echo=FALSE
-print(xtable(with(obd,addmargins(table(site,s1s2resp:pat_sex))),digits=0),
-      type='html');
-#' 
-#'### Who did and did not respond to survey-2, by site and patient sex?
+.tab <- table(obd$site,obd[[.ii]]); colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
+print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
+                        ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
+#' ### `r .ii<-'invite_response_nature'; responses[[.ii]]`
 #+ results="asis",echo=FALSE
-print(xtable(with(obd,addmargins(table(site,s2resp:pat_sex))),digits=0),
-      type='html');
-
-#' 
-#'### Among the survey-2 respondents only, research attitudes 
-#'
-#'#### ...by site.
+.tab <- table(obd$site,obd[[.ii]]); colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
+print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
+                        ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
+#' ### `r .ii<-'s2resp'; responses[[.ii]]`
 #+ results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(site,possible_research))),digits=0),
-      type='html');
-#'
-#'#### ...by patient sex.
-#+ pat_sex,results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(pat_sex,possible_research))),digits=0),
-      type='html');
-
-#'
-#'#### ...by respondent sex.
-#+ respondent_sex,results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(sex,possible_research))),digits=0),
-      type='html');
-
-#'
-#'#### ...by patient age.
-#+ pat_age,results="asis",echo=FALSE
-subset(obd,s2resp=='Yes') %>% 
-  with(addmargins(table(cut(pat_age,10),possible_research,exclude=NULL))) -> .temp;
-rownames(.temp)[is.na(rownames(.temp))] <- '';
-xtable(.temp,digits=0) %>% print(type='html');
-
-#'
-#'#### ...by income
-#+ income,results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(income,possible_research))),digits=0),
-      type='html');
-
-#'
-#'####  ...by insurance.
-#+ insurance,results="asis",echo=FALSE
-print(xtable(with(subset(obd,s2resp=='Yes'),addmargins(table(insurance,possible_research))),digits=0),
-      type='html');
-
-#'
-#'#### ...by patient BMI category
+.tab <- table(obd$site,obd[[.ii]]); colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
+print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
+                        ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
+#' ## Survey 2 Respondents Only
 #+ results="asis",echo=FALSE
-subset(obd,s2resp=='Yes') %>% 
-  with(addmargins(table(BMI,possible_research))) %>% xtable(digits=0) %>% 
-  print(type='html');
-
-#'
-#'####  ...by latino origin
-#+ results="asis",echo=FALSE
-subset(obd,s2resp=='Yes') %>% 
-  with(addmargins(table(latino_origin,possible_research))) %>% xtable(digits=0) %>% 
-  print(type='html');
-#' Here is how we would do the hypothesis test...
-#with(subset(obd,s2resp=='Yes'),chisq.test(table(latino_origin,possible_research),simulate=T));
+for(.ii in names(responses)[-(1:3)]){
+  cat('### ',responses[[.ii]],'\n');
+  .tab <- table(obd[obd$s2resp=='Yes','site'],obd[obd$s2resp=='Yes',][[.ii]]);
+  colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
+  print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
+                          ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
+}
 
