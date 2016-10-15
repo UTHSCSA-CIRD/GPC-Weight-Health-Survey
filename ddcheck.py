@@ -27,9 +27,12 @@ sqscr = open(pthddsqlscr,'w');
 sqscr.truncate();
 sqscr.write('.mode csv\n');
 
+###  Fixes for individual special cases 
 # fix messed up uiowa multiply nested quotes by just blowing away those few rows for now
-subprocess.call("grep -v '\"\{2,\}' uiowa_survey.csv > tempfix.csv",shell=True)
-subprocess.call("mv tempfix.csv uiowa_survey.csv",shell=True)
+#subprocess.call("grep -v '\"\{2,\}' uiowa_survey.csv > tempfix.csv",shell=True)
+#subprocess.call("mv tempfix.csv uiowa_survey.csv",shell=True)
+# remove invalid record (not even a survey-id) from the end of UNMC's file
+subprocess.call("sed -i '$ d' unmc_survey.csv",shell=True);
 
 
 """ 
