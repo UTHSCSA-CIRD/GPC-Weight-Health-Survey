@@ -53,3 +53,10 @@ for(.ii in names(responses)[-(1:3)]){
                           ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
 }
 
+#' ## Characterizing sampling frame
+#+ results="asis",echo=FALSE
+obd[,c('pat_sex','BMI','s1s2resp','pat_age')] %>% 
+  transform(pat_age=cut(pat_age,breaks = c(0,2,5,12,18,20,34,45,65,Inf),include.lowest = T)) %>% 
+  droplevels %>% table %>% addmargins %>% ftable(col.vars = 's1s2resp') %>% 
+  as.matrix %>% `[`(rowSums(.)>0,) %>% xtable %>% print(type='html');
+
