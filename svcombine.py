@@ -143,6 +143,12 @@ cn.execute("update sv_unified set s2resp = 1 where coalesce("+",".join(longsurve
 # chunked massive join tables ... not needed
 #cttabs = dict([("tmp_"+str(ii).zfill(3),"create table tmp_"+str(ii).zfill(3)+" as select scf.site,"+",".join(svunqcols[ii:ii+63])+" from (select distinct site from sv_unified) scf left join"+" left join ".join(["(select site,count(*) #{0} from sv_unified where {0} is not NULL and trim({0}) not in ('','0') group by site) {0} on scf.site = {0}.site ".format(jj) for jj in svunqcols[ii:ii+63]])) for ii in xrange(0, len(svunqcols), 63)]);
 
+# patching UTSW's decision to be the only site to use pulldown menus for Race instead of checkboxes
+cn.execute('''update sv_unified 
+  set race___1 = 0,race___2=0,race___3=0,race___4=0,race___5=0,race___6=0 
+  where site = 'sv_utsw' ''');
+[cn.execute('update sv_unified set race___{0} = 1 where race = {0}'.format(ii)) for ii in range(1,6)];
+
 dataout = cn.execute("select "+",".join([" cd2str('{0}',{0}) {0} ".format(xx) 
 					 if xx in acodes.keys() else xx 
 					 for xx in sv_colnames 
