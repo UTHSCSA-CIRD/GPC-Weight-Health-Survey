@@ -55,7 +55,7 @@ obd$Race <- interaction(obd[,racenames],drop = T,sep = '');
 levels(obd$Race) <- gsub('^White[0]{0,1}([A-Z])','\\1'
                  ,gsub('^0|0$',''
                        ,gsub('0+','0',levels(obd$Race))));
-
+obd$Race <- mapstrings(obd$Race);
 # Arrange the levels for income to keep like incomes together
 # hardcoding indexes into levels is unstable, can change when data refreshed
 obd$income <- factor(obd$income,levels=sort(levels(obd$income)));
