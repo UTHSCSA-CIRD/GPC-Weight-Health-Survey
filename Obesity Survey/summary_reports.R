@@ -118,3 +118,52 @@ by(sobd,c(sobd[,c('BMI','pat_sex')],list(sobd$BMI=='')),FUN=function(xx)
              `  BMI  `=do.call('sprintf',c(list('%.1f-%.1f'),range(xx$pat_bmi_raw,na.rm=T))),
              check.names=F) %>% sapply(function(xx) gsub('Inf--Inf|0.0-0.0|NA \\(NA-NA\\)','',xx))) %>% 
   do.call('rbind',.) %>% xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+
+#' ## November/December Demographic Summaries by site
+#' ### Population
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+subset(obd,T) %>% 
+  split(.,`$`(.,site)) %>% sapply(function(xx) with (xx,
+                                                     c(length(proj_id),'',
+                                                       summary(pat_sex)[c('Male','Female')],
+                                                       '','',
+                                                       summary(Race)[c('White','Black','NativeAm','Asian','Other','PreferNotAnswer')],
+                                                       sum(latino_origin=='Yes'),
+                                                       rep('',6),
+                                                       sprintf('%0.2f (%0.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T)),
+                                                       '',
+                                                       sprintf('%0.2f (%0.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
+                                                     ))) %>%
+  xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+
+#' ### Responders
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+subset(obd,s1s2resp=='Yes') %>% 
+  split(.,`$`(.,site)) %>% sapply(function(xx) with (xx,
+                                                     c(length(proj_id),'',
+                                                       summary(pat_sex)[c('Male','Female')],
+                                                       '','',
+                                                       summary(Race)[c('White','Black','NativeAm','Asian','Other','PreferNotAnswer')],
+                                                       sum(latino_origin=='Yes'),
+                                                       rep('',6),
+                                                       sprintf('%0.2f (%0.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T)),
+                                                       '',
+                                                       sprintf('%0.2f (%0.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
+                                                     ))) %>%
+  xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+
+#' ### Completers
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+subset(obd,s2resp=='Yes') %>% 
+  split(.,`$`(.,site)) %>% sapply(function(xx) with (xx,
+                                                     c(length(proj_id),'',
+                                                       summary(pat_sex)[c('Male','Female')],
+                                                       '','',
+                                                       summary(Race)[c('White','Black','NativeAm','Asian','Other','PreferNotAnswer')],
+                                                       sum(latino_origin=='Yes'),
+                                                       rep('',6),
+                                                       sprintf('%0.2f (%0.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T)),
+                                                       '',
+                                                       sprintf('%0.2f (%0.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
+                                                       ))) %>%
+  xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
