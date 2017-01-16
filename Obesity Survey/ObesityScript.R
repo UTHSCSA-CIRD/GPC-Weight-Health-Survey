@@ -1,4 +1,3 @@
-#Obesity Script
 library(plyr)
 library(reshape)
 library(vcd)
@@ -109,38 +108,40 @@ names(obd) <- mapstrings(names(obd),colnamestringmap);
 names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 
 ##Data Enhancements from commit 293057f6b18ef902f1796b0c25c0bfb65810f088 
-samp$adultOrChild = as.factor(samp$pat_age > 18)
+obd$adultOrChild <- as.factor(obd$pat_age > 18);
 
-samp$height_req <- NULL
-samp$surv_2 <- NULL
-samp$height = (samp$height_feet*12) + samp$height_in
-for(cnt in 1:nrow(samp)){
-  if(is.na(samp[cnt,"height"])){
-    samp[cnt,"height"] = samp[cnt,"height_in"]
+obd$height_req <- NULL;
+# Hmm. Don't want to blow this away yet, this is the one that works!
+#obd$surv_2 <- NULL
+obd$height <- (obd$height_feet*12) + obd$height_in;
+for(cnt in 1:nrow(obd)){
+  if(is.na(obd[cnt,"height"])){
+    obd[cnt,"height"] <- obd[cnt,"height_in"];
   }
 }
-samp$height_in = samp$height
-samp$height = NULL
-samp$height_feet = NULL
-samp$height_value_cm = NULL
-for(cnt in 1:nrow(samp)){
-  if(is.na(samp[cnt,"weight_value_lbs"]) && !is.na(samp[cnt, "weight_value_kg"])){
-    samp[cnt,"weight_value_lbs"] = samp[cnt,"weight_value_kg"] * 2.20462
+obd$height_in <- obd$height;
+obd$height <- NULL;
+obd$height_feet <- NULL;
+obd$height_value_cm <- NULL;
+for(cnt in 1:nrow(obd)){
+  if(is.na(obd[cnt,"weight_value_lbs"]) && !is.na(obd[cnt, "weight_value_kg"])){
+    obd[cnt,"weight_value_lbs"] <- obd[cnt,"weight_value_kg"] * 2.20462;
   }
 }
-samp$weight_req = NULL
-samp$weight_value_kg = NULL
+obd$weight_req <- NULL;
+obd$weight_value_kg <- NULL;
 
 
-samp = pickSample(obd, .25)
+samp <- pickSample(obd, .25);
 save(obd,rseed,obd.backup,samp, file = "survProcessed.rdata")
 # We delete the ID-type variables
 samp <- samp[,setdiff(names(samp),c(toOmit,textfields))];
 samp <- samp[,c(vs(samp,'f'),vs(samp))];
-serverHash = digest("ChangeThisInYourCode!", algo = "sha512", ascii = TRUE)
-filter_surv2 = subset(samp,s2resp=='Yes')
-filter_surv2_kids = subset(samp,s2resp=='Yes' & pat_age < 18)
-filter_kids = subset(samp,pat_age < 18)
+serverHash <- digest("ChangeThisInYourCode!", algo = "sha512", ascii = TRUE);
+filter_surv2 <- subset(samp,s2resp=='Yes'|surv_2=='TRUE');
+# BUG: in UTHSCSA, s2resp is all NA... but surv_2 seems right...
+filter_surv2_kids <- subset(samp,(s2resp=='Yes'|surv_2=='TRUE') & pat_age < 18);
+filter_kids <- subset(samp,pat_age < 18)
 serverData = list(samp, filter_surv2, filter_surv2_kids, filter_kids)
 serverDataDic = c("No filter", "Survey 2 Respondants Only", "Survey 2 Respondants & Pat < 18", "Pat < 18")
 serverTitle = "Obesity Survey Sample Data Review."

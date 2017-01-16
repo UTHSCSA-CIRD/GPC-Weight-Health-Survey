@@ -72,7 +72,7 @@ print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)
                         ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
 #' ## Survey 2 Respondents Only
 #+ results="asis",echo=FALSE
-for(.ii in names(responses)[-(1:3)]){
+for(.ii in setdiff(names(responses),c('s1s2resp','s2resp','invite_response_nature'))){
   cat('### ',responses[[.ii]],'\n');
   .tab <- table(obd[obd$s2resp=='Yes','site'],obd[obd$s2resp=='Yes',][[.ii]]);
   colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
