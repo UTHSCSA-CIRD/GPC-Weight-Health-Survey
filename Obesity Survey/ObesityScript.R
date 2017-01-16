@@ -110,27 +110,26 @@ names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 ##Data Enhancements from commit 293057f6b18ef902f1796b0c25c0bfb65810f088 
 obd$adultOrChild <- as.factor(obd$pat_age > 18);
 
-obd$height_req <- NULL;
 # Hmm. Don't want to blow this away yet, this is the one that works!
 #obd$surv_2 <- NULL
-obd$height <- (obd$height_feet*12) + obd$height_in;
-for(cnt in 1:nrow(obd)){
-  if(is.na(obd[cnt,"height"])){
-    obd[cnt,"height"] <- obd[cnt,"height_in"];
-  }
-}
-obd$height_in <- obd$height;
-obd$height <- NULL;
-obd$height_feet <- NULL;
-obd$height_value_cm <- NULL;
-for(cnt in 1:nrow(obd)){
-  if(is.na(obd[cnt,"weight_value_lbs"]) && !is.na(obd[cnt, "weight_value_kg"])){
-    obd[cnt,"weight_value_lbs"] <- obd[cnt,"weight_value_kg"] * 2.20462;
-  }
-}
-obd$weight_req <- NULL;
-obd$weight_value_kg <- NULL;
+# In R, you can use environment manipulation and vectorizatio for less spam and
+# sometimes better efficiency than for loops.
+obd$height_in <- with(obd,
+                   ifelse(is.na(height_feet),0,height_feet)*12
+                   + ifelse(is.na(height_in),0,height_in)
+                   + ifelse(is.na(height_value_cm),0,height_value_cm*0.39370079));
+# Prevent missing data from retaining the 0 values we just gave it.
+obd$height_in[obd$height_in==0] <- NA;
+# In R, pmax() built-in function can be useful for combining columns but leaving
+# consensus NAs where they were.
+obd$weight_value_lbs <- with(obd,pmax(weight_value_lbs,weight_value_kg*2.20462,na.rm = T));
 
+# In R, you can delete multiple columns like this, saving on screen-spam...
+obd[,c('height_req','height_feet','height_value_cm'
+       # I split this line so it wouldn't scroll off the page... and I'll know
+       # that this is what I did later when speedreading through the code because
+       # there are no semicolons terminating the lines.
+       ,'weight_req','weight_value_kg')] <- NULL;
 
 samp <- pickSample(obd, .25);
 save(obd,rseed,obd.backup,samp, file = "survProcessed.rdata")
