@@ -108,6 +108,30 @@ for(ii in names(obd.backup))
 names(obd) <- mapstrings(names(obd),colnamestringmap);
 names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 
+##Data Enhancements from commit 293057f6b18ef902f1796b0c25c0bfb65810f088 
+samp$adultOrChild = as.factor(samp$pat_age > 18)
+
+samp$height_req <- NULL
+samp$surv_2 <- NULL
+samp$height = (samp$height_feet*12) + samp$height_in
+for(cnt in 1:nrow(samp)){
+  if(is.na(samp[cnt,"height"])){
+    samp[cnt,"height"] = samp[cnt,"height_in"]
+  }
+}
+samp$height_in = samp$height
+samp$height = NULL
+samp$height_feet = NULL
+samp$height_value_cm = NULL
+for(cnt in 1:nrow(samp)){
+  if(is.na(samp[cnt,"weight_value_lbs"]) && !is.na(samp[cnt, "weight_value_kg"])){
+    samp[cnt,"weight_value_lbs"] = samp[cnt,"weight_value_kg"] * 2.20462
+  }
+}
+samp$weight_req = NULL
+samp$weight_value_kg = NULL
+
+
 samp = pickSample(obd, .25)
 save(obd,rseed,obd.backup,samp, file = "survProcessed.rdata")
 # We delete the ID-type variables
