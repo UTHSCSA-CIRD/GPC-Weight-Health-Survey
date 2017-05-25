@@ -52,6 +52,7 @@ dbs = [[ff,re.sub(dbnmrep,'',ff)]
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in dds]];
 # same, but for survey files
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in svs]];
+sqscr.write(".import sesdat.csv ses\n");
 # add site-identifying columns for tables
 [sqscr.write("alter table {0} ADD COLUMN svsite TEXT; update {0} set svsite = '{0}';".format(xx[1])+"\n")
  for xx in svs];
@@ -98,14 +99,27 @@ svrawcols = [cn.execute('pragma table_info({0})'.format(xx)).fetchall() for xx i
 # just the unique ones
 svunqcols = unq([xx[1] for sublist in svrawcols for xx in sublist]);
 # create a table with the union of all site survey columns
-cn.execute("CREATE TABLE sv_unified ("+" TEXT,".join(['site']+svunqcols)+" TEXT);");
+cn.execute("CREATE TABLE sv_allsites ("+" TEXT,".join(['site']+svunqcols)+" TEXT);");
 # create a dictionary object, which can be used to insert into columns defined for each site
 svcols = dict(zip([xx[1] for xx in svs],svrawcols));
 # one insert statement for each site's survey table
-svinsrt = ["insert into sv_unified (site, " +\
+svinsrt = ["insert into sv_allsites (site, " +\
   ",".join([jj[1] for jj in svcols[ii]])+") select '{0}' site,* from {0}".format(ii) for ii in svcols.keys()];
 # now run the above inserts
 [cn.execute(xx) for xx in svinsrt];
+# join the SES variables to the survey data
+cn.execute("""CREATE TABLE sv_unified as select sv.*
+  ,ses."Race" ses_race
+  ,ses."Ethnicity Hispanic" ses_hispanic
+  ,ses."Financial Class" ses_finclass
+  ,case 
+    when ses."Median Block Income" < 10000 then 10000
+    when ses."Median Block Income" > 100000 then 100000
+    else round(ses."Median Block Income"/5000)*5000 
+  end ses_income
+  from sv_allsites sv left join ses 
+  on sv.patient_num = ses."De-Identified Patient Number"
+  and 'sv_'||lower("Data Access Group") = sv.site;""");
 
 # create an indicator column for overall responder/nonresponder
 cn.execute("alter table sv_unified add column s2resp number"); 

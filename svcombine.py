@@ -76,7 +76,8 @@ okayfields = ['site', 'state', 'contact_type', 'match_type', 'pat_sex', 'proj_bi
 	      , 'weight_value_kg', 'bp_hypten_self', 'chole_triigl_hyperlip_self', 'cancer_anytype_self'
 	      , 'hpb_hprtnsn', 'chole_trig_hyperlip', 'elev_bs_diabetes', 'cancer_anytype', 'sex', 'age'
 	      , 'latino_origin', 'race___1', 'race___2', 'race___3', 'race___4', 'race___5', 'race___6', 'income'
-	      , 'insurance', 'household', 'education', 'language','s2resp'];
+	      , 'insurance', 'household', 'education', 'language','s2resp'
+	      , 'ses_race', 'ses_hispanic', 'ses_finclass', 'ses_income'];
 
 longsurvey = ['health_medical_research_family_survey_timestamp', 'research', 'possible_research', 'research_types_adult', 'research_depends_why', 'children_in_home', 'children_research', 'research_types2_child', 'res_dep_why2_child', 'res_talk_family', 'research_feeling', 'q6_ans6_response', 'deid_data', 'q7_ans6_response', 'height_req', 'height_feet', 'height_in', 'height_value_cm', 'weight_req', 'weight_value_lbs', 'weight_value_kg', 'bp_hypten_self', 'chole_triigl_hyperlip_self', 'bloodsugar_diabetes_self', 'cancer_anytype_self', 'hpb_hprtnsn', 'chole_trig_hyperlip', 'elev_bs_diabetes', 'cancer_anytype', 'sex', 'other_sex', 'age', 'latino_origin', 'other_race', 'income', 'insurance', 'other_insurance', 'education', 'other_schooling', 'household', 'language', 'other_language'];
 
@@ -88,6 +89,11 @@ repls = {'<i>':'','</i>':'','\t':' ','\n':' ','"':'',"'":'',',':' '};
 colrepls = {
   'sex' : { '1':'M', '2':'F', 'Male':'M', 'Female':'F'}
   };
+# each array has, as element 0 the column to replace, element 1 the new value, element 2 what old values to match
+replacements = [
+    ['pat_sex','M',"'1','m','male','Male'"]
+    ,['pat_sex','F',"'2','f','female','Female'"]
+  ];
 
 # exclusion criteria
 # We are rehabilitating UTSW! Welcome to the dataset.
@@ -148,6 +154,28 @@ cn.execute('''update sv_unified
   set race___1 = 0,race___2=0,race___3=0,race___4=0,race___5=0,race___6=0 
   where site = 'sv_utsw' ''');
 [cn.execute('update sv_unified set race___{0} = 1 where race = {0}'.format(ii)) for ii in range(1,6)];
+[cn.execute("update {0} set {1}='{2}' where {1} in ({3})".format('sv_unified',*ii)) for ii in replacements];
+
+lazysites = cn.execute('select distinct site from sv_unified').fetchall();
+
+pivots = ["""
+with {0} as (select pat_sex ,ses_race,ses_hispanic,ses_finclass,ses_income,pat_age,pat_bmi_raw from sv_unified where site = '{0}'), {0}_piv as (
+select 'Sex','---' union all select pat_sex,count(*) n from {0} group by pat_sex
+union all
+select 'Race','---' union all select ses_race,count(*) n from {0} group by ses_race
+union all
+select 'Hispanic','---' union all select ses_hispanic,count(*) n from {0} group by ses_hispanic
+union all
+select 'Insurer','---' union all select ses_finclass,count(*) n from {0} group by ses_finclass
+union all
+select 'Income',median(ses_income) from {0}
+union all
+select 'Age', median(pat_age) from {0}
+union all
+select 'BMI', median(pat_bmi_raw) from {0})
+""".format(*ii) for ii in lazysites];
+
+cn.commit();
 
 dataout = cn.execute("select "+",".join([" cd2str('{0}',{0}) {0} ".format(xx) 
 					 if xx in acodes.keys() else xx 
