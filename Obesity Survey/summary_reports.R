@@ -211,3 +211,15 @@ subset(obd,s2resp=='Yes') %>%
   xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
 
 
+#' ### New versions of tables...
+#' 
+#' Eligibility set
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+addmargins(with(obd,table(ses_finclass,site,useNA = 'always')));
+#' Responders
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+addmargins(with(subset(obd,s1s2resp=='Yes'),table(ses_finclass,site,useNA = 'always')));
+#' Completers
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+addmargins(with(subset(obd,s2resp=='Yes'),table(ses_finclass,site,useNA = 'always')));
+#' ...and similarly for the others.
