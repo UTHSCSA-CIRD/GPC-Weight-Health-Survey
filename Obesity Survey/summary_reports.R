@@ -4,7 +4,7 @@
 #' date: "October 11, 2016"
 #' ---
 #+ include=FALSE,cache=FALSE,echo=FALSE
-require(xtable);require(magrittr)
+require(xtable);require(magrittr);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
 dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
@@ -40,8 +40,50 @@ recruitment <- c(
   WISC='mychart'
 );
 
+racecodes_strict <- c(R01='American Indian or Alaska Native',
+              R02='Asian',
+              R03='Black or African American',
+              R04='Native Hawaiian or Other Pacific Islander',
+              R05='White',
+              R06='Multiple Race',
+              R07='Refuse to Answer',
+              RNI='No Information',
+              RUN='Unknown',
+              ROT='Other');
+
+racecodes <- c(R01='Native American',
+               R02='Asian',
+               R03='African American',
+               R04='Other',
+               R05='Caucasian',
+               R06='Other',
+               R07='No Answer',
+               RNI='No Answer',
+               RUN='No Answer',
+               ROT='Other');
+ethcodes <- c(Y="Yes",
+              N="No",
+              R="Refuse to,answer",
+              NI="No information",
+              UN="Unknown",
+              OT="Other");
+fincodes <- rep(NA,99);
+fincodes[c(1:4,99,98)] <- c("Private",
+                            "Medicare",
+                            "Medicaid",
+                            "Self-Pay",
+                            "Unknown",
+                            "Other");
+
 obd$Recruitment <- obd$site;
 levels(obd$Recruitment) <- recruitment[levels(obd$Recruitment)];
+
+levels(obd$ses_race) <- racecodes[levels(obd$ses_race)];
+obd$ses_race <- factor(obd$ses_race,levels=levels(obd$ses_race)[c(5,3,1,2,4,6)]);
+
+obd$ses_finclass <- factor(fincodes[obd$ses_finclass]);
+obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(5,2,1,4,3,6)]);
+
 
 #' Remove the impossible BMIs that somehow made it through
 obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
@@ -167,3 +209,5 @@ subset(obd,s2resp=='Yes') %>%
                                                        sprintf('%0.2f (%0.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
                                                        ))) %>%
   xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+
+

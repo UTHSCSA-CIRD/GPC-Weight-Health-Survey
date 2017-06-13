@@ -109,17 +109,18 @@ svinsrt = ["insert into sv_allsites (site, " +\
 [cn.execute(xx) for xx in svinsrt];
 # join the SES variables to the survey data
 cn.execute("""CREATE TABLE sv_unified as select sv.*
-  ,ses."Race" ses_race
-  ,ses."Ethnicity Hispanic" ses_hispanic
-  ,ses."Financial Class" ses_finclass
+  ,case ses.race_cd when '' then null else ses.race_cd end ses_race
+  ,case ses.ethnicity_hispanic when '' then null else ses.ethnicity_hispanic end ses_hispanic
+  ,case ses.financial_class when '' then null else ses.financial_class end ses_finclass
   ,case 
-    when ses."Median Block Income" < 10000 then 10000
-    when ses."Median Block Income" > 100000 then 100000
-    else round(ses."Median Block Income"/5000)*5000 
+    when ses.median_block_income = '' then null
+    when ses.median_block_income+0 < 10000 then 10000
+    when ses.median_block_income+0 > 100000 then 100000
+    else round(ses.median_block_income/5000)*5000 
   end ses_income
   from sv_allsites sv left join ses 
-  on sv.patient_num = ses."De-Identified Patient Number"
-  and 'sv_'||lower("Data Access Group") = sv.site;""");
+  on sv.patient_num = ses.patient_num_deid
+  and 'sv_'||lower(ses.redcap_data_access_group) = sv.site;""");
 
 # create an indicator column for overall responder/nonresponder
 cn.execute("alter table sv_unified add column s2resp number"); 

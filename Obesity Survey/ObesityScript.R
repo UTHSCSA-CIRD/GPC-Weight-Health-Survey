@@ -1,6 +1,6 @@
-library(plyr);
-library(reshape);
-library(vcd);
+#library(dplyr);
+#library(reshape);
+#library(vcd);
 library(digest);
 
 # some handy functions
@@ -10,7 +10,7 @@ rseed <- 6062016;
 set.seed(rseed);
 
 #load clean and save 
-obd <- read.table("testoutput.csv", header = TRUE, sep = "\t");
+obd <- read.table("testoutput.csv", header = TRUE, sep = "\t",na.strings = '');
 
 # set variables all in one place if practical
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
