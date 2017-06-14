@@ -52,6 +52,7 @@ dbs = [[ff,re.sub(dbnmrep,'',ff)]
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in dds]];
 # same, but for survey files
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in svs]];
+import pdb; pdb.set_trace();
 sqscr.write(".import sesdat.csv ses\n");
 # add site-identifying columns for tables
 [sqscr.write("alter table {0} ADD COLUMN svsite TEXT; update {0} set svsite = '{0}';".format(xx[1])+"\n")
