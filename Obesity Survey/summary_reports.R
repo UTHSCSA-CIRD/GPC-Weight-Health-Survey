@@ -1,10 +1,18 @@
 #' ---
 #' title: "Obesity Descriptive Tabular Results, by Site."
 #' author: "Alex F. Bokov"
-#' date: "October 11, 2016"
+#' date: "June 14, 2017"
 #' ---
+#' 
+#' The main purpose of this script/report is to create the tables that
+#' will be used in Obesity Survey paper #1. The workflow is to render this
+#' as HTML in RStudio, then click `Open in Browser`, then from the browser
+#' ctrl-drag to select in a manner that preserves the tabular format,
+#' paste into a word processor scrap file, and from there paste into the
+#' Word table-containing document.
+#' 
 #+ include=FALSE,cache=FALSE,echo=FALSE
-require(xtable);require(magrittr);
+require(xtable);require(magrittr); require(dplyr);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
 dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
@@ -39,7 +47,7 @@ recruitment <- c(
   UTSW='email',
   WISC='mychart'
 );
-
+#+ echo=FALSE
 racecodes_strict <- c(R01='American Indian or Alaska Native',
               R02='Asian',
               R03='Black or African American',
@@ -51,16 +59,6 @@ racecodes_strict <- c(R01='American Indian or Alaska Native',
               RUN='Unknown',
               ROT='Other');
 
-racecodes <- c(R01='Native American',
-               R02='Asian',
-               R03='African American',
-               R04='Other',
-               R05='Caucasian',
-               R06='Other',
-               R07='No Answer',
-               RNI='No Answer',
-               RUN='No Answer',
-               ROT='Other');
 ethcodes <- c(Y="Yes",
               N="No",
               R="Refuse to,answer",
@@ -74,152 +72,152 @@ fincodes[c(1:4,99,98)] <- c("Private",
                             "Self-Pay",
                             "Unknown",
                             "Other");
+#' How race and financial class are binned/renamed
+race_map <- c(`American Indian or Alaska Native`='Native American',
+              Asian='Asian',
+              `Black or African American`='African American',
+              `Native Hawaiian or Other Pacific Islander`='Other',
+              White='Caucasian',
+              `Multiple Race`='Other',
+              `Refuse to Answer`='No Answer',
+              `No Information`='No Answer',
+              Unknown='No Answer',
+              Other='Other',
+              ` `='No Answer');
 
+fin_map <- c(Medicaid='Medicaid',
+             Medicare='Medicare',
+             ` `='Unknown',
+             Other='Other',
+             `Private/ Commercial`= 'Private Insurance',
+             `Self-play/no insurance`= 'Self-Pay',
+             Unknown='Unknown');
+
+#' Create recruitment variable
 obd$Recruitment <- obd$site;
 levels(obd$Recruitment) <- recruitment[levels(obd$Recruitment)];
+#' Rename/bin races and financial classes
+levels(obd$ses_race) <- race_map[levels(obd$ses_race)];
+obd$ses_race <- factor(obd$ses_race,levels=levels(obd$ses_race)[c(6,3,1,2,4,5)]);
 
-levels(obd$ses_race) <- racecodes[levels(obd$ses_race)];
-obd$ses_race <- factor(obd$ses_race,levels=levels(obd$ses_race)[c(5,3,1,2,4,6)]);
-
-obd$ses_finclass <- factor(fincodes[obd$ses_finclass]);
-obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(5,2,1,4,3,6)]);
-
+levels(obd$ses_finclass) <- fin_map[levels(obd$ses_finclass)];
+obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,1,5,4,3)]);
 
 #' Remove the impossible BMIs that somehow made it through
 obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
 
-#+ results="asis",echo=FALSE
-.ii<-'s1s2resp';
-#' ## Full sampling frames
-#' ### `r responses[[.ii]]`
-#+ results="asis",echo=FALSE
-.tab <- table(obd$site,obd[[.ii]]); colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
-print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
-                        ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
-
-#+ results="asis",echo=FALSE
-.ii<-'invite_response_nature';
-#' ### `r responses[[.ii]]`
-#+ results="asis",echo=FALSE
-.tab <- table(obd$site,obd[[.ii]]); colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
-print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
-                        ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
-
-#+ results="asis",echo=FALSE
-.ii<-'s2resp'; 
-#' ### `r responses[[.ii]]`
-#+ results="asis",echo=FALSE
-.tab <- table(obd$site,obd[[.ii]]); colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
-print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
-                        ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
-#' ## Survey 2 Respondents Only
-#+ results="asis",echo=FALSE
-for(.ii in setdiff(names(responses),c('s1s2resp','s2resp','invite_response_nature'))){
-  cat('### ',responses[[.ii]],'\n');
-  .tab <- table(obd[obd$s2resp=='Yes','site'],obd[obd$s2resp=='Yes',][[.ii]]);
-  colnames(.tab)[colnames(.tab)=='']<-'(Missing)';
-  print(xtable(addmargins(addmargins(.tab),2,FUN=list(Prop=function(xx) tail(xx,1)/sum(.tab))
-                          ,quiet=T),display=c('s',rep('d',ncol(.tab)+1),'f')),type='html');
-}
-
-#' ## Patient demographics of the sampling frame
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-#obd[,c('pat_sex','BMI','s1s2resp','pat_age')] %>% 
-#  transform(pat_age=cut(pat_age,breaks = c(0,2,5,12,18,20,34,45,65,Inf),include.lowest = T)) %>% 
-#  droplevels %>% table %>% addmargins %>% ftable(col.vars = 's1s2resp') %>% 
-#  as.matrix %>% `[`(rowSums(.)>0,) %>% xtable %>% print(type='html');
-by(obd,c(obd[,c('BMI','pat_sex')],list(obd$BMI=='')),FUN=function(xx) 
-  data.frame(Sex=xx$pat_sex[1],Group=xx$BMI[1],`  N  `=nrow(xx),
-             ` % Total `=sprintf('%.1f%%',100*nrow(xx)/nrow(obd)),
-             ` Age, Median (IQR) `=do.call('sprintf',c(list('%.1f (%.1f-%.1f)'),quantile(xx$pat_age,c(.5,.25,.75),na.rm=T))),
-             `  BMI %  `=do.call('sprintf',c(list('%.1f-%.1f'),range(xx$pat_bmi_pct,na.rm=T))),
-             `  BMI  `=do.call('sprintf',c(list('%.1f-%.1f'),range(xx$pat_bmi_raw,na.rm=T))),
-             check.names=F) %>% sapply(function(xx) gsub('Inf--Inf|0.0-0.0|NA \\(NA-NA\\)','',xx))) %>% 
-  do.call('rbind',.) %>% xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
-
-#' ## Patient demographics of all respondents (both Survey-1 and direct-to-Survey-2)
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-sobd <- subset(obd,s1s2resp=='Yes');
-by(sobd,c(sobd[,c('BMI','pat_sex')],list(sobd$BMI=='')),FUN=function(xx) 
-  data.frame(Sex=xx$pat_sex[1],Group=xx$BMI[1],`  N  `=nrow(xx),
-             ` % Total `=sprintf('%.1f%%',100*nrow(xx)/nrow(sobd)),
-             ` Age, Median (IQR) `=do.call('sprintf',c(list('%.1f (%.1f-%.1f)'),quantile(xx$pat_age,c(.5,.25,.75),na.rm=T))),
-             `  BMI %  `=do.call('sprintf',c(list('%.1f-%.1f'),range(xx$pat_bmi_pct,na.rm=T))),
-             `  BMI  `=do.call('sprintf',c(list('%.1f-%.1f'),range(xx$pat_bmi_raw,na.rm=T))),
-             check.names=F) %>% sapply(function(xx) gsub('Inf--Inf|0.0-0.0|NA \\(NA-NA\\)','',xx))) %>% 
-  do.call('rbind',.) %>% xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
-
-#' ## Patient demographics of Survey-2 respondents
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-sobd <- subset(obd,s2resp=='Yes');
-by(sobd,c(sobd[,c('BMI','pat_sex')],list(sobd$BMI=='')),FUN=function(xx) 
-  data.frame(Sex=xx$pat_sex[1],Group=xx$BMI[1],`  N  `=nrow(xx),
-             ` % Total `=sprintf('%.1f%%',100*nrow(xx)/nrow(sobd)),
-             ` Age, Median (IQR) `=do.call('sprintf',c(list('%.1f (%.1f-%.1f)'),quantile(xx$pat_age,c(.5,.25,.75),na.rm=T))),
-             `  BMI %  `=do.call('sprintf',c(list('%.1f-%.1f'),range(xx$pat_bmi_pct,na.rm=T))),
-             `  BMI  `=do.call('sprintf',c(list('%.1f-%.1f'),range(xx$pat_bmi_raw,na.rm=T))),
-             check.names=F) %>% sapply(function(xx) gsub('Inf--Inf|0.0-0.0|NA \\(NA-NA\\)','',xx))) %>% 
-  do.call('rbind',.) %>% xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
-
-#' ## November/December Demographic Summaries by site
 #' ### Population
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-subset(obd,T) %>% 
-  split(.,`$`(.,site)) %>% sapply(function(xx) with (xx,
-                                                     c(length(proj_id),'',
-                                                       summary(pat_sex)[c('Male','Female')],
-                                                       '','',
-                                                       summary(Race)[c('White','Black','NativeAm','Asian','Other','PreferNotAnswer')],
-                                                       sum(latino_origin=='Yes'),
-                                                       rep('',6),
-                                                       sprintf('%0.2f (%0.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T)),
-                                                       '',
-                                                       sprintf('%0.2f (%0.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
-                                                     ))) %>%
-  xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+with(obd
+     ,rbind(
+       table(N=rep('N',length(site)),site)
+       ,rep("\\\ \n",10)
+       ,table(pat_sex,site)
+       ,rep("\\\ \n",10)
+       ,rep("\\\ \n",10)
+       ,table(ses_race,site)
+       ,Latino=table(ses_hispanic,site)[7,]
+       ,rep("\\\ \n",10)
+       ,rep("\\\ \n",10)
+       ,table(ses_finclass,site))) %>% 
+  cbind(` `=row.names(.),.) %>% xtable %>% 
+  print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+summarize(
+  group_by(obd,site)
+  ,Income = paste0(
+    median(ses_income,na.rm = T)/1000
+    ,' (',
+    paste(quantile(ses_income,c(.25,.75),na.rm = T)/1000,collapse='-')
+    ,')'
+  )
+  ,`Age M(SD)`= paste0(
+    round(mean(pat_age,na.rm = T),2)
+    ,' ('
+    ,round(sd(pat_age,na.rm=T),2)
+    ,')'
+  )
+  ,`Baseline BMI M(SD)`= paste0(
+    round(mean(pat_bmi_raw,na.rm=T),2)
+    ,' ('
+    ,round(sd(pat_bmi_raw,na.rm=T),2)
+    ,')')
+) %>% t %>% data.frame(stringsAsFactors = F) %>% setNames(rep('',10)) %>%
+  rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
+  print(type='html',html.table.attributes="border=1 cellspacing=3");
 
 #' ### Responders
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-subset(obd,s1s2resp=='Yes') %>% 
-  split(.,`$`(.,site)) %>% sapply(function(xx) with (xx,
-                                                     c(length(proj_id),'',
-                                                       summary(pat_sex)[c('Male','Female')],
-                                                       '','',
-                                                       summary(Race)[c('White','Black','NativeAm','Asian','Other','PreferNotAnswer')],
-                                                       sum(latino_origin=='Yes'),
-                                                       rep('',6),
-                                                       sprintf('%0.2f (%0.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T)),
-                                                       '',
-                                                       sprintf('%0.2f (%0.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
-                                                     ))) %>%
-  xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
-
+subset(obd,s1s2resp=='Yes') %>%
+  with(.,rbind(
+       table(N=rep('N',length(site)),site)
+       ,rep("\\\ \n",10)
+       ,table(pat_sex,site)
+       ,rep("\\\ \n",10)
+       ,rep("\\\ \n",10)
+       ,table(ses_race,site)
+       ,Latino=table(ses_hispanic,site)[7,]
+       ,rep("\\\ \n",10)
+       ,rep("\\\ \n",10)
+       ,table(ses_finclass,site))) %>% 
+  cbind(` `=row.names(.),.) %>% xtable %>% 
+  print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+subset(obd,s1s2resp=='Yes') %>% group_by(site) %>%
+summarize(
+  Income = paste0(
+    median(ses_income,na.rm = T)/1000
+    ,' \n(',
+    paste(quantile(ses_income,c(.25,.75),na.rm = T)/1000,collapse='-')
+    ,')'
+  )
+  ,`Age M(SD)`= paste0(
+    round(mean(pat_age,na.rm = T),2)
+    ,' \n('
+    ,round(sd(pat_age,na.rm=T),2)
+    ,')'
+  )
+  ,`Baseline BMI M(SD)`= paste0(
+    round(mean(pat_bmi_raw,na.rm=T),2)
+    ,' ('
+    ,round(sd(pat_bmi_raw,na.rm=T),2)
+    ,')')
+) %>% t %>% data.frame(stringsAsFactors = F) %>% setNames(rep('',10)) %>%
+  rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
+  print(type='html',html.table.attributes="border=1 cellspacing=3");
 #' ### Completers
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-subset(obd,s2resp=='Yes') %>% 
-  split(.,`$`(.,site)) %>% sapply(function(xx) with (xx,
-                                                     c(length(proj_id),'',
-                                                       summary(pat_sex)[c('Male','Female')],
-                                                       '','',
-                                                       summary(Race)[c('White','Black','NativeAm','Asian','Other','PreferNotAnswer')],
-                                                       sum(latino_origin=='Yes'),
-                                                       rep('',6),
-                                                       sprintf('%0.2f (%0.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T)),
-                                                       '',
-                                                       sprintf('%0.2f (%0.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
-                                                       ))) %>%
-  xtable %>% print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
-
-
-#' ### New versions of tables...
-#' 
-#' Eligibility set
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-addmargins(with(obd,table(ses_finclass,site,useNA = 'always')));
-#' Responders
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-addmargins(with(subset(obd,s1s2resp=='Yes'),table(ses_finclass,site,useNA = 'always')));
-#' Completers
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-addmargins(with(subset(obd,s2resp=='Yes'),table(ses_finclass,site,useNA = 'always')));
-#' ...and similarly for the others.
+subset(obd,s2resp=='Yes') %>%
+  with(.,rbind(
+    table(N=rep('N',length(site)),site)
+    ,rep("\\\ \n",10)
+    ,table(pat_sex,site)
+    ,rep("\\\ \n",10)
+    ,rep("\\\ \n",10)
+    ,table(ses_race,site)
+    ,Latino=table(ses_hispanic,site)[7,]
+    ,rep("\\\ \n",10)
+    ,rep("\\\ \n",10)
+    ,table(ses_finclass,site))) %>% 
+  cbind(` `=row.names(.),.) %>% xtable %>% 
+  print(type='html',html.table.attributes="border=1 cellspacing=3",include.rownames=F);
+subset(obd,s2resp=='Yes') %>% group_by(site) %>%
+  summarize(
+    Income = paste0(
+      median(ses_income,na.rm = T)/1000
+      ,' (',
+      paste(quantile(ses_income,c(.25,.75),na.rm = T)/1000,collapse='-')
+      ,')'
+    )
+    ,`Age M(SD)`= paste0(
+      round(mean(pat_age,na.rm = T),2)
+      ,' ('
+      ,round(sd(pat_age,na.rm=T),2)
+      ,')'
+    )
+    ,`Baseline BMI M(SD)`= paste0(
+      round(mean(pat_bmi_raw,na.rm=T),2)
+      ,' ('
+      ,round(sd(pat_bmi_raw,na.rm=T),2)
+      ,')')
+  ) %>% t %>% data.frame(stringsAsFactors = F) %>% setNames(rep('',10)) %>%
+  rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
+  print(type='html',html.table.attributes="border=1 cellspacing=3");
