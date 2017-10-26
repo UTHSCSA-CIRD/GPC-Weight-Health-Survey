@@ -5,6 +5,7 @@ library(digest);
 
 # some handy functions
 source('obesitySurveyHelpers.R');
+if(file.exists('config.R') source('config.R') else .workenv <- list();
 
 rseed <- 6062016;
 set.seed(rseed);
@@ -132,7 +133,7 @@ obd[,c('height_req','height_feet','height_value_cm'
        ,'weight_req','weight_value_kg')] <- NULL;
 
 samp <- pickSample(obd, .25);
-save(obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
+save(.workenv,obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
 # We delete the ID-type variables
 samp <- samp[,setdiff(names(samp),c(toOmit,textfields))];
 samp <- samp[,c(vs(samp,'f'),vs(samp))];
