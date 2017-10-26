@@ -53,6 +53,10 @@ dbs = [[ff,re.sub(dbnmrep,'',ff)]
 # same, but for survey files
 [sqscr.write(gg) for gg in [".import "+" ".join(ff)+"\n" for ff in svs]];
 sqscr.write(".import sesdat.csv ses\n");
+# 17/10/26 patch because in the SES file UIOWA put IOWA instead
+sqscr.write("update ses set redcap_data_access_group = 'UIOWA' where redcap_data_access_group = 'IOWA';\n");
+# 17/10/26 also, temporary fix for UTHSCSA
+sqscr.write("update ses set redcap_data_access_group = 'UTHSCSA' where redcap_data_access_group = 'UTHSCSA_old';\n");
 # add site-identifying columns for tables
 [sqscr.write("alter table {0} ADD COLUMN svsite TEXT; update {0} set svsite = '{0}';".format(xx[1])+"\n")
  for xx in svs];
@@ -107,6 +111,11 @@ svinsrt = ["insert into sv_allsites (site, " +\
   ",".join([jj[1] for jj in svcols[ii]])+") select '{0}' site,* from {0}".format(ii) for ii in svcols.keys()];
 # now run the above inserts
 [cn.execute(xx) for xx in svinsrt];
+# 17/10/26 patch to un-screwup UTSW's creative column-renaming
+cn.execute("update sv_allsites set patient_num = proj_id_number where site = 'sv_utsw';");
+# 17/10/26 this is especially jacked up because we're overwriting patient_num_deid, but as 
+# far as I can tell that column doesn't actually match anything anyway.
+cn.execute("update ses set patient_num_deid = local_survey_pat_num where redcap_data_access_group = 'UTSW';");
 # join the SES variables to the survey data
 cn.execute("""CREATE TABLE sv_unified as select sv.*
   ,case ses.race_cd when '' then null else ses.race_cd end ses_race

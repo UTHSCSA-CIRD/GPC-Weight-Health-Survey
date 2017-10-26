@@ -5,7 +5,7 @@ library(digest);
 
 # some handy functions
 source('obesitySurveyHelpers.R');
-if(file.exists('config.R') source('config.R') else .workenv <- list();
+if(file.exists('config.R')) source('config.R') else .workenv <- list();
 
 rseed <- 6062016;
 set.seed(rseed);
