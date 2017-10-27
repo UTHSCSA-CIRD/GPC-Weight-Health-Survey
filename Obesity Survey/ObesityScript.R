@@ -5,12 +5,13 @@ library(digest);
 
 # some handy functions
 source('obesitySurveyHelpers.R');
+if(file.exists('config.R')) source('config.R') else .workenv <- list();
 
 rseed <- 6062016;
 set.seed(rseed);
 
 #load clean and save 
-obd <- read.table("testoutput.csv", header = TRUE, sep = "\t",na.strings = '');
+obd <- read.table("testoutput.csv", header = TRUE, sep = "\t",na.strings = c('','(null)'));
 
 # set variables all in one place if practical
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
@@ -80,8 +81,12 @@ obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
+#obd[obd$site=='WISC','s2resp'] <- with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE','Yes','No'));
 # answered the first survey and/or the second survey
 obd$s1s2resp <- factor(obd$s2resp=='Yes'|obd$invite_response_nature=='Yes',levels=c('FALSE','TRUE'),labels=c('No','Yes'));
+# Patching to make WISC response/non-response counts add up
+obd[obd$site=='WISC','s1s2resp'] <- with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE'|s1s2resp=='No','Yes','No'))
+obd[obd$site=='WISC','s2resp']<-with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE','Yes','No'))
 
 
 # reordering the yes-no-maybe variables
@@ -132,7 +137,7 @@ obd[,c('height_req','height_feet','height_value_cm'
        ,'weight_req','weight_value_kg')] <- NULL;
 
 samp <- pickSample(obd, .25);
-save(obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
+save(.workenv,obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
 # We delete the ID-type variables
 samp <- samp[,setdiff(names(samp),c(toOmit,textfields))];
 samp <- samp[,c(vs(samp,'f'),vs(samp))];

@@ -270,7 +270,7 @@ stringmap <- rbind(
   ,c('I completed a Masters degree','Masters')
   ,c('I completed a Doctoral degree','Doctorate')
   ,c(' I prefer not to answer','PreferNotAnswer')
-  ,c('None','')
+  ,c('None',' ')
   ,c('sv_cmh','CMH')
   ,c('sv_kumc','KUMC')
   ,c('sv_mcrf','MCRF')
@@ -314,7 +314,9 @@ sexstringmap <- rbind(
   ,c('m','Male')
   ,c('M','Male')
   ,c('female','Female')
-  ,c('male','Female')
+  ,c('male','Male')
+  ,c('FEMALE','Female')
+  ,c('MALE','Male')
 );
 
 # for longFactorLev

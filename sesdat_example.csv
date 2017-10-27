@@ -1,0 +1,6 @@
+record_id,redcap_data_access_group,site,patient_num_deid,local_survey_pat_num,race_cd,ethnicity_hispanic,financial_class,median_block_income,obesity_social_economic_data_upload_complete
+1,XYZ,XYZ Medical School,4451,OTFCO_82892175,White,No,Private/ Commercial,35000,Incomplete
+2,XYZ,XYZ Medical School,5131,OTMCO_91322817,White,No,Self-play/no insurance,60000,Incomplete
+3,XYZ,XYZ Medical School,9991,OTMYB_30029096,White,Yes,Private/ Commercial,20000,Incomplete
+4,XYZ,XYZ Medical School,1119,OTFPH_38642280,White,No,Medicare,35000,Incomplete
+5,XYZ,XYZ Medical School,1010,OTFCO_63579294,White,Yes,Private/ Commercial,60000,Incomplete
