@@ -103,6 +103,9 @@ obd$ses_race <- factor(obd$ses_race,levels=levels(obd$ses_race)[c(6,3,1,2,4,5)])
 levels(obd$ses_finclass) <- fin_map[levels(obd$ses_finclass)];
 obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,1,5,4,3)]);
 
+# obd$a_resplevel <- with(obd,factor(interaction(s1s2resp:s2resp,drop=T),exclude='',levels=c('No:No','Yes:No','Yes:Yes',NA),labels=c('Neither','Responder','Completer','NONE')));
+# levels(obd$a_resplevel)[levels(obd$a_resplevel)=='NONE'] <- 'Neither';
+
 #' Remove the impossible BMIs that somehow made it through
 obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
 

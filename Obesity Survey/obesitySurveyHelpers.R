@@ -314,7 +314,9 @@ sexstringmap <- rbind(
   ,c('m','Male')
   ,c('M','Male')
   ,c('female','Female')
-  ,c('male','Female')
+  ,c('male','Male')
+  ,c('FEMALE','Female')
+  ,c('MALE','Male')
 );
 
 # for longFactorLev
