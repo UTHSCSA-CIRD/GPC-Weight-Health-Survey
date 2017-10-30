@@ -108,6 +108,30 @@ obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,
 
 #' Remove the impossible BMIs that somehow made it through
 obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
+#' ### Overall
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+cbind(Population=with(obd,c(
+  N=nrow(obd),table(pat_sex),table(ses_race),Latino=table(ses_hispanic)[[7]]
+  ,table(ses_finclass)
+  ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
+  ,Age=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
+  ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
+  ))
+  ,Responders=with(subset(obd,s1s2resp=='Yes'),c(
+    N=length(site),table(pat_sex),table(ses_race),Latino=table(ses_hispanic)[[7]]
+    ,table(ses_finclass)
+    ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
+    ,Age=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
+    ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
+    ))
+  ,Completers=with(subset(obd,s2resp=='Yes'),c(
+    N=length(site),table(pat_sex),table(ses_race),Latino=table(ses_hispanic)[[7]],table(ses_finclass)
+    ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
+    ,Age=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
+    ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
+    ))
+  ) %>% xtable %>% 
+  print(type='html',html.table.attributes="border=1 cellspacing=3");
 
 #' ### Population
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
