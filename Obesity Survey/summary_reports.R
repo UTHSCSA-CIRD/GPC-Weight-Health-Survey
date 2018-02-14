@@ -248,3 +248,37 @@ subset(obd,s2resp=='Yes') %>% group_by(site) %>%
   ) %>% t %>% data.frame(stringsAsFactors = F) %>% setNames(rep('',10)) %>%
   rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
   print(type='html',html.table.attributes="border=1 cellspacing=3");
+
+res_by_site_pd <- subset(obd,pat_age<18) %>% group_by(site,Recruitment) %>% 
+  summarise(Eligible=n(),`Survey 1`=sum(na.omit(s1s2resp=='Yes'))
+            ,`Survey 2`=sum(na.omit(s2resp=='Yes'))
+            ,`Age (SD)`=sprintf('%5.2f (%5.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T))
+            ,`BMI (SD)`=sprintf('%5.2f (%5.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
+  );
+
+res_by_site_ad <- subset(obd,pat_age>=18) %>% group_by(site,Recruitment) %>% 
+  summarise(Eligible=n(),`Survey 1`=sum(na.omit(s1s2resp=='Yes'))
+            ,`Survey 2`=sum(na.omit(s2resp=='Yes'))
+            ,`Age (SD)`=sprintf('%5.2f (%5.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T))
+            ,`BMI (SD)`=sprintf('%5.2f (%5.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
+            #,`BMI (SD)`=paste0(mean(pat_bmi_raw,na.rm=T),' ',round(sd(pat_raw,na.rm=T),2))
+            #,BMI=mean(pat_bmi_raw,na.rm=T),`(SD )`=sd(pat_bmi_raw,na.rm=T)
+            );
+
+res_by_site <- merge(res_by_site_pd,res_by_site_ad,all=T
+                     ,by = c('site','Recruitment'),suffixes = c(' ped',' adl'));
+
+res_by_site_pd <- res_by_site[,c(names(res_by_site)[1:2]
+                              ,grep(' ped$',names(res_by_site),val=T))] %>% 
+  setNames(.,names(res_by_site_pd));
+
+res_by_site_ad <- res_by_site[,c(names(res_by_site)[1:2]
+                                 ,grep(' adl$',names(res_by_site),val=T))] %>% 
+  setNames(names(res_by_site_ad));
+#' 
+#' Adult Index Patients
+#+ echo=FALSE, results='asis'
+knitr::kable(res_by_site_ad,digits=2,format='markdown') %>% gsub('NA','-',.);
+#' Pediatric Index Patients
+#+ echo=FALSE, results='asis'
+knitr::kable(res_by_site_pd,digits=2,format='markdown') %>% gsub('NA','-',.);
