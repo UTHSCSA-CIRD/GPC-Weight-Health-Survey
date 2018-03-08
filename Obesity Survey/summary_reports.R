@@ -236,8 +236,11 @@ print(table02_pop,print=F
 
 print(table02a_byrecruit,print=F
       ,cramVars = c('Sex','Hispanic')
-      ,nonnormal = 'Income')[,-12] %>% 
-  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
+      ,nonnormal = 'Income')[,-5] %>% 
+  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% 
+  gsub('(.*\\(%\\))' #|(^.*\\(mean \\(sd\\)\\))'
+       ,'**\\1**',.) %>%
+  kable(format='markdown');
 
 #' ### Responders
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
@@ -379,4 +382,4 @@ glm_s1s2null <- glm(formula = s1s2resp ~ 1, family = "binomial"
                     , data = transform(obd[tr_sample,],ses_hispanic=truthy(ses_hispanic)));
 sapply(c(v(c_ppred),'Recruitment','a_recruitTarget'),function(xx) as.formula(paste0('.~',xx)),simplify=F) %>% 
   lapply(function(xx) update(glm_s1s2null,xx)) -> glm_s1s2_univ;
-lapply(glm_s1s2_univ,tidy) %>% do.call(rbind,.) %>% kable(format='markdown',row.names=F);
+lapply(glm_s1s2_univ,tidy,conf.int=.95) %>% do.call(rbind,.) %>% kable(format='markdown',row.names=F);
