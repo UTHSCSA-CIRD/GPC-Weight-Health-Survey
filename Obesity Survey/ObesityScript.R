@@ -49,12 +49,15 @@ obd[,factors] <- sapply(obd[,factors],mapstrings,simplify = F);
 # done using them.
 
 #Clean up in-race names for ggplot -- They're currently too long and overlapping
-obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=defaultNlevels,oth='0',simplify=F);
+obd[,racenames] <- sapply(obd[,racenames],binfactor,lev=defaultNlevels,oth='0'
+                          ,na.omit=T,na.assign='0',simplify=F);
 # Combine race columns into a single one
-obd$Race <- interaction(obd[,racenames],drop = T,sep = '');
-levels(obd$Race) <- gsub('^White[0]{0,1}([A-Z])','\\1'
+obd$Race.bak01 <- obd$Race <- interaction(obd[,racenames],drop = T,sep = '');
+levels(obd$Race.bak01) <- gsub('^White[0]{0,1}([A-Z])','\\1'
                  ,gsub('^0|0$',''
                        ,gsub('0+','0',levels(obd$Race))));
+levels(obd$Race) <- levels(obd$Race) %>% ifelse(.=='000000','Missing00000',.) %>% 
+  ifelse(gsub('[^0]','',.)=='00000',.,'MoreThanOne') %>% gsub('0','',.);
 obd$Race <- mapstrings(obd$Race);
 # Arrange the levels for income to keep like incomes together
 # hardcoding indexes into levels is unstable, can change when data refreshed
@@ -95,8 +98,14 @@ obd[,factors] <- sapply(obd[,factors],reOrderYesNo,simplify=F);
 obd[,factors] <- sapply(obd[,factors],longFactorLev,simplify=F);
 
 #bmi factor
-obd$BMI <- cut(obd$pat_bmi_pct, c(0,5,85,95,100)
-              ,c("Underweight","Normal","Overweight","Obese"));
+obd$BMI <- with(obd,cut(pat_bmi_pct, c(0,5,85,95,100)
+                                ,c("Underweight","Normal","Overweight","Obese")));
+#' Remove the impossible BMIs that somehow made it through
+obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
+obd$BMI[is.na(obd$BMI)] <- with(obd
+                                ,cut(pat_bmi_raw,c(0,18.5,25,30,Inf)
+                                     ,c('Underweight','Normal','Overweight','Obese'))[is.na(BMI)]);
+
 #make the missing BMI values follow the same convention as the rest of the factors
 obd$BMI <- factor(obd$BMI,levels=c(NA,levels(obd$BMI)),labels=c('',levels(obd$BMI))
                   ,exclude=NULL);
@@ -113,7 +122,9 @@ names(obd) <- mapstrings(names(obd),colnamestringmap);
 names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 
 ##Data Enhancements from commit 293057f6b18ef902f1796b0c25c0bfb65810f088 
-obd$adultOrChild <- as.factor(obd$pat_age > 18);
+obd$adultOrChild <- as.factor(obd$pat_age >= 21);
+obd$a_recruitTarget <- ifelse(obd$site %in% c('MCW','UNMC','WISC')
+                              ,'Adult','Pediatric') %>% factor;
 
 # Hmm. Don't want to blow this away yet, this is the one that works!
 #obd$surv_2 <- NULL

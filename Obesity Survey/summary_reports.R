@@ -19,6 +19,7 @@ dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
 
 setwd(dir);
 load(datafile);
+source('functions.R');
 
 #' These are the names of our response variables:
 responses <- list(
@@ -107,7 +108,35 @@ obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,
 # levels(obd$a_resplevel)[levels(obd$a_resplevel)=='NONE'] <- 'Neither';
 
 #' Remove the impossible BMIs that somehow made it through
-obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
+# moved to ObesityScript.R
+#obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
+
+#' ### Create the data dictionary
+dct0<-data.frame(dataset_column_names=names(obd)
+                 ,class=sapply(obd,function(xx) class(xx)[1])
+                 ,stringsAsFactors = F);
+#' 
+#' survey predictors 
+#' TODO: calculate BMI from patient responses
+dct0$c_survey_ppred<-dct0$dataset_column_names %in% c('latino_origin','Race'
+                                                     ,'sex','age','income'
+                                                     ,'insurance');
+#' non-survey patient predictors
+dct0$c_ppred <- dct0$dataset_column_names %in% c('ses_hispanic','ses_race'
+                                                 ,'pat_sex','pat_age','ses_income'
+                                                 ,'ses_finclass','BMI');
+#' non-survey site predictors
+#' 
+dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment','a_recruitTarget');
+#' 
+#' outcomes
+#' 
+dct0$c_outcomes <- dct0$dataset_column_names %in% c('s1s2resp','s2resp');
+                                                    # ,'possible_research'
+                                                    # ,'research'
+                                                    # ,'research_feeling'
+                                                    # ,'children_research');
+#' 
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
 cbind(Population=with(obd,c(

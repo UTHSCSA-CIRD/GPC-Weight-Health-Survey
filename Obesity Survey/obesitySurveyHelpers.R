@@ -415,7 +415,8 @@ vs <- function(xx
 }
 
 
-binfactor<-function(xx,levs,other='other',dec=T){
+binfactor<-function(xx,levs,other='other',dec=T
+                    ,na.omit=F,na.assign=NA){
   # This function takes a factor `xx` and returns it re-binned and optionally 
   # sorted by size.
   # xx    : a factor
@@ -428,11 +429,13 @@ binfactor<-function(xx,levs,other='other',dec=T){
   #         decreasing order of how many observations are part of each level.
   #         If FALSE, then likewise but in increasing order. Finally, NA 
   #         disables re-ordering of levels.
+  # na.omit Omit NAs before calculating levels
   if(missing(levs)) levs <- names(which.max(summary(xx))) else {
     # If levs argument not specified, just keep the most populated level and
     # bin everything else together.
     if(length(levs)==1&&!is.na(as.integer(levs))) {
-      levs <- names(sort(summary(xx),dec=T)[1:levs]);
+      levs <- names(sort(summary(if(na.omit) na.omit(xx) else xx)
+                                 ,dec=T)[1:levs]);
     }
     # Otherwise, if a single integer was given, take that many of the most 
     # populated levels.
@@ -442,7 +445,10 @@ binfactor<-function(xx,levs,other='other',dec=T){
   newlevs <-levels(xx); newlevs[!newlevs%in%levs]<-other;
   # newlevs is a vector of character values. Now we assign it to existing 
   # levels, thus overwriting them.
-  levels(xx)<-newlevs;
+  if(is.na(na.assign)) levels(xx)<-newlevs else {
+    levels(xx) <-c(newlevs,setdiff(na.assign,newlevs));
+    xx[is.na(xx)] <- na.assign;
+  }
   # If `dec` is not set to NA we rebuild the factor with a new ordering of the
   # levels, by size.
   if(is.na(dec)) xx else factor(xx,levels=names(sort(summary(xx),dec=dec)))
