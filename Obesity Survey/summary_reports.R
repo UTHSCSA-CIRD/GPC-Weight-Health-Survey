@@ -12,11 +12,11 @@
 #' Word table-containing document.
 #' 
 #+ include=FALSE,cache=FALSE,echo=FALSE
-require(xtable);require(magrittr); require(dplyr);
+require(xtable);require(magrittr); require(dplyr); require(knitr);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
 dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
-
+options(knitr.kable.NA='-');
 setwd(dir);
 load(datafile);
 source('functions.R');
@@ -140,26 +140,32 @@ dct0$c_outcomes <- dct0$dataset_column_names %in% c('s1s2resp','s2resp');
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
 cbind(Population=with(obd,c(
-  N=nrow(obd),table(pat_sex),table(ses_race),Latino=table(ses_hispanic)[[7]]
+  `**N**`=nrow(obd),table(pat_sex),`**Race**`='',table(ses_race),`**Latino**`=table(ses_hispanic)[[7]]
+  ,`**Financial Class**`=' '
   ,table(ses_finclass)
   ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
-  ,Age=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
-  ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
+  ,`**Age**`=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
+  ,`**BMI**`=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
   ))
   ,Responders=with(subset(obd,s1s2resp=='Yes'),c(
-    N=length(site),table(pat_sex),table(ses_race),Latino=table(ses_hispanic)[[7]]
+    N=length(site),table(pat_sex),'',table(ses_race),Latino=table(ses_hispanic)[[7]]
+    ,' '
     ,table(ses_finclass)
     ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
     ,Age=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
     ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
     ))
   ,Completers=with(subset(obd,s2resp=='Yes'),c(
-    N=length(site),table(pat_sex),table(ses_race),Latino=table(ses_hispanic)[[7]],table(ses_finclass)
+    N=length(site),table(pat_sex),'',table(ses_race),Latino=table(ses_hispanic)[[7]]
+    ,' ',table(ses_finclass)
     ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
     ,Age=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
     ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
     ))
-  ) %>% xtable %>% 
+  ) -> table_overall;
+kable(table_overall,format='markdown');
+#+ results='asis',echo=FALSE,warning=FALSE,message=FALSE
+xtable(table_overall) %>%
   print(type='html',html.table.attributes="border=1 cellspacing=3");
 
 #' ### Population
@@ -278,14 +284,13 @@ subset(obd,s2resp=='Yes') %>% group_by(site) %>%
   rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
   print(type='html',html.table.attributes="border=1 cellspacing=3");
 
-res_by_site_pd <- subset(obd,pat_age<18) %>% group_by(site,Recruitment) %>% 
+res_by_site_pd <- subset(obd,pat_age<=21 & a_recruitTarget=='Pediatric') %>% group_by(site,Recruitment) %>% 
   summarise(Eligible=n(),`Survey 1`=sum(na.omit(s1s2resp=='Yes'))
             ,`Survey 2`=sum(na.omit(s2resp=='Yes'))
             ,`Age (SD)`=sprintf('%5.2f (%5.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T))
             ,`BMI (SD)`=sprintf('%5.2f (%5.2f)',mean(pat_bmi_raw,na.rm=T),sd(pat_bmi_raw,na.rm=T))
   );
-
-res_by_site_ad <- subset(obd,pat_age>=18) %>% group_by(site,Recruitment) %>% 
+res_by_site_ad <- subset(obd,pat_age>21 & a_recruitTarget=='Adult') %>% group_by(site,Recruitment) %>% 
   summarise(Eligible=n(),`Survey 1`=sum(na.omit(s1s2resp=='Yes'))
             ,`Survey 2`=sum(na.omit(s2resp=='Yes'))
             ,`Age (SD)`=sprintf('%5.2f (%5.2f)',mean(pat_age,na.rm=T),sd(pat_age,na.rm=T))
@@ -294,20 +299,20 @@ res_by_site_ad <- subset(obd,pat_age>=18) %>% group_by(site,Recruitment) %>%
             #,BMI=mean(pat_bmi_raw,na.rm=T),`(SD )`=sd(pat_bmi_raw,na.rm=T)
             );
 
-res_by_site <- merge(res_by_site_pd,res_by_site_ad,all=T
-                     ,by = c('site','Recruitment'),suffixes = c(' ped',' adl'));
+#res_by_site <- merge(res_by_site_pd,res_by_site_ad,all=T
+#                     ,by = c('site','Recruitment'),suffixes = c(' ped',' adl'));
 
-res_by_site_pd <- res_by_site[,c(names(res_by_site)[1:2]
-                              ,grep(' ped$',names(res_by_site),val=T))] %>% 
-  setNames(.,names(res_by_site_pd));
-
-res_by_site_ad <- res_by_site[,c(names(res_by_site)[1:2]
-                                 ,grep(' adl$',names(res_by_site),val=T))] %>% 
-  setNames(names(res_by_site_ad));
+#res_by_site_pd <- res_by_site[,c(names(res_by_site)[1:2]
+#                              ,grep(' ped$',names(res_by_site),val=T))] %>% 
+#  setNames(.,names(res_by_site_pd));
+#
+#res_by_site_ad <- res_by_site[,c(names(res_by_site)[1:2]
+#                                 ,grep(' adl$',names(res_by_site),val=T))] %>% 
+#  setNames(names(res_by_site_ad));
 #' 
 #' Adult Index Patients
 #+ echo=FALSE, results='asis'
-knitr::kable(res_by_site_ad,digits=2,format='markdown') %>% gsub('NA','-',.);
+kable(res_by_site_ad,digits=2,format='markdown');
 #' Pediatric Index Patients
 #+ echo=FALSE, results='asis'
-knitr::kable(res_by_site_pd,digits=2,format='markdown') %>% gsub('NA','-',.);
+kable(res_by_site_pd,digits=2,format='markdown');
