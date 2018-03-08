@@ -2,6 +2,7 @@
 #library(reshape);
 #library(vcd);
 library(digest);
+require(magrittr);
 
 # some handy functions
 source('obesitySurveyHelpers.R');
@@ -122,7 +123,8 @@ names(obd) <- mapstrings(names(obd),colnamestringmap);
 names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
 
 ##Data Enhancements from commit 293057f6b18ef902f1796b0c25c0bfb65810f088 
-obd$adultOrChild <- as.factor(obd$pat_age >= 21);
+obd$adultOrChild <- factor(obd$pat_age >= 21,levels=c(FALSE,TRUE)
+                           ,labels=c('Child','Adult'));
 obd$a_recruitTarget <- ifelse(obd$site %in% c('MCW','UNMC','WISC')
                               ,'Adult','Pediatric') %>% factor;
 
