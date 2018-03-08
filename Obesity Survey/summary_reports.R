@@ -13,7 +13,7 @@
 #' 
 #+ include=FALSE,cache=FALSE,echo=FALSE
 require(xtable);require(magrittr); require(dplyr); require(knitr);
-require(tableone); require(broom);
+require(tableone); require(broom); require(dummies);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
 dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
@@ -21,6 +21,10 @@ options(knitr.kable.NA='-');
 setwd(dir);
 load(datafile);
 source('functions.R');
+#' create our test, training, and validation sets
+set.seed(rseed);
+rsamples <- split(seq_len(nrow(obd)),sample(c('train','val','test')
+                                            ,nrow(obd),rep=T,prob = c(1,1,3)));
 
 #' These are the names of our response variables:
 responses <- list(
@@ -50,6 +54,17 @@ recruitment <- c(
   WISC='mychart'
 );
 #+ echo=FALSE
+univterms <- cbind(c('ses_hispanicTRUE','adultOrChildAdult','pat_sexMale'
+                     ,'adultOrChildTRUE'
+                     ,'a_recruitTargetPediatric','ses_finclass','site'
+                     ,'ses_race','pat_age','pat_bmi_raw','pat_bmi_pct'
+                     ,'ses_income','=`','`')
+                   ,c("Hispanic", "Adult Patient", "Male"
+                      ,"Adult Patient"
+                     , "Pediatric Site", "Insurance", "Site"
+                     , "Race", "Age", "BMI raw", "BMI percentile"
+                     , "Income", "=Missing", ""));
+
 racecodes_strict <- c(R01='American Indian or Alaska Native',
               R02='Asian',
               R03='Black or African American',
@@ -115,17 +130,28 @@ obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,
 #' ### Create the data dictionary
 dct0<-data.frame(dataset_column_names=names(obd)
                  ,class=sapply(obd,function(xx) class(xx)[1])
+                 ,unique=sapply(obd,function(xx) length(na.omit(unique(xx))))
+                 ,missing=sapply(obd,function(xx) sum(is.na(xx)))
                  ,stringsAsFactors = F);
-#' 
+#' manually-chosen groups of columns
+dct0$c_meta <- dct0$dataset_column_names %in% c('family_id','proj_id');
+dct0$c_maketf <- dct0$dataset_column_names %in% c('ses_hispanic'
+                                                  ,'s2resp','s1s2resp');
+dct0$c_leave2lev <- dct0$dataset_column_names %in% c('pat_sex'
+                                                     ,'adultOrChild','a_recruitTarget');
+#' class-based groups of columns
+dct0$c_numeric <- with(dct0,class=='numeric' & !dataset_column_names %in% v(c_meta));
+dct0$c_factor <- with(dct0,class=='factor' & !dataset_column_names %in% v(c_maketf));
 #' survey predictors 
-#' TODO: calculate BMI from patient responses
 dct0$c_survey_ppred<-dct0$dataset_column_names %in% c('latino_origin','Race'
                                                      ,'sex','age','income'
                                                      ,'insurance');
 #' non-survey patient predictors
 dct0$c_ppred <- dct0$dataset_column_names %in% c('ses_hispanic','ses_race'
                                                  ,'pat_sex','pat_age','ses_income'
-                                                 ,'ses_finclass','BMI');
+                                                 ,'ses_finclass','BMI'
+                                                 ,'pat_bmi_raw','pat_bmi_pct');
+dct0$c_ppred_num <- with(dct0,c_numeric&c_ppred);
 #' non-survey site predictors
 #' 
 dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment','a_recruitTarget','site');
@@ -137,6 +163,11 @@ dct0$c_outcomes <- dct0$dataset_column_names %in% c('s1s2resp','s2resp');
                                                     # ,'research'
                                                     # ,'research_feeling'
                                                     # ,'children_research');
+dct0$c_dummycode <- with(dct0,(c_ppred|c_spred)&(c_factor)&!(c_maketf|c_leave2lev));
+#' ### Create the table for preliminary univariate screening on non-survey predictors
+ud_nonsrv <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num))]
+                     ,dummy.data.frame(obd[,v(c_dummycode)]
+                                       ,verbose=T,sep='='))[rsamples$train,];
 #' 
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
@@ -376,10 +407,46 @@ kable(res_by_site_ad,digits=2,format='markdown');
 kable(res_by_site_pd,digits=2,format='markdown');
 
 #' Coming up next... all univariate predictors
-set.seed(rseed);
-tr_sample <- sample(seq_len(nrow(obd)),10000);
 glm_s1s2null <- glm(formula = s1s2resp ~ 1, family = "binomial"
-                    , data = transform(obd[tr_sample,],ses_hispanic=truthy(ses_hispanic)));
-sapply(c(v(c_ppred),'Recruitment','a_recruitTarget'),function(xx) as.formula(paste0('.~',xx)),simplify=F) %>% 
-  lapply(function(xx) update(glm_s1s2null,xx)) -> glm_s1s2_univ;
-lapply(glm_s1s2_univ,tidy,conf.int=.95) %>% do.call(rbind,.) %>% kable(format='markdown',row.names=F);
+                    , data = ud_nonsrv);
+#sapply(c(v(c_ppred),'Recruitment','a_recruitTarget'),function(xx) as.formula(paste0('.~',xx)),simplify=F) %>% 
+#  lapply(function(xx) update(glm_s1s2null,xx)) -> glm_s1s2_univ;
+#lapply(glm_s1s2_univ,tidy,conf.int=.95) %>% do.call(rbind,.) %>% kable(format='markdown',row.names=F);
+#' We fit a separate logistic regression model to each numeric and binary 
+#' predictor, and to *each level of* each factor predictor with >2 levels.
+glm_s1s2uni <- sapply(setdiff(names(ud_nonsrv),v(c_outcomes))
+                     ,function(xx) {
+                       # the back-ticks below are needed because the names have
+                       # been altered for readability and are not necessarily
+                       # valid R object names anymore unless quoted in this
+                       # manner
+                       update(glm_s1s2null,as.formula(paste0('.~`',xx,'`')))
+                       },simplify=F);
+#' We use the `[-1,]` to drop the intercept from each result
+tab_glm_s1s2uni <- lapply(glm_s1s2uni,function(xx) tidy(xx,conf.int=T)[-1,]) %>% 
+  bind_rows();
+#' adjust the p-values
+tab_glm_s1s2uni$p.value <- p.adjust(tab_glm_s1s2uni$p.value);
+#' rename the terms to human readable
+tab_glm_s1s2uni$term<-submulti(tab_glm_s1s2uni$term,univterms);
+#' grab the left side of the `=` containing variable names, or the whole thing
+#' otherwise
+tab_glm_s1s2uni$variable <- sapply(strsplit(tab_glm_s1s2uni$term,'='),`[`,1);
+#' sort it
+tab_glm_s1s2uni <- tab_glm_s1s2uni[order(tab_glm_s1s2uni$variable
+                                         ,tab_glm_s1s2uni$p.value
+                                         ,decreasing = F),];
+#' create the raw kable
+kab_glm_s1s2uni <- tab_glm_s1s2uni[,-ncol(tab_glm_s1s2uni)] %>%
+  transform(p.value=ifelse(p.value<.001,'<0.001',round(p.value,3))) %>%
+  kable(format = 'markdown',row.names=F,digits=3);
+#' tweak the kable to highlight significant differences
+for(ii in seq_len(nrow(tab_glm_s1s2uni))) if(tab_glm_s1s2uni[ii,'p.value']<.05){
+  kab_glm_s1s2uni[ii+2]<-gsub('[ ]{1,}',' ',kab_glm_s1s2uni[ii+2]) %>%
+    gsub('\\|[ ]{0,1}([A-Za-z0-9. -=]{2,})[ ]{0,1}\\|','| **\\1** |',.) %>%
+    gsub('\\| ([0-9.-]{2,})\\|','| **\\1** |',.)
+  };
+  #   gsub('\\|$','**|',.) %>% 
+  #   gsub('([A-Za-z0-9 -])\\|([A-Za-z0-9 -=])','\\1**|**\\2',.)
+  # };
+kab_glm_s1s2uni;
