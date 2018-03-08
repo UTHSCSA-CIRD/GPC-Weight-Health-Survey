@@ -13,6 +13,7 @@
 #' 
 #+ include=FALSE,cache=FALSE,echo=FALSE
 require(xtable);require(magrittr); require(dplyr); require(knitr);
+require(tableone); require(broom);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
 dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
@@ -127,7 +128,7 @@ dct0$c_ppred <- dct0$dataset_column_names %in% c('ses_hispanic','ses_race'
                                                  ,'ses_finclass','BMI');
 #' non-survey site predictors
 #' 
-dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment','a_recruitTarget');
+dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment','a_recruitTarget','site');
 #' 
 #' outcomes
 #' 
@@ -207,6 +208,37 @@ summarize(
   rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
   print(type='html',html.table.attributes="border=1 cellspacing=3");
 
+#' alt version
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+df_fortables <- transform(obd[,c(v(c_ppred),v(c_spred),v(c_outcomes))]
+                          ,Responders=truthy(s1s2resp)
+                          ,Completers=truthy(s2resp)
+                          ,Hispanic=truthy(ses_hispanic)
+                          ,Age=pat_age
+                          ,Race=ses_race
+                          ,Sex=pat_sex
+                          ,`Financial Class`=ses_finclass
+                          ,Income=ses_income);
+table02_pop <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
+                                     ,'Income','Age','BMI'
+                                     ,'Responders','Completers')
+                              ,strata = 'site'
+                              ,data=df_fortables,test=T);
+table02a_byrecruit <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
+                                            ,'Income','Age','BMI'
+                                            ,'Responders','Completers')
+                                     ,strata = 'Recruitment'
+                                     ,data=df_fortables,test=T);
+print(table02_pop,print=F
+      ,cramVars = c('Sex','Hispanic')
+      ,nonnormal = 'Income')[,-12] %>% 
+  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
+
+print(table02a_byrecruit,print=F
+      ,cramVars = c('Sex','Hispanic')
+      ,nonnormal = 'Income')[,-12] %>% 
+  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
+
 #' ### Responders
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
 subset(obd,s1s2resp=='Yes') %>%
@@ -245,6 +277,18 @@ summarize(
 ) %>% t %>% data.frame(stringsAsFactors = F) %>% setNames(rep('',10)) %>%
   rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
   print(type='html',html.table.attributes="border=1 cellspacing=3");
+#' alt version
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+table03_resp <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial Class'
+                                     ,'Income','Age','BMI'
+                                     ,'Completers')
+                              ,strata = 'site'
+                              ,data=subset(df_fortables,Responders),test=T);
+print(table03_resp,print=F
+      ,cramVars = c('Sex','Hispanic')
+      ,nonnormal = 'Income')[,-12] %>% 
+  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
+
 #' ### Completers
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
 subset(obd,s2resp=='Yes') %>%
@@ -283,7 +327,18 @@ subset(obd,s2resp=='Yes') %>% group_by(site) %>%
   ) %>% t %>% data.frame(stringsAsFactors = F) %>% setNames(rep('',10)) %>%
   rbind("\\\ \n") %>% `[`(c(1,2,5,3,5,4),) %>% xtable %>% 
   print(type='html',html.table.attributes="border=1 cellspacing=3");
+#' alt version
+#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
+table04_comp <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial Class'
+                                      ,'Income','Age','BMI')
+                               ,strata = 'site'
+                               ,data=subset(df_fortables,Completers),test=T);
+print(table04_comp,print=F
+      ,cramVars = c('Sex','Hispanic')
+      ,nonnormal = 'Income')[,-12] %>% 
+  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
 
+#' ### Results by site
 res_by_site_pd <- subset(obd,pat_age<=21 & a_recruitTarget=='Pediatric') %>% group_by(site,Recruitment) %>% 
   summarise(Eligible=n(),`Survey 1`=sum(na.omit(s1s2resp=='Yes'))
             ,`Survey 2`=sum(na.omit(s2resp=='Yes'))
@@ -316,3 +371,12 @@ kable(res_by_site_ad,digits=2,format='markdown');
 #' Pediatric Index Patients
 #+ echo=FALSE, results='asis'
 kable(res_by_site_pd,digits=2,format='markdown');
+
+#' Coming up next... all univariate predictors
+set.seed(rseed);
+tr_sample <- sample(seq_len(nrow(obd)),10000);
+glm_s1s2null <- glm(formula = s1s2resp ~ 1, family = "binomial"
+                    , data = transform(obd[tr_sample,],ses_hispanic=truthy(ses_hispanic)));
+sapply(c(v(c_ppred),'Recruitment','a_recruitTarget'),function(xx) as.formula(paste0('.~',xx)),simplify=F) %>% 
+  lapply(function(xx) update(glm_s1s2null,xx)) -> glm_s1s2_univ;
+lapply(glm_s1s2_univ,tidy) %>% do.call(rbind,.) %>% kable(format='markdown',row.names=F);
