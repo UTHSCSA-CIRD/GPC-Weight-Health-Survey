@@ -281,6 +281,13 @@ stringmap <- rbind(
   ,c('sv_uthscsa','UTHSCSA')
   ,c('sv_wisc','WISC')
   ,c('sv_utsw','UTSW')
+  ,c('ARKANSAS','AR')
+  ,c('ILLINOIS','IL')
+  ,c('OKLAHOMA','OK')
+  ,c('TEXAS','TX')
+  ,c('VIRGINIA','VA')
+  ,c('MISSOURI','MO')
+  ,c('LOUISIANA','LA')
 );
 
 colnamestringmap <- rbind(

@@ -6,6 +6,7 @@ require(magrittr);
 
 # some handy functions
 source('obesitySurveyHelpers.R');
+source('functions.R');
 if(file.exists('config.R')) source('config.R') else .workenv <- list();
 
 rseed <- 6062016;
@@ -79,8 +80,13 @@ obd$surv_2 <- apply(obd[,c(17:41,43,45:72)], 1, surveyResponded)
 #respStr = c("", "0", "Yes") #no survey response, did not check, checked. Using this to these more readable now that the colnames are slightly more readable
 # As it turns out, "" is not 'no survey response', "0" is and "" may be an 
 # artifact
-# So here we can get rid of them...
-obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels,oth='0',simplify = F);
+#' So here we can get rid of them...
+#' oops... when there are levels of blank values instead of NAs that jacks it up
+#' and gets rid of all of them... and not as straight forward to fix as was the
+#' similar case with re-binning race variables a few commits ago. Luckily, we
+#' now have the new truthy() function!
+#obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels,oth='0',simplify = F);
+obd[,researchaccept] <- truthy(obd[,researchaccept]);
 
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
