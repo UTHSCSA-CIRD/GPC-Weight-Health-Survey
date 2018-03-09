@@ -1,0 +1,111 @@
+---
+title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains
+  Collaborative Health and Medical Research Family Survey'
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document:
+    keep_md: yes
+  word_document:
+    keep_md: yes
+---
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+load('obesityPaper01.rdata');
+require(magrittr); require(dplyr); require(knitr);
+```
+# Abstract
+**Objective:** The aim of this paper is to report onthe initial obesity project from the Greater Plains Collaborative (GPC), a Clinical Data Research Network (CDRN) that is part of the Patient Centered Outcomes Research Institute (PCORI) National Patient Centered Clinical Research Network (PCORNet). 
+
+**Materials and Methods:** The electronic health records of 10academic medical centers in 8 Midwestern states were coordinated in order to allow for a prospective multi-site obesity focused research project to be conducted. A survey was designed to assess participant willingness for themselves, and their children (if appropriate) to participate in research, as well as the use of their health record data for research.The survey was composed of 7 questions regarding interest in medical research, as well as basic demographic and health related information. Each site had a goal of 1,000 initial positive survey responses and 100 completed surveys.
+
+**Results:** A cohort of 54,274 patients was created across the participating sites.  Data indicate that completers were 57% female, 84% Caucasian, 39.6% Public/Self-insured, with mean age of 27.5 (18.35) years and a mean BMI of 25.73 (7.95). In general, a third of respondents had participated in research previously and were positive about being contacted for additional research both for themselves and for their children. Responses did vary by site.  
+
+# Background and Significance
+
+## GPC Member Sites
+
+# Objective
+
+# Materials and Methods
+
+## Institutional Review Board Process
+
+## Data Harmonization
+
+## Cohort Identification
+
+## Contacting Participants
+
+Potential participants were contacted through one of three means: the United States Postal Service (USPS), email (EMAIL), or through the patient portal feature of the electronic medical record systems (PORTAL). The method of contact was selected by each HMRFS site PI based on logistics and local policy requirements. For a detailed list of site and contact method see Table 3. Whether adult patients, pediatric patients, or both were contact for the current study also varied by site (Table 3).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tb$t05A.adbysite
+```
+[Table 3A. Adult recruiting sites.]{custom-style="Caption"}
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tb$t05B.pdbysite
+```
+[Table 3B. Pediatric recruitment sites.]{custom-style="Caption"}
+
+...
+
+## Analysis Plan
+
+# Results
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tb$t01.overall
+```
+[Table 4. Cohort demographics.]{custom-style="Caption"}
+
+...
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tb$t02A.bysite
+```
+[Table 5. Sample size and demographics by site.]{custom-style="Caption"}
+
+...
+
+Table 6 indicates these same variables by site for responders to Survey 1, and Table 7 indicates the same variables by site for Survey 2 respondents.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tb$t03.resp
+```
+[Table 6. Survey responders.]{custom-style="Caption"}
+
+.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tb$t04.compl
+.n01 <- sapply(tb$d02.rsamples,length);
+```
+[Table 7. Survey completers.]{custom-style="Caption"}
+
+.
+
+Prior to analysis the `r nrow(obd)` records were randomly assigned to a development (N=`r .n01['train']`), 
+validation (N=`r .n01['val']`), and test subsets 
+(N=`r .n01['test']`) in order to avoid overfitting and bias due to within-sample testing. All analysis
+decisions were made based on the developmental subset. The first
+goal was to identify candidate predictors for survey participation from among the variables available for all 
+members of the cohort (i.e. those listed in Table 4). 
+
+Accordingly, for each candidate predictor, a separate logistic regression model was fit to the developmental subset with responder
+status as the outcome. Discrete variables with multiple levels were broken up into an equal number of indicator variables. This allowed us to
+choose not only predictor variables to consider but also in some 
+cases how condense their levels. Table 8 shows the results of these `r length(tb$t06.univar) - 2` tests.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+tb$t06.univar
+```
+[Table 8. Preliminary assessment of variable via univariate logistic regression.]{custom-style="Caption"}
+
+...
+
+
+
+## HMRFS Survey
+
+# Discsussion
+
+# Conclusion
