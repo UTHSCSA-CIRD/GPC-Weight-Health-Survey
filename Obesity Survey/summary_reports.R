@@ -439,7 +439,7 @@ tab_glm_s1s2uni <- tab_glm_s1s2uni[order(tab_glm_s1s2uni$variable
 #' create the raw kable
 kab_glm_s1s2uni <- tab_glm_s1s2uni[,-ncol(tab_glm_s1s2uni)] %>%
   transform(p.value=ifelse(p.value<.001,'<0.001',round(p.value,3))) %>%
-  kable(format = 'markdown',row.names=F,digits=3);
+  kable(format = 'markdown',row.names=F,digits=5);
 #' tweak the kable to highlight significant differences
 for(ii in seq_len(nrow(tab_glm_s1s2uni))) if(tab_glm_s1s2uni[ii,'p.value']<.05){
   kab_glm_s1s2uni[ii+2]<-gsub('[ ]{1,}',' ',kab_glm_s1s2uni[ii+2]) %>%
@@ -450,3 +450,18 @@ for(ii in seq_len(nrow(tab_glm_s1s2uni))) if(tab_glm_s1s2uni[ii,'p.value']<.05){
   #   gsub('([A-Za-z0-9 -])\\|([A-Za-z0-9 -=])','\\1**|**\\2',.)
   # };
 kab_glm_s1s2uni;
+#' This is a test of wierd /* commented out */ markdown...
+{{cat('The table')}}
+#' `tab_glm_s1s2uni` has 
+{{nrow(tab_glm_s1s2uni)}}
+#' rows
+# /* this is a comment */
+# /* this
+cat('is');
+baz <- 42;
+# a comment? */
+# but this
+cat('is not')
+# a comment! 
+#' The variable `baz` would get set if this script 
+#' is sourced but is not set when it's knitted!
