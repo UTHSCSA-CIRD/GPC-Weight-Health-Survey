@@ -1,11 +1,10 @@
 ---
-title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains
-  Collaborative Health and Medical Research Family Survey'
+title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains Collaborative Health and Medical Research Family Survey'
 output:
-  pdf_document: default
-  html_notebook: default
   html_document:
     keep_md: yes
+  html_notebook: default
+  pdf_document: default
   word_document:
     keep_md: yes
 ---
@@ -14,6 +13,7 @@ load('obesityPaper01.rdata');
 require(magrittr); require(dplyr); require(knitr);
 ```
 # Abstract
+
 **Objective:** The aim of this paper is to report onthe initial obesity project from the Greater Plains Collaborative (GPC), a Clinical Data Research Network (CDRN) that is part of the Patient Centered Outcomes Research Institute (PCORI) National Patient Centered Clinical Research Network (PCORNet). 
 
 **Materials and Methods:** The electronic health records of 10academic medical centers in 8 Midwestern states were coordinated in order to allow for a prospective multi-site obesity focused research project to be conducted. A survey was designed to assess participant willingness for themselves, and their children (if appropriate) to participate in research, as well as the use of their health record data for research.The survey was composed of 7 questions regarding interest in medical research, as well as basic demographic and health related information. Each site had a goal of 1,000 initial positive survey responses and 100 completed surveys.

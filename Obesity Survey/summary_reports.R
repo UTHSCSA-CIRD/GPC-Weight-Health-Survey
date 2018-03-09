@@ -460,20 +460,11 @@ for(ii in seq_len(nrow(tab_glm_s1s2uni))) if(tab_glm_s1s2uni[ii,'p.value']<.05){
   #   gsub('\\|$','**|',.) %>% 
   #   gsub('([A-Za-z0-9 -])\\|([A-Za-z0-9 -=])','\\1**|**\\2',.)
   # };
+
+#'
+#' Re-binning certain variables based on univariate results
+obd$a_rebin_ins <- obd$ses_finclass;
+
+
 tb$t06.univar <- kab_glm_s1s2uni;
 save(.workenv,obd,tb,file='obesityPaper01.rdata');
-#' This is a test of wierd /* commented out */ markdown...
-{{cat('The table')}}
-#' `tab_glm_s1s2uni` has 
-{{nrow(tab_glm_s1s2uni)}}
-#' rows
-# /* this is a comment */
-# /* this
-cat('is');
-baz <- 42;
-# a comment? */
-# but this
-cat('is not')
-# a comment! 
-#' The variable `baz` would get set if this script 
-#' is sourced but is not set when it's knitted!
