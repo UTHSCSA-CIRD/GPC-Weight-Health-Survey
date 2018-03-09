@@ -21,10 +21,16 @@ options(knitr.kable.NA='-');
 setwd(dir);
 load(datafile);
 source('functions.R');
+#' create our list of data objects, tables, and figures for output
+tb <- list();
+#' repeatability info
+tb$d00.gitstamp <- gitstamp(production=T,branch=T);
 #' create our test, training, and validation sets
-set.seed(rseed);
-rsamples <- split(seq_len(nrow(obd)),sample(c('train','val','test')
+set.seed(tb$d01.seed <- rseed);
+tb$d02.rsamples <- rsamples <- split(seq_len(nrow(obd))
+                                    ,sample(c('train','val','test')
                                             ,nrow(obd),rep=T,prob = c(1,1,3)));
+
 
 #' These are the names of our response variables:
 responses <- list(
@@ -195,7 +201,7 @@ cbind(Population=with(obd,c(
     ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
     ))
   ) -> table_overall;
-kable(table_overall,format='markdown');
+print(tb$t01.overall <- kable(table_overall,format='markdown'));
 #+ results='asis',echo=FALSE,warning=FALSE,message=FALSE
 xtable(table_overall) %>%
   print(type='html',html.table.attributes="border=1 cellspacing=3");
@@ -250,28 +256,33 @@ df_fortables <- transform(obd[,c(v(c_ppred),v(c_spred),v(c_outcomes))]
                           ,Sex=pat_sex
                           ,`Financial Class`=ses_finclass
                           ,Income=ses_income);
-table02_pop <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
-                                     ,'Income','Age','BMI'
-                                     ,'Responders','Completers')
-                              ,strata = 'site'
-                              ,data=df_fortables,test=T);
-table02a_byrecruit <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
-                                            ,'Income','Age','BMI'
-                                            ,'Responders','Completers')
-                                     ,strata = 'Recruitment'
-                                     ,data=df_fortables,test=T);
-print(table02_pop,print=F
-      ,cramVars = c('Sex','Hispanic')
-      ,nonnormal = 'Income')[,-12] %>% 
+table02_pop <- CreateTableOne(vars=c('Sex','Race','Hispanic'
+                                                      ,'Financial.Class'
+                                                      ,'Income','Age','BMI'
+                                                      ,'Responders','Completers')
+                                               ,strata = 'site'
+                                               ,data=df_fortables,test=T);
+table02a_byrecruit <- CreateTableOne(vars=c('Sex','Race',
+                                                            'Hispanic'
+                                                            ,'Financial.Class'
+                                                            ,'Income','Age'
+                                                            ,'BMI'
+                                                            ,'Responders'
+                                                            ,'Completers')
+                                                     ,strata = 'Recruitment'
+                                                     ,data=df_fortables,test=T);
+tb$t02A.bysite <- print(table02_pop,print=F
+                        ,cramVars = c('Sex','Hispanic')
+                        ,nonnormal = 'Income')[,-12] %>% 
   gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
 
-print(table02a_byrecruit,print=F
-      ,cramVars = c('Sex','Hispanic')
-      ,nonnormal = 'Income')[,-5] %>% 
-  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% 
-  gsub('(.*\\(%\\))' #|(^.*\\(mean \\(sd\\)\\))'
-       ,'**\\1**',.) %>%
-  kable(format='markdown');
+tb$t02B.byrec <- print(table02a_byrecruit,print=F
+                       ,cramVars = c('Sex','Hispanic')
+                       ,nonnormal = 'Income')[,-5] %>% 
+  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
+  #gsub('(.*\\(%\\))' #|(^.*\\(mean \\(sd\\)\\))'
+  #     ,'**\\1**',.) %>%
+  #kable(format='markdown');
 
 #' ### Responders
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
@@ -318,9 +329,9 @@ table03_resp <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial Class'
                                      ,'Completers')
                               ,strata = 'site'
                               ,data=subset(df_fortables,Responders),test=T);
-print(table03_resp,print=F
-      ,cramVars = c('Sex','Hispanic')
-      ,nonnormal = 'Income')[,-12] %>% 
+tb$t03.resp <- print(table03_resp,print=F
+                     ,cramVars = c('Sex','Hispanic')
+                     ,nonnormal = 'Income')[,-12] %>% 
   gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
 
 #' ### Completers
@@ -367,9 +378,9 @@ table04_comp <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial Class'
                                       ,'Income','Age','BMI')
                                ,strata = 'site'
                                ,data=subset(df_fortables,Completers),test=T);
-print(table04_comp,print=F
-      ,cramVars = c('Sex','Hispanic')
-      ,nonnormal = 'Income')[,-12] %>% 
+tb$t04.compl <- print(table04_comp,print=F
+                      ,cramVars = c('Sex','Hispanic')
+                      ,nonnormal = 'Income')[,-12] %>% 
   gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
 
 #' ### Results by site
@@ -401,10 +412,10 @@ res_by_site_ad <- subset(obd,pat_age>21 & a_recruitTarget=='Adult') %>% group_by
 #' 
 #' Adult Index Patients
 #+ echo=FALSE, results='asis'
-kable(res_by_site_ad,digits=2,format='markdown');
+tb$t05A.adbysite <- kable(res_by_site_ad,digits=2,format='markdown');
 #' Pediatric Index Patients
 #+ echo=FALSE, results='asis'
-kable(res_by_site_pd,digits=2,format='markdown');
+tb$t05B.pdbysite <- kable(res_by_site_pd,digits=2,format='markdown');
 
 #' Coming up next... all univariate predictors
 glm_s1s2null <- glm(formula = s1s2resp ~ 1, family = "binomial"
@@ -449,7 +460,8 @@ for(ii in seq_len(nrow(tab_glm_s1s2uni))) if(tab_glm_s1s2uni[ii,'p.value']<.05){
   #   gsub('\\|$','**|',.) %>% 
   #   gsub('([A-Za-z0-9 -])\\|([A-Za-z0-9 -=])','\\1**|**\\2',.)
   # };
-kab_glm_s1s2uni;
+tb$t06.univar <- kab_glm_s1s2uni;
+save(.workenv,obd,tb,file='obesityPaper01.rdata');
 #' This is a test of wierd /* commented out */ markdown...
 {{cat('The table')}}
 #' `tab_glm_s1s2uni` has 
