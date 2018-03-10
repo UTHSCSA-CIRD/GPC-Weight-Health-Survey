@@ -24,14 +24,12 @@ source('functions.R');
 #' create our list of data objects, tables, and figures for output
 tb <- list();
 #' repeatability info
-tb$d00.gitstamp <- gitstamp(production=T,branch=T);
+tb$d00.gitstamp <- gitstamp(production=F,branch=T);
 #' create our test, training, and validation sets
 set.seed(tb$d01.seed <- rseed);
 tb$d02.rsamples <- rsamples <- split(seq_len(nrow(obd))
                                     ,sample(c('train','val','test')
                                             ,nrow(obd),rep=T,prob = c(1,1,3)));
-
-
 #' These are the names of our response variables:
 responses <- list(
   's1s2resp'=c('Responded to Survey 1?'),
@@ -164,6 +162,8 @@ dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment','a_recruitTarget'
 #' 
 #' outcomes
 #' 
+dct0$c_pr_me <- grepl('^PR_Me_',dct0$dataset_column_names);
+dct0$c_pr_child <- grepl('^PR_Child_',dct0$dataset_column_names)
 dct0$c_outcomes <- dct0$dataset_column_names %in% c('s1s2resp','s2resp');
                                                     # ,'possible_research'
                                                     # ,'research'
@@ -174,6 +174,10 @@ dct0$c_dummycode <- with(dct0,(c_ppred|c_spred)&(c_factor)&!(c_maketf|c_leave2le
 ud_nonsrv <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num))]
                      ,dummy.data.frame(obd[,v(c_dummycode)]
                                        ,verbose=T,sep='='))[rsamples$train,];
+#' ### survey responses about possible research
+tb$d03A.pr_me <- apply(obd[,v(c_pr_me)],2,sum)/sum(truthy(obd$s1s2resp))
+tb$d03B.pr_child <- apply(obd[,v(c_pr_child)],2,sum)/sum(truthy(obd$s1s2resp));
+
 #' 
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
@@ -467,4 +471,4 @@ obd$a_rebin_ins <- obd$ses_finclass;
 
 
 tb$t06.univar <- kab_glm_s1s2uni;
-save(.workenv,obd,tb,file='obesityPaper01.rdata');
+save(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');

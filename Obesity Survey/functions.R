@@ -77,6 +77,9 @@ cl_bintail <- function(xx,topn=4,binto='other'){
         ),levels=c(keep,binto)));
 }
 
+#' simple little percent expression
+pct <- function(xx,digits=2,...) sprintf(paste0('%.',digits,'f%%'),as.numeric(xx)*100);
+
 #' A sketch for a possible future function that converts stargazer tables into
 #' a universal markdown pipe format
 starkable <- function(xx,firstrowisdata=T,row.names=F,taildrop=1
