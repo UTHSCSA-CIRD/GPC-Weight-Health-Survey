@@ -186,7 +186,8 @@ ud_nonsrv <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num
 tb$d03A.pr_me <- apply(obd[,v(c_pr_me)],2,sum)/sum(truthy(obd$s1s2resp))
 tb$d03B.pr_child <- apply(obd[,v(c_pr_child)],2,sum)/sum(truthy(obd$s1s2resp));
 #' the full set of non free-text survey responses, summarized, not stratified
-tb$d03 <- CreateTableOne(v(c_survey_strct),data=subset(obd,s2resp=='Yes'),test=F);
+tb$d03.survey <- CreateTableOne(v(c_survey_strct),data=subset(obd,s2resp=='Yes'),test=F);
+tb$t09.survey <- print(tb$d03.survey,print=F) %>% kable(format = 'markdown');
 #' 
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
