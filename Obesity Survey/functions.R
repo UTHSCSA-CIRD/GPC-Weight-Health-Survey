@@ -457,7 +457,32 @@ stratatable <- function(xx,vars=NULL,...){
   return(res);
 }
 
-
+#' Either create a basic data dictionary object from a data frame
+#' or append to an existing one if append.to is set to an existing
+#' data dictionary. 
+#' TODO: modularize the naming of dd columns, so we're not stuck typing
+#'       dataset_column_names all the time
+#' TODO: parsing of ... to get additional metadata/c_ fields.
+makeddict <- function(data,...,delmissing=T,append.to){
+  out <- data.frame(dataset_column_names=names(data)
+                    ,class=sapply(data,function(xx) class(xx)[1])
+                    ,unique=sapply(data,function(xx) length(na.omit(unique(xx))))
+                    ,missing=sapply(data,function(xx) sum(is.na(xx)))
+                    ,stringsAsFactors = F);
+  if(!missing(append.to)){
+    if(delmissing){ # delete columns in old dictionary if they no longer exist
+      delcols <- setdiff(append.to$dataset_column_names,out$dataset_column_names);
+      append.to <- subset(append.to,!dataset_column_names %in% delcols);
+    }
+    newcols <- setdiff(out$dataset_column_names,append.to$dataset_column_names);
+    if(length(newcols)>0) { # if there are new columns, append them
+      out <- subset(out,dataset_column_names %in% newcols);
+      out <- bind_rows(append.to,out);
+    }
+  }
+  rownames(out) <- out$dataset_column_names;
+  out;
+}
 
 
 #' Returns a list of column names from the data dictionary for which the column
