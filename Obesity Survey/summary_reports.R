@@ -13,9 +13,10 @@
 #' 
 #+ include=FALSE,cache=FALSE,echo=FALSE
 require(xtable);require(magrittr); require(dplyr); require(knitr);
-require(tableone); require(broom); require(dummies);
+require(tableone); require(broom); require(dummies); require(readr);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
+datadict='data_dictionary.tsv';
 dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
 options(knitr.kable.NA='-');
 setwd(dir);
@@ -130,13 +131,18 @@ obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,
 #' Remove the impossible BMIs that somehow made it through
 # moved to ObesityScript.R
 #obd$pat_bmi_raw[obd$pat_bmi_raw>80] <- NA;
-
+#' 
+#' ---
+#' **NO MORE CHANGES TO THE `obd` OBJECT PAST THIS POINT!**
+#' ---
+#' 
 #' ### Create the data dictionary
-dct0<-data.frame(dataset_column_names=names(obd)
-                 ,class=sapply(obd,function(xx) class(xx)[1])
-                 ,unique=sapply(obd,function(xx) length(na.omit(unique(xx))))
-                 ,missing=sapply(obd,function(xx) sum(is.na(xx)))
-                 ,stringsAsFactors = F);
+# dct0<-data.frame(dataset_column_names=names(obd)
+#                  ,class=sapply(obd,function(xx) class(xx)[1])
+#                  ,unique=sapply(obd,function(xx) length(na.omit(unique(xx))))
+#                  ,missing=sapply(obd,function(xx) sum(is.na(xx)))
+#                  ,stringsAsFactors = F);
+dct0 <- makeddict(obd,read_tsv(datadict));
 #' manually-chosen groups of columns
 dct0$c_meta <- dct0$dataset_column_names %in% c('family_id','proj_id','patient_num','match_type');
 dct0$c_maketf <- dct0$dataset_column_names %in% c('ses_hispanic'
@@ -481,4 +487,5 @@ obd$a_rebin_ins <- obd$ses_finclass;
 
 
 tb$t06.univar <- kab_glm_s1s2uni;
+write_tsv(dct0,path='data_dictionary.tsv');
 save(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');
