@@ -483,7 +483,8 @@ for(ii in seq_len(nrow(tab_glm_s1s2uni))) if(tab_glm_s1s2uni[ii,'p.value']<.05){
 
 #'
 #' Re-binning certain variables based on univariate results
-obd$a_rebin_ins <- obd$ses_finclass;
+# not allowed after dct0 is created!
+#obd$a_rebin_ins <- obd$ses_finclass;
 
 
 tb$t06.univar <- kab_glm_s1s2uni;
