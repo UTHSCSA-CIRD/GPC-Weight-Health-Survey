@@ -102,7 +102,7 @@ starkable <- function(xx,firstrowisdata=T,row.names=F,taildrop=1
 #' @param xx A \code{vector} of type \code{character} (required)
 #' @param searchrep A \code{matrix} with two columns of type \code{character} (required). The left column is the pattern and the right, the replacement.
 #' @param method One of 'partial','full', or 'exact'. Controls whether to replace only the matching regexp, replace the entire value that contains a matching regexp, or replace the entire value if it's an exact match.
-submulti <- function(xx,searchrep,method=c('partial','full','exact')){
+submulti <- function(xx,searchrep,method=c('partial','full','exact'),...){
   # if no method is specified by the user, this makes it take the first value
   # if a method is only partially written out, this completes it, and if the
   # method doesn't match any of the valid possibilities this gives an informativ
@@ -114,11 +114,11 @@ submulti <- function(xx,searchrep,method=c('partial','full','exact')){
   oo <- xx;
   switch(method
          ,partial = {for(ii in rr)
-           oo <- gsub(searchrep[ii,1],searchrep[ii,2],oo)}
+           oo <- gsub(searchrep[ii,1],searchrep[ii,2],oo,...)}
          ,full =    {for(ii in rr)
-           oo[grepl(searchrep[ii,1],oo)]<-searchrep[ii,2]}
+           oo[grepl(searchrep[ii,1],oo,...)]<-searchrep[ii,2]}
          ,exact = {for(ii in rr)
-           oo[grepl(searchrep[ii,1],oo,fixed=T)]<-searchrep[ii,2]}
+           oo[grepl(searchrep[ii,1],oo,fixed=T,...)]<-searchrep[ii,2]}
            #oo <- gsub(searchrep[ii,1],searchrep[ii,2],oo,fixed = T)}
          );
   oo;
@@ -465,6 +465,11 @@ stratatable <- function(xx,vars=NULL,...){
 #' TODO: parsing of ... to get additional metadata/c_ fields.
 makeddict <- function(data,...,delmissing=T,append.to){
   out <- data.frame(dataset_column_names=names(data)
+                    ,name=submulti(names(obd)
+                                   # replace underscores and periods with spaces
+                                   # and then capitalize first letter of each word
+                                   ,cbind(c('_|\\.','\\b(.)'),c(' ','\\U\\1'))
+                                   ,perl=T)
                     ,class=sapply(data,function(xx) class(xx)[1])
                     ,unique=sapply(data,function(xx) length(na.omit(unique(xx))))
                     ,missing=sapply(data,function(xx) sum(is.na(xx)))
