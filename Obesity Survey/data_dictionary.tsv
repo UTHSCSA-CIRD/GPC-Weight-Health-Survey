@@ -1,4 +1,4 @@
-dataset_column_names	name	fulltext	class	unique	missing	c_meta	c_maketf	c_leave2lev	c_numeric	c_factor	c_manylev	c_survey_q	c_survey_strct	c_survey_ppred	c_ppred	c_ppred_num	c_spred	c_pr_me	c_pr_child	c_outcomes	c_dummycode
+dataset_column_names	name	longname	class	unique	missing	c_meta	c_maketf	c_leave2lev	c_numeric	c_factor	c_manylev	c_survey_q	c_survey_strct	c_survey_ppred	c_ppred	c_ppred_num	c_spred	c_pr_me	c_pr_child	c_outcomes	c_dummycode
 site	Site		factor	10	0	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	TRUE
 contact_type	Contact Type		factor	12	19419	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
 state	State		factor	46	6004	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
