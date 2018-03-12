@@ -78,7 +78,8 @@ cl_bintail <- function(xx,topn=4,binto='other'){
 }
 
 #' simple little percent expression
-pct <- function(xx,digits=2,...) sprintf(paste0('%.',digits,'f%%'),as.numeric(xx)*100);
+pct <- function(xx,digits=2,multiplier=1,...) sprintf(paste0('%.',digits,'f%%')
+                                                      ,as.numeric(xx)*multiplier);
 
 #' A sketch for a possible future function that converts stargazer tables into
 #' a universal markdown pipe format
@@ -491,6 +492,18 @@ makeddict <- function(data,...,delmissing=T,append.to){
   out;
 }
 
+#' A simple accessor method for concise embedding of variables into rmarkdown
+getv <- function(data,record,field,transform,...){
+  UseMethod('getv');
+}
+
+getv.data.frame <- function(data,record,field,transform=identity,...){
+  record <- substitute(record);
+  if(is.character(record) && record %in% rownames(data)) {
+    out <- data[rownames(data)==record,field];
+  } else out <- subset(data,eval(record))[,field];
+  transform(out);
+}
 
 #' Returns a list of column names from the data dictionary for which the column
 #' named in the first argument is true. The first arg can be either a string or 
