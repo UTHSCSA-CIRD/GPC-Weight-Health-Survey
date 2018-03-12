@@ -138,7 +138,7 @@ dct0<-data.frame(dataset_column_names=names(obd)
                  ,missing=sapply(obd,function(xx) sum(is.na(xx)))
                  ,stringsAsFactors = F);
 #' manually-chosen groups of columns
-dct0$c_meta <- dct0$dataset_column_names %in% c('family_id','proj_id');
+dct0$c_meta <- dct0$dataset_column_names %in% c('family_id','proj_id','patient_num','match_type');
 dct0$c_maketf <- dct0$dataset_column_names %in% c('ses_hispanic'
                                                   ,'s2resp','s1s2resp');
 dct0$c_leave2lev <- dct0$dataset_column_names %in% c('pat_sex'
@@ -146,6 +146,14 @@ dct0$c_leave2lev <- dct0$dataset_column_names %in% c('pat_sex'
 #' class-based groups of columns
 dct0$c_numeric <- with(dct0,class=='numeric' & !dataset_column_names %in% v(c_meta));
 dct0$c_factor <- with(dct0,class=='factor' & !dataset_column_names %in% v(c_maketf));
+#' discrete variables with a large number of levels
+dct0$c_manylev <- with(dct0,class %in% c('character','factor') & unique > 12);
+#' all survey questions
+dct0$c_survey_q <- dct0$dataset_column_names %in% names(obd)[
+  (match('tracker_form_complete',names(obd))+1):
+    (min(grep('^ses_',names(obd)))-1)];
+#' all survey questions excluding the manylev ones
+dct0$c_survey_strct <- with(dct0,c_survey_q & !c_manylev);
 #' survey predictors 
 dct0$c_survey_ppred<-dct0$dataset_column_names %in% c('latino_origin','Race'
                                                      ,'sex','age','income'
@@ -177,7 +185,8 @@ ud_nonsrv <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num
 #' ### survey responses about possible research
 tb$d03A.pr_me <- apply(obd[,v(c_pr_me)],2,sum)/sum(truthy(obd$s1s2resp))
 tb$d03B.pr_child <- apply(obd[,v(c_pr_child)],2,sum)/sum(truthy(obd$s1s2resp));
-
+#' the full set of non free-text survey responses, summarized, not stratified
+tb$d03 <- CreateTableOne(v(c_survey_strct),data=subset(obd,s2resp=='Yes'),test=F);
 #' 
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
