@@ -125,6 +125,9 @@ obd$ses_race <- factor(obd$ses_race,levels=levels(obd$ses_race)[c(6,3,1,2,4,5)])
 levels(obd$ses_finclass) <- fin_map[levels(obd$ses_finclass)];
 obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,1,5,4,3)]);
 
+for(ii in names(obd)) if(is.factor(obd[[ii]])) {
+  levels(obd[[ii]])[levels(obd[[ii]])%in%c('',' ','0','1','4')] <- NA;
+}
 # obd$a_resplevel <- with(obd,factor(interaction(s1s2resp:s2resp,drop=T),exclude='',levels=c('No:No','Yes:No','Yes:Yes',NA),labels=c('Neither','Responder','Completer','NONE')));
 # levels(obd$a_resplevel)[levels(obd$a_resplevel)=='NONE'] <- 'Neither';
 
@@ -154,6 +157,7 @@ dct0$c_numeric <- with(dct0,class=='numeric' & !dataset_column_names %in% v(c_me
 dct0$c_factor <- with(dct0,class=='factor' & !dataset_column_names %in% v(c_maketf));
 #' discrete variables with a large number of levels
 dct0$c_manylev <- with(dct0,class %in% c('character','factor') & unique > 12);
+dct0$c_manylev[dct0$dataset_column_names=='other_sex'] <- T;
 #' all survey questions
 dct0$c_survey_q <- dct0$dataset_column_names %in% names(obd)[
   (match('tracker_form_complete',names(obd))+1):
@@ -192,13 +196,32 @@ ud_nonsrv <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num
 tb$d03A.pr_me <- apply(obd[,v(c_pr_me)],2,sum)/sum(truthy(obd$s1s2resp))
 tb$d03B.pr_child <- apply(obd[,v(c_pr_child)],2,sum)/sum(truthy(obd$s1s2resp));
 #' the full set of non free-text survey responses, summarized, not stratified
-tb$d03.survey <- CreateTableOne(v(c_survey_strct),data=subset(obd,s2resp=='Yes'),test=F);
-tb$t09.survey <- print(tb$d03.survey,print=F) %>% kable(format = 'markdown');
+tb$d03.survey <- subset(obd,s2resp=='Yes') %>% droplevels %>% 
+  CreateTableOne(v(c_survey_strct),data=.,test=F);
+tb$t09.survey <- print(tb$d03.survey,print=F,noSpaces = T) %>% 
+  kable(format = 'markdown');
+#' attempt to make column widths non-greedy
+tb$t09.survey[2] <- gsub('---{3,}','---',tb$t09.survey[2]);
+#' remove extra spaces
+for(ii in seq_along(tb$t09.survey)) {
+  tb$t09.survey[ii] <- gsub('\\s+',' ',tb$t09.survey[ii]);
+}
+#' highlight the section headers
+for(ii in grep('\\| +\\|$',tb$t09.survey)) {
+  tb$t09.survey[ii] <- gsub('([[:alnum:])(%_]{2,})','**\\1**',tb$t09.survey[ii]);
+}
+for(ii in grep('=|mean \\(sd\\)',tb$t09.survey)){
+  tb$t09.survey[ii] <- gsub('^\\|([^|]+)\\|','|**\\1**|',tb$t09.survey[ii]);
+}
+for(ii in grep('\\*{2}',tb$t09.survey[-(1:2)],invert = T)+2){
+  tb$t09.survey[ii] <- gsub('^\\|','|+ ',tb$t09.survey[ii]);
+}
+
 #' 
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
 cbind(Population=with(obd,c(
-  `**N**`=nrow(obd),table(pat_sex),`**Race**`='',table(ses_race),`**Latino**`=table(ses_hispanic)[[7]]
+  `**N**`=nrow(obd),table(pat_sex),`**Race**`='',table(ses_race),`**Latino**`=tail(table(ses_hispanic),1)
   ,`**Financial Class**`=' '
   ,table(ses_finclass)
   ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
@@ -206,7 +229,7 @@ cbind(Population=with(obd,c(
   ,`**BMI**`=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
   ))
   ,Responders=with(subset(obd,s1s2resp=='Yes'),c(
-    N=length(site),table(pat_sex),'',table(ses_race),Latino=table(ses_hispanic)[[7]]
+    N=length(site),table(pat_sex),'',table(ses_race),Latino=tail(table(ses_hispanic),1)
     ,' '
     ,table(ses_finclass)
     ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
@@ -214,7 +237,7 @@ cbind(Population=with(obd,c(
     ,BMI=paste0(round(mean(pat_bmi_raw,na.rm=T),2),' (',round(sd(pat_bmi_raw,na.rm=T),2),')')
     ))
   ,Completers=with(subset(obd,s2resp=='Yes'),c(
-    N=length(site),table(pat_sex),'',table(ses_race),Latino=table(ses_hispanic)[[7]]
+    N=length(site),table(pat_sex),'',table(ses_race),Latino=tail(table(ses_hispanic),1)
     ,' ',table(ses_finclass)
     ,Income=paste0(median(ses_income,na.rm=T)/1000,' (',paste(quantile(ses_income,c(.25,.75),na.rm=T)/1000,collapse='-'),')')
     ,Age=paste0(round(mean(pat_age,na.rm=T),2),' (',round(sd(pat_age,na.rm=T),2),')')
@@ -236,7 +259,7 @@ with(obd
        ,rep("\\\ \n",10)
        ,rep("\\\ \n",10)
        ,table(ses_race,site)
-       ,Latino=table(ses_hispanic,site)[7,]
+       ,Latino=table(ses_hispanic,site)[6,]
        ,rep("\\\ \n",10)
        ,rep("\\\ \n",10)
        ,table(ses_finclass,site))) %>% 
@@ -314,7 +337,7 @@ subset(obd,s1s2resp=='Yes') %>%
        ,rep("\\\ \n",10)
        ,rep("\\\ \n",10)
        ,table(ses_race,site)
-       ,Latino=table(ses_hispanic,site)[7,]
+       ,Latino=table(ses_hispanic,site)[6,]
        ,rep("\\\ \n",10)
        ,rep("\\\ \n",10)
        ,table(ses_finclass,site))) %>% 
@@ -364,7 +387,7 @@ subset(obd,s2resp=='Yes') %>%
     ,rep("\\\ \n",10)
     ,rep("\\\ \n",10)
     ,table(ses_race,site)
-    ,Latino=table(ses_hispanic,site)[7,]
+    ,Latino=table(ses_hispanic,site)[6,]
     ,rep("\\\ \n",10)
     ,rep("\\\ \n",10)
     ,table(ses_finclass,site))) %>% 
