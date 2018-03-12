@@ -142,7 +142,7 @@ obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,
 #                  ,unique=sapply(obd,function(xx) length(na.omit(unique(xx))))
 #                  ,missing=sapply(obd,function(xx) sum(is.na(xx)))
 #                  ,stringsAsFactors = F);
-dct0 <- makeddict(obd,read_tsv(datadict));
+dct0 <- makeddict(obd,append.to = read_tsv(datadict));
 #' manually-chosen groups of columns
 dct0$c_meta <- dct0$dataset_column_names %in% c('family_id','proj_id','patient_num','match_type');
 dct0$c_maketf <- dct0$dataset_column_names %in% c('ses_hispanic'
