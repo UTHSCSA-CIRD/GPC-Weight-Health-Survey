@@ -465,7 +465,7 @@ stratatable <- function(xx,vars=NULL,...){
 #' TODO: parsing of ... to get additional metadata/c_ fields.
 makeddict <- function(data,...,delmissing=T,append.to){
   out <- data.frame(dataset_column_names=names(data)
-                    ,name=submulti(names(obd)
+                    ,name=submulti(names(data)
                                    # replace underscores and periods with spaces
                                    # and then capitalize first letter of each word
                                    ,cbind(c('_|\\.','\\b(.)'),c(' ','\\U\\1'))
@@ -483,7 +483,9 @@ makeddict <- function(data,...,delmissing=T,append.to){
     if(length(newcols)>0) { # if there are new columns, append them
       out <- subset(out,dataset_column_names %in% newcols);
       out <- bind_rows(append.to,out);
-    }
+    } else if(!identical(colnames(out),colnames(append.to))){
+        out <- bind_rows(append.to[F,],out);
+        }
   }
   rownames(out) <- out$dataset_column_names;
   out;
