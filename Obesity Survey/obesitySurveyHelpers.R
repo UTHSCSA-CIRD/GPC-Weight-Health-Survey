@@ -260,7 +260,7 @@ stringmap <- rbind(
   ,c('More than $200 000','200000+')
   ,c('Less than $24 999','000000-024999')
   ,c('White/Caucasian','White')
-  ,c('No_Kids','')
+  #,c('No_Kids','')
   ,c('I have not completed any high school','NoHighSchool')
   ,c('I have completed some high school  but I do not have a GED or diploma','SomeHighSchool')
   ,c('I am a high school graduate or I have a GED (general equivalent diploma)','HighSchool')
@@ -270,7 +270,7 @@ stringmap <- rbind(
   ,c('I completed a Masters degree','Masters')
   ,c('I completed a Doctoral degree','Doctorate')
   ,c(' I prefer not to answer','PreferNotAnswer')
-  ,c('None',' ')
+  #,c('None',' ')
   ,c('sv_cmh','CMH')
   ,c('sv_kumc','KUMC')
   ,c('sv_mcrf','MCRF')
@@ -328,7 +328,7 @@ sexstringmap <- rbind(
 
 # for longFactorLev
 stdLevels <- list(
-  research_feelings=c('','PreferNotAnswer','Terrible','NotGoodIdea','Unsure','GoodIdea','Fantastic','Other')
+  research_feeling=c('','PreferNotAnswer','Terrible','NotGoodIdea','Unsure','GoodIdea','Fantastic','Other')
   ,insurance=c('','PreferNotAnswer','Unsure','Uninsured','MedicareMedicaid','Private','Other')
   ,sex=c('PreferNotAnswer', 'Male','Female', 'Other')
   ,education=c('','PreferNotAnswer','NoHighSchool','SomeHighSchool','HighSchool','SomeCollege','Associates','Bachelors','Masters','Doctorate','Other')
