@@ -179,7 +179,7 @@ samp <- samp[,c(vs(samp,'f'),vs(samp))];
 # BUG: in UTHSCSA, s2resp is all NA... but surv_2 seems right...
 #filter_surv2_kids <- subset(samp,(s2resp=='Yes'|surv_2=='TRUE') & pat_age < 18);
 filter_kids <- subset(samp,a_recruitTarget=='Pediatric');
-serverData <- list(samp, filter_surv2, filter_surv2_kids, filter_kids);
+serverData <- list(samp, filter_kids);
 serverDataDic <- c("No filter", "Survey 2 Respondants Only", "Survey 2 Respondants & Pat < 18", "Pat < 18");
 serverTitle <- "Obesity Survey Sample Data Review.";
 serverStatement <- quote(h4("Enter valid shiny tags and information here. Mostly... you know... Like a link to a data dictionary or something."));
