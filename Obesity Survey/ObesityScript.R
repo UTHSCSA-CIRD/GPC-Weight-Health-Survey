@@ -77,7 +77,7 @@ levels(obd$income) <- gsub('^([1-9])','$\\1'
                                        ,gsub('^0+','0',levels(obd$income)))));
 
 # find survey responses
-obd$surv_2 <- apply(obd[,c(17:41,43,45:72)], 1, surveyResponded)
+#obd$surv_2 <- apply(obd[,c(17:41,43,45:72)], 1, surveyResponded)
 
 #possible research checkboxes for depends on.... for me and child
 # All column names will be cleaned up in one shot further down, after we are 
@@ -98,7 +98,7 @@ obd[,researchaccept] <- truthy(obd[,researchaccept]);
 #'       this. Also need to get rid of surv_2 if it's not contributing any
 #'       information that isn't redundant with s2resp
 #converting the logicals back to factors
-obd$surv_2 = as.factor(obd$surv_2)
+#obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
 #obd[obd$site=='WISC','s2resp'] <- with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE','Yes','No'));
 # answered the first survey and/or the second survey
@@ -174,10 +174,10 @@ save(.workenv,obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
 # We delete the ID-type variables
 samp <- samp[,setdiff(names(samp),c(toOmit,textfields))];
 samp <- samp[,c(vs(samp,'f'),vs(samp))];
-serverHash <- digest("ChangeThisInYourCode!", algo = "sha512", ascii = TRUE);
-filter_surv2 <- subset(samp,s2resp=='Yes'|surv_2=='TRUE');
+#serverHash <- digest("ChangeThisInYourCode!", algo = "sha512", ascii = TRUE);
+#filter_surv2 <- subset(samp,s2resp=='Yes'|surv_2=='TRUE');
 # BUG: in UTHSCSA, s2resp is all NA... but surv_2 seems right...
-filter_surv2_kids <- subset(samp,(s2resp=='Yes'|surv_2=='TRUE') & pat_age < 18);
+#filter_surv2_kids <- subset(samp,(s2resp=='Yes'|surv_2=='TRUE') & pat_age < 18);
 filter_kids <- subset(samp,a_recruitTarget=='Pediatric');
 serverData <- list(samp, filter_surv2, filter_surv2_kids, filter_kids);
 serverDataDic <- c("No filter", "Survey 2 Respondants Only", "Survey 2 Respondants & Pat < 18", "Pat < 18");

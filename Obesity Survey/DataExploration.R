@@ -21,7 +21,7 @@ runByRaceVariable(samp, "insurance", "Insurance by Race")
 runGGPLOT(samp, "income", "insurance", xlab ="Income", ylab = "Insurance", omitNA_X = FALSE)
 #'lets play with some mosaic plots...
 ggMosaicPlot(samp$site, samp$possible_research)
-mosaic(structable(site ~ surv_2, data = samp), shade = TRUE, legend = TRUE)
+mosaic(structable(site ~ s2resp, data = samp), shade = TRUE, legend = TRUE)
 
 #'categorical trees-- just playing with these for now. 
 #'This was the most interesting one I found

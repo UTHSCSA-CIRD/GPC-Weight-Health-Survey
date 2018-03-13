@@ -12,7 +12,7 @@ source('obesitySurveyHelpers.R');
 load('survSave.rdata');
 resps <- c('possible_research','deid_data','children_research','research_feeling','res_talk_family','site');
 resp <- resps[1];
-preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp','surv_2'));
+preds <- setdiff(names(samp),c('weight_value_kg','s1s2resp','s2resp'));
 #'# Site Deviations
 #'## All pre-survey answers missing
 #'Wisc
@@ -61,7 +61,7 @@ responded <- subset(samp,s1s2resp=='Yes');
 presurveyvars <- c('site','contact_type','state','match_type'
                    ,'pat_age','pat_bmi_raw','pat_bmi_pct','pat_sex'
                    ,'invite_response_nature
-                   ','s2resp','surv_2','s1s2resp');
+                   ','s2resp','s1s2resp');
 
 #'# Covariates of `r resp` among survey respondents.
 #+ results='asis'

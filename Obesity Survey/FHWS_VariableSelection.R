@@ -15,7 +15,7 @@ resps <- c('possible_research','children_research','deid_data','research_feeling
 preds <- names(samp);
 factors <- vs(samp,'f');
 responded <- subset(samp,s1s2resp=='Yes');
-presurveyvars <- c('site','contact_type','state','match_type','pat_age','pat_bmi_raw','pat_bmi_pct','pat_sex','invite_response_nature','s2resp','surv_2','s1s2resp');
+presurveyvars <- c('site','contact_type','state','match_type','pat_age','pat_bmi_raw','pat_bmi_pct','pat_sex','invite_response_nature','s2resp','s1s2resp');
 
 #'# All Variables
 #'## Willingness to participate, among survey-2 respondents.
