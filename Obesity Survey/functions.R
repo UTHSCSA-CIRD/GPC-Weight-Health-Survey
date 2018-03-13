@@ -493,16 +493,86 @@ makeddict <- function(data,...,delmissing=T,append.to){
 }
 
 #' A simple accessor method for concise embedding of variables into rmarkdown
-getv <- function(data,record,field,transform,...){
+getv <- function(data,...){
   UseMethod('getv');
 }
 
-getv.data.frame <- function(data,record,field,transform=identity,...){
-  record <- substitute(record);
-  if(is.character(record) && record %in% rownames(data)) {
-    out <- data[rownames(data)==record,field];
-  } else out <- subset(data,eval(record))[,field];
+getv.matrix <- function(data,record,field,transform=identity,...
+                        ,ENV=as.environment(-1)){
+  data <- as.data.frame(data);
+  getv.data.frame(data=data,record=record,field=field,transform=transform,...
+                  ,ENV=ENV);
+}
+
+getv.data.frame <- function(data,record,field,transform=identity,...
+                            ,ENV=as.environment(-1)){
+  record <- eval.parent()
+  if(isTRUE(is.character(record))|isTRUE(is.numeric(record))){
+    if(is.character(record) && record %in% rownames(data)){
+      out <- data[rownames(data)==record,field];
+      } else if(is.numeric(record) && record < nrow(data)){
+        out <- data[record,field];
+      }
+    } else {
+      record <- substitute(record,env=ENV);
+      out <- subset(data,eval(record))[,field];
+    }
   transform(out);
+}
+
+getv.TableOne <- function(data,record,field,strata,item,transform=identity,...
+                          ,ENV=as.environment(-1)){
+  nms <- names (data[[1]]);
+  if(missing(strata)||!strata %in% nms) stop(sprintf("
+The 'strata' argument must be one of the following:
+'%s'",paste0(nms,collapse="', '")));
+  nms <- list(cont=rownames(data$ContTable[[strata]])
+              ,cat=names(data$CatTable[[strata]]));
+  if(missing(item)||!item %in% data$MetaData$vars) stop(sprintf("
+The 'item' argument must be one of the following:
+'%s'",paste0(data$MetaData$vars,collapse="', '")));
+  if(item %in% data$MetaData$varNumerics){
+    getv.ContTable(data$ContTable,record=record,field=field,strata=strata
+                   ,item=item,transform=transform,...,ENV=ENV);
+  } else getv.CatTable(data$CatTable,record=record,field=field,strata=strata
+                       ,item=item,transform=transform,...,ENV=ENV);
+}
+
+
+getv.ContTable <- function(data,record,field,strata,item,transform=identity,...
+                           ,ENV=as.environment(-1)){
+  nms <- names(data);
+if(missing(strata)||!strata %in% nms) stop(sprintf("
+The 'strata' argument must be one of the following:
+'%s'",paste0(nms,collapse="', '")));
+  nms<- colnames(data[[strata]]);
+if(missing(field)||!field %in% nms) stop(sprintf("
+The 'field' argument must be one of the following:
+'%s'",paste0(nms,collapse="', '")));
+  if(missing(record)) record <- substitute(item) else record<-substitute(record);
+  getv.matrix(data=data[[strata]],record=record,field=field
+              ,transform=transform,...,ENV=ENV);
+  }
+
+getv.CatTable <- function(data,record,field,strata,item,transform=identity,...
+                          ,ENV=as.environment(-1)){
+  nms <- names(data);
+if(missing(strata)||!strata %in% nms) stop(sprintf("
+The 'strata' argument must be one of the following:
+'%s'",paste0(nms,collapse="', '")));
+  nms <- names(data[[strata]]);
+if(missing(item)||!item %in% nms) stop(sprintf("
+The 'item' argument must be one of the following:
+'%s'",paste0(nms,collapse="', '")));
+  nms <- names(data[[strata]][[item]]);
+if(missing(field)||!field %in% nms) stop(sprintf("
+The 'field' argument must be one of the following:
+'%s'",paste0(nms,collapse="', '")));
+  if(isTRUE(is(record,'character'))) {
+    record <- substitute(level==vv,env=list(vv=record))
+  }
+  getv.data.frame(data=data[[strata]][[item]],record=record,field=field
+                  ,transform=transform,...,ENV=ENV);
 }
 
 #' Returns a list of column names from the data dictionary for which the column
