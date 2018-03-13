@@ -104,8 +104,8 @@ obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
 # answered the first survey and/or the second survey
 obd$s1s2resp <- factor(obd$s2resp=='Yes'|obd$invite_response_nature=='Yes',levels=c('FALSE','TRUE'),labels=c('No','Yes'));
 # Patching to make WISC response/non-response counts add up
-obd[obd$site=='WISC','s1s2resp'] <- with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE'|s1s2resp=='No','Yes','No'))
-obd[obd$site=='WISC','s2resp']<-with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE','Yes','No'))
+#obd[obd$site=='WISC','s1s2resp'] <- with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE'|s1s2resp=='No','Yes','No'))
+#obd[obd$site=='WISC','s2resp']<-with(subset(obd,site=='WISC'),ifelse(surv_2=='TRUE','Yes','No'))
 
 
 # reordering the yes-no-maybe variables
