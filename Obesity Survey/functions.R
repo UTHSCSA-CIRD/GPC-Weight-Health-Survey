@@ -523,11 +523,12 @@ getv.data.frame <- function(data,record,field,transform=identity,...
 getv.TableOne <- function(data,record,field,strata,item,transform=identity,...
                           ,ENV=as.environment(-1)){
   nms <- names (data[[1]]);
-  if(missing(strata)||!strata %in% nms) stop(sprintf("
+  if(missing(strata)||(!is.numeric(strata)&!strata %in% nms)) stop(sprintf("
 The 'strata' argument must be one of the following:
 '%s'",paste0(nms,collapse="', '")));
-  nms <- list(cont=rownames(data$ContTable[[strata]])
-              ,cat=names(data$CatTable[[strata]]));
+  if(is.numeric(strata) && strata <= length(nms)) strata <- nms[strata] else {
+    stop(sprintf("The 'strata' argument should be less than %d",length(nms)+1));
+  }
   if(missing(item)||!item %in% data$MetaData$vars) stop(sprintf("
 The 'item' argument must be one of the following:
 '%s'",paste0(data$MetaData$vars,collapse="', '")));
@@ -557,7 +558,7 @@ The 'field' argument must be one of the following:
 getv.CatTable <- function(data,record,field,strata,item,transform=identity,...
                           ,ENV=as.environment(-1)){
   nms <- names(data);
-if(missing(strata)||!strata %in% nms) stop(sprintf("
+if(missing(strata)||(!is.numeric(strata) & !strata %in% nms)) stop(sprintf("
 The 'strata' argument must be one of the following:
 '%s'",paste0(nms,collapse="', '")));
   nms <- names(data[[strata]]);
@@ -573,6 +574,13 @@ The 'field' argument must be one of the following:
   }
   getv.data.frame(data=data[[strata]][[item]],record=record,field=field
                   ,transform=transform,...,ENV=ENV);
+}
+
+#' A wrapper for `getv()` though I really should figure out how to rearrange
+#' the arguments on the above functions better
+grab <- function(item,record=item,field=1,strata=1,transform=identity,data,...){
+  getv(data=data,item=item,record=record,field=field,strata=strata
+       ,transform=transform,...);
 }
 
 #' Returns a list of column names from the data dictionary for which the column
