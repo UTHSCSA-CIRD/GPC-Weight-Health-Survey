@@ -61,6 +61,11 @@ levels(obd$Race.bak01) <- gsub('^White[0]{0,1}([A-Z])','\\1'
 levels(obd$Race) <- levels(obd$Race) %>% ifelse(.=='000000','Missing00000',.) %>% 
   ifelse(gsub('[^0]','',.)=='00000',.,'MoreThanOne') %>% gsub('0','',.);
 obd$Race <- mapstrings(obd$Race);
+#' And now, dichotomize the variables comprising `racenames`
+#' seems like re-doing the work of the `sapply()` statement about 10 lines back
+#' but at least this way it doesn't break the statements between there and here
+#' because those rely on 0 coding missingness.
+obd[,racenames] <-lapply(obd[,racenames],function(xx) !xx %in% c('0','(null)'));
 # Arrange the levels for income to keep like incomes together
 # hardcoding indexes into levels is unstable, can change when data refreshed
 obd$income <- factor(obd$income,levels=sort(levels(obd$income)));
@@ -88,6 +93,10 @@ obd$surv_2 <- apply(obd[,c(17:41,43,45:72)], 1, surveyResponded)
 #obd[,researchaccept] <- sapply(obd[,researchaccept],binfactor,lev=defaultNlevels,oth='0',simplify = F);
 obd[,researchaccept] <- truthy(obd[,researchaccept]);
 
+#' TODO: this only creates more work downstream, need to have them emerge as only
+#'       logicals, when there is time to fix everything that would get broken by
+#'       this. Also need to get rid of surv_2 if it's not contributing any
+#'       information that isn't redundant with s2resp
 #converting the logicals back to factors
 obd$surv_2 = as.factor(obd$surv_2)
 obd$s2resp <- factor(obd$s2resp,levels=c('0','1'),labels=c('No','Yes'));
@@ -125,8 +134,12 @@ for(ii in names(obd.backup))
   if(isTRUE(all.equal(as.character(obd.backup[[ii]]),as.character(obd[[ii]])))) 
     obd.backup[,ii]<-NULL;
 
+#' Rename columns to something more readable
 names(obd) <- mapstrings(names(obd),colnamestringmap);
 names(obd.backup) <- mapstrings(names(obd.backup),colnamestringmap);
+
+#' Oh well great! UTSW didn't ask patients what their research decisions would
+#' depend on!!!!
 
 ##Data Enhancements from commit 293057f6b18ef902f1796b0c25c0bfb65810f088 
 obd$adultOrChild <- factor(obd$pat_age >= 21,levels=c(FALSE,TRUE)
@@ -155,6 +168,7 @@ obd[,c('height_req','height_feet','height_value_cm'
        # there are no semicolons terminating the lines.
        ,'weight_req','weight_value_kg')] <- NULL;
 
+set.seed(rseed);
 samp <- pickSample(obd, .25);
 save(.workenv,obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
 # We delete the ID-type variables
@@ -164,7 +178,7 @@ serverHash <- digest("ChangeThisInYourCode!", algo = "sha512", ascii = TRUE);
 filter_surv2 <- subset(samp,s2resp=='Yes'|surv_2=='TRUE');
 # BUG: in UTHSCSA, s2resp is all NA... but surv_2 seems right...
 filter_surv2_kids <- subset(samp,(s2resp=='Yes'|surv_2=='TRUE') & pat_age < 18);
-filter_kids <- subset(samp,pat_age < 18);
+filter_kids <- subset(samp,a_recruitTarget=='Pediatric');
 serverData <- list(samp, filter_surv2, filter_surv2_kids, filter_kids);
 serverDataDic <- c("No filter", "Survey 2 Respondants Only", "Survey 2 Respondants & Pat < 18", "Pat < 18");
 serverTitle <- "Obesity Survey Sample Data Review.";
