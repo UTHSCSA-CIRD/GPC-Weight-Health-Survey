@@ -174,7 +174,7 @@ save(.workenv,obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
 # We delete the ID-type variables
 samp <- samp[,setdiff(names(samp),c(toOmit,textfields))];
 samp <- samp[,c(vs(samp,'f'),vs(samp))];
-#serverHash <- digest("ChangeThisInYourCode!", algo = "sha512", ascii = TRUE);
+serverHash <- digest("ChangeThisInYourCode!", algo = "sha512", ascii = TRUE);
 #filter_surv2 <- subset(samp,s2resp=='Yes'|surv_2=='TRUE');
 # BUG: in UTHSCSA, s2resp is all NA... but surv_2 seems right...
 #filter_surv2_kids <- subset(samp,(s2resp=='Yes'|surv_2=='TRUE') & pat_age < 18);
