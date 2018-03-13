@@ -147,7 +147,7 @@ where coalesce(research,possible_research,research_types_adult,research_depends_
 	       ,research_accept_decisions___7,research_accept_dec_child___1,research_accept_dec_child___2
 	       ,research_accept_dec_child___3,research_accept_dec_child___4,research_accept_dec_child___5
 	       ,research_accept_dec_child___6,research_accept_dec_child___7,race___1,race___2,race___3,race___4,race___5
-	       ,race___6,'') not in ('0','')
+	       ,race___6,'') not in ('0','','(null)')
 	       """;
 cn.execute(respondercolumn);
 

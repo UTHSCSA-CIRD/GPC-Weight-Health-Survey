@@ -84,7 +84,7 @@ longsurvey = ['health_medical_research_family_survey_timestamp', 'research', 'po
 longsurveycb = ['research_accept_decisions___1', 'research_accept_decisions___2', 'research_accept_decisions___3', 'research_accept_decisions___4', 'research_accept_decisions___5', 'research_accept_decisions___6', 'research_accept_decisions___7', 'research_accept_dec_child___1', 'research_accept_dec_child___2', 'research_accept_dec_child___3', 'research_accept_dec_child___4', 'research_accept_dec_child___5', 'research_accept_dec_child___6', 'research_accept_dec_child___7', 'race___1', 'race___2', 'race___3', 'race___4', 'race___5', 'race___6'];
 
 # stuff to replace
-repls = {'<i>':'','</i>':'','\t':' ','\n':' ','"':'',"'":'',',':' '};
+repls = {'<i>':'','</i>':'','\t':' ','\n':' ','"':'',"'":'',',':' ','(null)':''};
 
 colrepls = {
   'sex' : { '1':'M', '2':'F', 'Male':'M', 'Female':'F'}
@@ -145,7 +145,7 @@ if 's2resp' not in sv_colnames:
   sv_colnames.append('s2resp');
   
 cn.execute("update sv_unified set s2resp = 0");
-cn.execute("update sv_unified set s2resp = 1 where coalesce("+",".join(longsurvey[1:]+longsurveycb)+",'') not in ('','0')");
+cn.execute("update sv_unified set s2resp = 1 where coalesce("+",".join(longsurvey[1:]+longsurveycb)+",'') not in ('','0','(null)')");
 # chunked massive join tables ... not needed
 #cttabs = dict([("tmp_"+str(ii).zfill(3),"create table tmp_"+str(ii).zfill(3)+" as select scf.site,"+",".join(svunqcols[ii:ii+63])+" from (select distinct site from sv_unified) scf left join"+" left join ".join(["(select site,count(*) #{0} from sv_unified where {0} is not NULL and trim({0}) not in ('','0') group by site) {0} on scf.site = {0}.site ".format(jj) for jj in svunqcols[ii:ii+63]])) for ii in xrange(0, len(svunqcols), 63)]);
 
