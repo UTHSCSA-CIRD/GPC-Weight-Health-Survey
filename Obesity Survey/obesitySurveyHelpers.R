@@ -116,7 +116,7 @@ concatRace <- function(x){
 surveyResponded <- function(a){
   #takes a single array and steps through it returning whether or not ALL values in that array are null 0 or NA
   for(r in a){
-    if(!is.na(r) & !is.null(r) & r != "0" & r != "NA" & r != "" & r != "None") return (TRUE)
+    if(!is.na(r) & !is.null(r) & !r %in% c("0","NA","","None","(null)") ) return (TRUE)
   }
   return (FALSE)
 }
