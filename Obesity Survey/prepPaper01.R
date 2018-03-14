@@ -141,7 +141,7 @@ dct0$c_outcomes <- dct0$dataset_column_names %in% c('s1s2resp','s2resp');
                                                     # ,'children_research');
 dct0$c_dummycode <- with(dct0,(c_ppred|c_spred)&(c_factor)&!(c_maketf|c_leave2lev));
 #' # Create the table for preliminary univariate screening on non-survey predictors
-ud_nonsrv <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num))]
+df_unilogist <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num))]
                      ,dummy.data.frame(obd[,v(c_dummycode)]
                                        ,verbose=T,sep='='))[rsamples$train,];
 #' # Prepare data structures for tables.
@@ -211,6 +211,8 @@ tb$dSurv <- subset(obd,s2resp=='Yes') %>% droplevels %>%
 
 #' # Create output tables
 #' 
+panderOptions('table.split.table',Inf);
+panderOptions('table.emphasize.rownames',F);
 #' #### Figure 1, CONSORT diagram.
 #' 
 #' [placehoder]
@@ -224,78 +226,94 @@ tb$dSurv <- subset(obd,s2resp=='Yes') %>% droplevels %>%
 #' [placehoder]
 #'  
 #' #### Table 3. Detailed list of site, adult/pediatric cohort,and contact method.
-#' 
+tb$t03.sitemethod <- df_fortables[,c('site','a_recruitTarget','Recruitment')] %>% 
+  unique %>% t %>% submulti(cbind(c('Adult','Pediatric','mychart','post','email')
+                                  ,c('A','P','Patient\nPortal','USPS','Email')));
+dimnames(tb$t03.sitemethod) <- list(c('','Cohort Makeup${}^1$','Contact Method${}^2$')
+                                    ,tb$t03.sitemethod[1,]);
+tb$t03.sitemethod <- pander_return(tb$t03.sitemethod[-1,]
+,caption='Table 3: Detailed list of site, adult/pediatric cohort, and contact method.\n
+${}^1$ Cohort makeup: A = adult only, P = pediatric only.\n
+${}^2$ Contact method: USPS = United States Postal Service, Email = electronic mail on file, Portal = patient portal feature of the electronic medical record system. '
+                                   ,caption.prefix=':') %>% paste0('\n');
+cat(tb$t03.sitemethod);
 #' #### Table 4a. Counts, Age, and BMI: Adult Index Patient
-#' 
+tb$t04a.adultsites <- print(tb$dAdult,printToggle = F) %>% t %>% head(-2) %>%
+  pander_return(caption='Table 4a: Counts, Age, and BMI: Adult Index Patients'
+                ,caption.prefix=':') %>% paste0('\n');
 #' #### Table 4b. Counts, Age, and BMI: Pediatric Index Patient
-#' 
-#' #### Table 5. Chort, Survey 1 and Survey 2 demographics.
-#' 
+tb$t04b.pedsites <- print(tb$dPeds,printToggle = F) %>% t %>% head(-2) %>%
+  pander_return(caption='Table 4b: Counts, Age, and BMI: Pediatric Index Patients'
+                ,caption.prefix=':') %>% paste0('\n');
+#' #### Table 5. Cohort, Survey 1 and Survey 2 demographics.
+tb$t05.eligible <- lapply(tb[c('dElig','dRes','dResComp')]
+                          ,print,printToggle=F) %>% 
+  with(cbind(dElig,dRes,dResComp[,c('TRUE','p')] ));
+
+tb$t05.eligible[,'p'] <- ifelse(tb$t05.eligible[,'p']=='<0.001','*'
+                                ,ifelse(tb$t05.eligible[,'p']=='','','NS')) %>% 
+  head(-2) %>% c('','');
+#tb$t05.eligible[tb$t05.eligible[,'p']!='','p'] <- tb$t05.eligible[,'p'] %>% 
+#  head(-2) %>% gsub('<','',.) %>% as.numeric %>% na.exclude() %>% p.adjust() %>% 
+#  round(3) %>% gsub('^0$','<0.001',.) %>% c('','');
+colnames(tb$t05.eligible)[1:3] <- c('Cohort','Survey 1 or 2','Survey 2');
+
+tb$t05.eligible <- pander_return(tb$t05.eligible
+                                 ,row.names=gsub('^([^ ].*)','**\\1**'
+                                                 ,rownames(tb$t05.eligible)) %>%
+                                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+                                 ,justify=paste0('l',paste0(rep('r',ncol(tb$t05.eligible)),collapse=''))
+                                 ,caption='Table 5: Cohort, Survey 1 and Survey 2 demographics.') %>% 
+  paste0('\n');
 #' #### Table 6a. Participant demographics by site for cohort [N (% by site), unless otherwise indicated]. 
-#' 
+tb$t06a.eligBySite <- print(tb$dEligBySite,printToggle = F);
+tb$t06a.eligBySite[,'p'] <- ifelse(tb$t06a.eligBySite[,'p']=='<0.001','*'
+                                ,ifelse(tb$t06a.eligBySite[,'p']=='','','NS'));
+tb$t06a.eligBySite <- pander_return(tb$t06a.eligBySite[,-ncol(tb$t06a.eligBySite)]
+                                    ,row.names=gsub('^([^ ].*)','**\\1**'
+                                                    ,rownames(tb$t06a.eligBySite)) %>%
+                                      gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+                                    ,justify=paste0('l',paste0(rep('r',ncol(tb$t06a.eligBySite)-1),collapse=''))
+                                    ,caption='Table 6a: Participant demographics by site (Cohort)') %>% 
+  paste0('\n');
 #' #### Table 6b. Participant demographics by site (Responders)
-#' 
+tb$t06b.resBySite <- print(tb$dResBySite,printToggle = F);
+tb$t06b.resBySite[,'p'] <- ifelse(tb$t06b.resBySite[,'p']=='<0.001','*'
+                                  ,ifelse(tb$t06b.resBySite[,'p']=='','','NS'));
+tb$t06b.resBySite <- pander_return(tb$t06b.resBySite[,-ncol(tb$t06b.resBySite)]
+                                    ,row.names=gsub('^([^ ].*)','**\\1**'
+                                                    ,rownames(tb$t06b.resBySite)) %>%
+                                      gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+                                    ,justify=paste0('l',paste0(rep('r',ncol(tb$t06b.resBySite)-1),collapse=''))
+                                    ,caption='Table 6b: Participant demographics by site (Responders)') %>% 
+  paste0('\n');
 #' #### Table 6c. Participant demographics by site (Completers)
-#' 
+tb$t06c.compBySite <- print(tb$dCompBySite,printToggle = F);
+tb$t06c.compBySite[,'p'] <- ifelse(tb$t06c.compBySite[,'p']=='<0.001','*'
+                                  ,ifelse(tb$t06c.compBySite[,'p']=='','','NS'));
+tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite)]
+                                    ,row.names=gsub('^([^ ].*)','**\\1**'
+                                                    ,rownames(tb$t06c.compBySite)) %>%
+                                      gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+                                    ,justify=paste0('l',paste0(rep('r',ncol(tb$t06c.compBySite)-1),collapse=''))
+                                    ,caption='Table 6b: Participant demographics by site (Completers)') %>% 
+  paste0('\n');
 #' #### Table 7. Univariate predictors of participation
 #' 
 #' #### Table 8. Responses to survey questions.
+tb$t08.survresp <- print(tb$dSurv,printToggle=F) %>% 
+  pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>% 
+                  gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+                ,justify=paste0('l',paste0(rep('r',ncol(.)),collapse=''))
+                ,caption='Table 8: Survey responses.') %>% paste0('\n');
+#' ## Supplementary
 #' 
-tb$t09.survey <- print(tb$d03.survey,print=F,noSpaces = T) %>% 
-  kable(format = 'markdown');
-#' attempt to make column widths non-greedy
-tb$t09.survey[2] <- gsub('---{3,}','---',tb$t09.survey[2]);
-#' remove extra spaces
-for(ii in seq_along(tb$t09.survey)) {
-  tb$t09.survey[ii] <- gsub('\\s+',' ',tb$t09.survey[ii]);
-}
-#' highlight the section headers
-for(ii in grep('\\| +\\|$',tb$t09.survey)) {
-  tb$t09.survey[ii] <- gsub('([[:alnum:])(%_]{2,})','**\\1**',tb$t09.survey[ii]);
-}
-for(ii in grep('=|mean \\(sd\\)',tb$t09.survey)){
-  tb$t09.survey[ii] <- gsub('^\\|([^|]+)\\|','|**\\1**|',tb$t09.survey[ii]);
-}
-for(ii in grep('\\*{2}',tb$t09.survey[-(1:2)],invert = T)+2){
-  tb$t09.survey[ii] <- gsub('^\\|','|+ ',tb$t09.survey[ii]);
-}
-
+#' #### Table S1. Cohort, by recruitment method.
+#' 
 #' 
 #' ### Overall
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-#' ### Population
-tb$t02A.bysite <- print(table02_pop,print=F
-                        ,cramVars = c('Sex','Hispanic')
-                        ,nonnormal = 'Income')[,-12] %>% 
-  #gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% 
-  kable(format='markdown');
-tb$t02A.bysite.00 <- print(table02_pop,print=F #,cramVars = c('Sex','Hispanic')
-                           ,explain=F,nonnormal = 'Income')[,-12] %>% 
-  gsub('<0.001','*',.);
-tb$t02A.bysite.00['Income',] <- gsub('.00','k',tb$t02A.bysite.00['Income',]);
 
-tb$t02B.byrec <- print(table02a_byrecruit,print=F
-                       ,cramVars = c('Sex','Hispanic')
-                       ,nonnormal = 'Income')[,-5] %>% 
-  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
-  #gsub('(.*\\(%\\))' #|(^.*\\(mean \\(sd\\)\\))'
-  #     ,'**\\1**',.) %>%
-  #kable(format='markdown');
-
-#' ### Responders
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-tb$t03.resp <- print(table03_resp,print=F
-                     ,cramVars = c('Sex','Hispanic')
-                     ,nonnormal = 'Income')[,-12] %>% 
-  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
-
-#' ### Completers
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-tb$t04.compl <- print(table04_comp,print=F
-                      ,cramVars = c('Sex','Hispanic')
-                      ,nonnormal = 'Income')[,-12] %>% 
-  gsub('000\\.00','k',.) %>% gsub('<0.001','*',.) %>% kable(format='markdown');
-#' 
 #' ## Model fits
 #' 
 #' TODO: move to separate script?
