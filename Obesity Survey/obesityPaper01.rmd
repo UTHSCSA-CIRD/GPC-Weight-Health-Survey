@@ -1,5 +1,6 @@
 ---
-title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains Collaborative Health and Medical Research Family Survey'
+title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains
+  Collaborative Health and Medical Research Family Survey'
 output:
   html_document:
     keep_md: yes
@@ -11,6 +12,7 @@ output:
 ```{r, message=FALSE, warning=FALSE, include=FALSE}
 load('obesityPaper01.rdata');
 require(magrittr); require(dplyr); require(knitr);
+require(pander);
 source('functions.R');
 ```
 # Abstract
@@ -67,6 +69,21 @@ tb$t02A.bysite
 ```
 [Table 5. Sample size and demographics by site.]{custom-style="Caption"}
 
+
+```{r, echo=FALSE, message=FALSE, results='asis', warning=FALSE}
+
+#panderOptions("table.style", "rmarkdown");
+pander(tb$t02A.bysite.00
+       ,caption='Pander render of print of TableOne'
+       ,split.tables=Inf,emphasize.rownames=F
+       #,emphasize.strong.rows=grep('^   ',inv=T,rownames(tb$t02A.bysite.00))
+       ,row.names = gsub('^(n|[^ ]{3}.+)','**\\1**',rownames(tb$t02A.bysite.00)) %>% 
+         gsub('   ','&nbsp;&nbsp;',.) %>% 
+         gsub('\\.',' ',.)
+       ,missing='-'
+       ,justify=p(c('l',rep('c',ncol(tb$t02A.bysite.00))),'','','')
+       );
+```
 ...
 
 Table 6 indicates these same variables by site for responders to Survey 1, and Table 7 indicates the same variables by site for Survey 2 respondents.
