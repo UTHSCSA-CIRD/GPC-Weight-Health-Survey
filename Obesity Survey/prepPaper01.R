@@ -210,6 +210,37 @@ tb$dSurv <- subset(obd,s2resp=='Yes') %>% droplevels %>%
   CreateTableOne(v(c_survey_strct),data=.,test=F);
 
 #' # Create output tables
+#' 
+#' #### Figure 1, CONSORT diagram.
+#' 
+#' [placehoder]
+#' 
+#' #### Table 1. Survey Questions
+#' 
+#' [placehoder]
+#' 
+#' #### Table 2. Selection criteria used in i2b2 to identify cohort and data elements
+#' 
+#' [placehoder]
+#'  
+#' #### Table 3. Detailed list of site, adult/pediatric cohort,and contact method.
+#' 
+#' #### Table 4a. Counts, Age, and BMI: Adult Index Patient
+#' 
+#' #### Table 4b. Counts, Age, and BMI: Pediatric Index Patient
+#' 
+#' #### Table 5. Chort, Survey 1 and Survey 2 demographics.
+#' 
+#' #### Table 6a. Participant demographics by site for cohort [N (% by site), unless otherwise indicated]. 
+#' 
+#' #### Table 6b. Participant demographics by site (Responders)
+#' 
+#' #### Table 6c. Participant demographics by site (Completers)
+#' 
+#' #### Table 7. Univariate predictors of participation
+#' 
+#' #### Table 8. Responses to survey questions.
+#' 
 tb$t09.survey <- print(tb$d03.survey,print=F,noSpaces = T) %>% 
   kable(format = 'markdown');
 #' attempt to make column widths non-greedy
