@@ -77,6 +77,28 @@ cl_bintail <- function(xx,topn=4,binto='other'){
         ),levels=c(keep,binto)));
 }
 
+pander.TableOne <- function(xx,caption=attr(xx,'caption'),dropcols='test',...){
+  if (is.null(caption)) caption <- pander:::get.caption();
+  # TODO: if is TableOne and order is not NULL then print the CatTable and ContTable
+  # separately in the order specified and rbind them together
+  xx <- print(xx,printToggle=F);
+  xx <- xx[,setdiff(colnames(xx),dropcols)];
+  # if there is a 'p' column...
+  # ...if the p-adjust option is set, p-adjust it
+  # ...if the p-stars option is set, covert to stars
+  # if option enabled, bold the variable names
+  # if rownames not NULL, set rownames
+  # if rowtrans function specified, run it
+  # if colnames not NULL, set colnames
+  # if coltrans function specified, run it
+  # if indent/wrap options enabled, indent and wrap the variable levels
+  # gsub(paste0('(^|\n)',repChar(' ',indent)),paste0('\\1',repChar('&nbsp;',indent)),rownames)
+  # repeat the last character of the justify argument (or chop) till it has
+  # ncol(xx)+1 characters
+  # call pandoc.table with approporiate options
+  # cat anything else that might be needed
+}
+
 #' simple little percent expression
 pct <- function(xx,digits=2,multiplier=1,...) sprintf(paste0('%.',digits,'f%%')
                                                       ,as.numeric(xx)*multiplier);
