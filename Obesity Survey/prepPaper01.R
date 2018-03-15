@@ -262,7 +262,7 @@ tb$t05.eligible <- pander_return(tb$t05.eligible
                                  ,row.names=gsub('^([^ ].*)','**\\1**'
                                                  ,rownames(tb$t05.eligible)) %>%
                                    gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                 ,justify=paste0('l',paste0(rep('r',ncol(tb$t05.eligible)),collapse=''))
+                                 ,justify=paste0('l',repChar('r',ncol(tb$t05.eligible)))
                                  ,caption='Table 5: Cohort, Survey 1 and Survey 2 demographics.') %>% 
   paste0('\n');
 #' #### Table 6a. Participant demographics by site for cohort [N (% by site), unless otherwise indicated]. 
@@ -273,7 +273,7 @@ tb$t06a.eligBySite <- pander_return(tb$t06a.eligBySite[,-ncol(tb$t06a.eligBySite
                                     ,row.names=gsub('^([^ ].*)','**\\1**'
                                                     ,rownames(tb$t06a.eligBySite)) %>%
                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                    ,justify=paste0('l',paste0(rep('r',ncol(tb$t06a.eligBySite)-1),collapse=''))
+                                    ,justify=paste0('l',repChar('r',ncol(tb$t06a.eligBySite)-1))
                                     ,caption='Table 6a: Participant demographics by site (Cohort)') %>% 
   paste0('\n');
 #' #### Table 6b. Participant demographics by site (Responders)
@@ -284,7 +284,7 @@ tb$t06b.resBySite <- pander_return(tb$t06b.resBySite[,-ncol(tb$t06b.resBySite)]
                                     ,row.names=gsub('^([^ ].*)','**\\1**'
                                                     ,rownames(tb$t06b.resBySite)) %>%
                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                    ,justify=paste0('l',paste0(rep('r',ncol(tb$t06b.resBySite)-1),collapse=''))
+                                    ,justify=paste0('l',repChar('r',ncol(tb$t06b.resBySite)-1))
                                     ,caption='Table 6b: Participant demographics by site (Responders)') %>% 
   paste0('\n');
 #' #### Table 6c. Participant demographics by site (Completers)
@@ -295,7 +295,7 @@ tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite
                                     ,row.names=gsub('^([^ ].*)','**\\1**'
                                                     ,rownames(tb$t06c.compBySite)) %>%
                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                    ,justify=paste0('l',paste0(rep('r',ncol(tb$t06c.compBySite)-1),collapse=''))
+                                    ,justify=paste0('l',repChar('r',ncol(tb$t06c.compBySite)-1))
                                     ,caption='Table 6b: Participant demographics by site (Completers)') %>% 
   paste0('\n');
 #' #### Table 7. Univariate predictors of participation
@@ -304,7 +304,7 @@ tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite
 tb$t08.survresp <- print(tb$dSurv,printToggle=F) %>% 
   pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>% 
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                ,justify=paste0('l',paste0(rep('r',ncol(.)),collapse=''))
+                ,justify=paste0('l',repChar('r',ncol(.)))
                 ,caption='Table 8: Survey responses.') %>% paste0('\n');
 #' ## Supplementary
 #' 
