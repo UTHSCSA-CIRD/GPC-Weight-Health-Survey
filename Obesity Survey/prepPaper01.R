@@ -243,6 +243,8 @@ tb$dUnivar$variable <- sapply(strsplit(tb$dUnivar$term,'='),`[`,1);
 tb$dUnivar <- tb$dUnivar[order(tb$dUnivar$variable
                                          ,tb$dUnivar$p.value
                                          ,decreasing = F),];
+rownames(tb$dUnivar) <- with(tb$dUnivar,ifelse(p.value<.05
+                                               ,paste0('**',term,'**'),term));
 #' # Create output tables
 #' 
 panderOptions('table.split.table',Inf);
@@ -325,12 +327,10 @@ tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite
   paste0('\n');
 #' #### Table 7. Univariate predictors of participation
 #' 
-tb$t07.univar <- tb$dUnivar[,-ncol(tb$dUnivar)] %>% 
+tb$t07.univar <- tb$dUnivar[,c('estimate','std.error','statistic'
+                               ,'conf.low','conf.high','p.value')] %>% 
   transform(p.value=add.significance.stars(p.value)) %>% 
-  pander_return(digits=5
-                ,row.names=ifelse((.)[,'p.value']==''
-                                 ,(.)$term
-                                 ,paste0('**',(.)$term,'**'))) %>%
+  pander_return(digits=5,justify=paste0('l',repChar('r',ncol(.)))) %>%
   paste0('\n');
 #' 
 #' #### Table 8. Responses to survey questions.
