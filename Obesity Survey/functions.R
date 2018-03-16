@@ -121,8 +121,16 @@ pander.TableOne <- function(xx,caption=attr(xx,'caption'),dropcols='test'
   # TODO: if is TableOne and order is not NULL then print the CatTable and ContTable
   # separately in the order specified and rbind them together
   # TODO: pass the cutoffs parameter to add.significance stars
-  xx <- print(xx,printToggle=F,...);
-  xx <- xx[,xxcols <- setdiff(colnames(xx),dropcols)];
+  # The below is necessary because sometimes we need to mash together bits of 
+  # different TableOne objects, and then call pander.TableOne on them directly, 
+  # thus the 'xx' argument for those comes in as already a data.frame or matrix 
+  # without the need to print it. Now, printing (unlike for TableOne) doesn't 
+  # change the object, but also unlike print.TableOne, the echoing of output 
+  # cannot be suppressed via an argument. As a result, two copies of the 
+  # rendered table were being captured-- one in proper markdown and one as some 
+  # kind of messy output. So for this reason we do have to test 
+  if(is(xx,'TableOne')) xx <- print(xx,printToggle=F,...);
+  xx <- xx[,xxcols <- colnames(xx)[!colnames(xx) %in% dropcols]];
   xxrows <- rownames(xx);
   # rows that represent levels of the same variable
   xxlevrows <- grepl('^   ',xxrows);
