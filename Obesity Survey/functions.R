@@ -77,25 +77,89 @@ cl_bintail <- function(xx,topn=4,binto='other'){
         ),levels=c(keep,binto)));
 }
 
-pander.TableOne <- function(xx,caption=attr(xx,'caption'),dropcols='test',...){
+#' Title
+#'
+#' @param xx        A TableOne object (or can be a TableOne-derived matrix)
+#' @param caption   Table caption, as for most pander.* methods
+#' @param dropcols  Names of columns to drop.
+#' @param p.adj     What p.adjust method to use if there are p-values
+#' @param p.skip    Row-names for the p-values to replace with empty strings
+#' @param add.stars Whether to replace p-values with stars
+#' @param ns.char   What string to use to indicate non-significant difference 
+#'                  to distinguish from there not having been a p-value on that
+#'                  line to begin with.
+#' @param rren.fn   A function that takes a vector of row names and ... as its 
+#'                  arguments and returns a character vector of the same length.
+#'                  Do _not_ remove indentation, or the `var.fmt` argument will 
+#'                  not work.
+#' @param row.wrap  At how many characters to wrap just the row-names?
+#' @param var.fmt   Format for variable rownames (as opposed to rownames for 
+#'                  individual levels of categoric variables). Set to `\\1` in
+#'                  order to not format at all.
+#' @param lev.indent How much to indent the levels of each categorical variable
+#' @param cren.fn   Similar to rren.fn, but for column names.
+#' @param str.fmt   How to format the strata names, equivalent to var.fmt
+#' @param justify   Passed to pandoc.table(), but first extended for however many
+#'                  columns the TableOne ends up having
+#' @param ...       Passed to print.TableOne() and to pandoc.table()
+#'
+#' @return
+#' @export
+#'
+#' @examples
+pander.TableOne <- function(xx,caption=attr(xx,'caption'),dropcols='test'
+                            ,p.adj='holm',p.skip='',add.stars=T,ns.char='NS'
+                            ,rren.fn=function(rr,...) identity(rr)
+                            ,row.wrap=15
+                            ,var.fmt='**\\1**'
+                            ,lev.indent=2
+                            ,cren.fn=function(cc,...) identity(cc)
+                            ,str.fmt='**\\1**'
+                            ,justify='lr'
+                            ,...){
   if (is.null(caption)) caption <- pander:::get.caption();
   # TODO: if is TableOne and order is not NULL then print the CatTable and ContTable
   # separately in the order specified and rbind them together
-  xx <- print(xx,printToggle=F);
-  xx <- xx[,setdiff(colnames(xx),dropcols)];
+  # TODO: pass the cutoffs parameter to add.significance stars
+  xx <- print(xx,printToggle=F,...);
+  xx <- xx[,xxcols <- setdiff(colnames(xx),dropcols)];
+  xxrows <- rownames(xx);
+  # rows that represent levels of the same variable
+  xxlevrows <- grepl('^   ',xxrows);
   # if there is a 'p' column...
-  # ...if the p-adjust option is set, p-adjust it
-  # ...if the p-stars option is set, covert to stars
-  # if option enabled, bold the variable names
-  # if rownames not NULL, set rownames
-  # if rowtrans function specified, run it
-  # if colnames not NULL, set colnames
-  # if coltrans function specified, run it
+  if('p' %in% xxcols){
+    pp <- xx[,'p']; pp[xxrows %in% p.skip] <- '';
+    # p-adjust it for multiple comparisons
+    ppadj <- p.adjust(ppnona <- na.exclude(as.numeric(gsub('^<','',pp))),p.adj);
+    # find skipped and non-skipped rows
+    yesps <- setdiff(seq_along(pp),attr(ppnona,'na.action'));
+    if(add.stars) {
+      ppadj <- add.significance.stars(ppadj);
+      ppadj[ppadj==''] <- ns.char;
+    } else {
+      lessthan <- grepl('^<',pp[yesps]);
+      ppadj[lessthan] <- paste0('<',ppadj[lessthan]);
+    }
+    pp[yesps] <- ppadj;
+    xx[,'p'] <- pp;
+  }
+  # transform/remap rownames and format them
+  xxrows <- gsub('^([^ ].*)',var.fmt,rren.fn(xxrows,...));
+  # transform/remap colnames and format them
+  xxcols <- gsub('(.*)',str.fmt,cren.fn(xxcols,...));
   # if indent/wrap options enabled, indent and wrap the variable levels
   # gsub(paste0('(^|\n)',repChar(' ',indent)),paste0('\\1',repChar('&nbsp;',indent)),rownames)
+  xxrows <- ifelse(xxlevrows,sapply(xxrows,splitLine,row.wrap) %>% 
+                     pandoc.indent(lev.indent/4) %>% 
+                     gsub(paste0('(^|\n)',repChar(' ',lev.indent))
+                          ,paste0('\\1',repChar('&nbsp;',lev.indent)),.)
+                   ,sapply(xxrows,splitLine,row.wrap+lev.indent));
   # repeat the last character of the justify argument (or chop) till it has
-  # ncol(xx)+1 characters
+  justify <- paste0(substring(justify,1,1)
+                    ,repChar(substring(justify,nchar(justify)),length(xxcols)));
   # call pandoc.table with approporiate options
+  pander(xx,row.names=xxrows,justify=justify,caption=caption
+         ,col.names=xxcols,...);
   # cat anything else that might be needed
 }
 
