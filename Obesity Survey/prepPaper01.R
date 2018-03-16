@@ -247,35 +247,36 @@ tb$t04b.pedsites <- print(tb$dPeds,printToggle = F) %>% t %>% head(-2) %>%
                 ,caption.prefix=':') %>% paste0('\n');
 #' #### Table 5. Cohort, Survey 1 and Survey 2 demographics.
 tb$t05.eligible <- lapply(tb[c('dElig','dRes','dResComp')]
-                          ,print,printToggle=F) %>% 
-  with(cbind(dElig,dRes,dResComp[,c('TRUE','p')] ));
-
-tb$t05.eligible[,'p'] <- ifelse(tb$t05.eligible[,'p']=='<0.001','*'
-                                ,ifelse(tb$t05.eligible[,'p']=='','','NS')) %>% 
-  head(-2) %>% c('','');
-#tb$t05.eligible[tb$t05.eligible[,'p']!='','p'] <- tb$t05.eligible[,'p'] %>% 
-#  head(-2) %>% gsub('<','',.) %>% as.numeric %>% na.exclude() %>% p.adjust() %>% 
-#  round(3) %>% gsub('^0$','<0.001',.) %>% c('','');
-colnames(tb$t05.eligible)[1:3] <- c('Cohort','Survey 1 or 2','Survey 2');
-
-tb$t05.eligible <- pander_return(tb$t05.eligible
-                                 ,row.names=gsub('^([^ ].*)','**\\1**'
-                                                 ,rownames(tb$t05.eligible)) %>%
-                                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                 ,justify=paste0('l',repChar('r',ncol(tb$t05.eligible)))
-                                 ,caption='Table 5: Cohort, Survey 1 and Survey 2 demographics.') %>% 
+                          ,print,printToggle=F) %>%
+  with(cbind(dElig,dRes,dResComp[,c('TRUE','p')] )) %>% invisible %>%
+  capture.output(pander.TableOne(.,p.skip=c('Responders = TRUE (%)','Completers = TRUE (%)')
+                ,caption='Table 5: Cohort, Survey 1 and Survey 2 demographics'
+                ,cren.fn=function(cc,...) c('Cohort','Survey 1 or 2'
+                                            ,'Survey 2','p')
+                ,keep.line.breaks=T)) %>%
   paste0('\n');
+# This is a hack: something in the above pipeline is causing a copy of the 
+# not-yet-formatted TableOne output to show up in the results with the 
+# formatted output appended to it. Hopefully this only happens when matrices 
+# are manually passed to pander.TableOne and this is the only time we have to
+# manually remove rows from the object:
+tb$t05.eligible <- with(tb,t05.eligible[(grep('^-+\n$',t05.eligible)[1]):length(t05.eligible)]);
+
 #' #### Table 6a. Participant demographics by site for cohort [N (% by site), unless otherwise indicated]. 
-tb$t06a.eligBySite <- print(tb$dEligBySite,printToggle = F);
-tb$t06a.eligBySite[,'p'] <- ifelse(tb$t06a.eligBySite[,'p']=='<0.001','*'
-                                ,ifelse(tb$t06a.eligBySite[,'p']=='','','NS'));
-tb$t06a.eligBySite <- pander_return(tb$t06a.eligBySite[,-ncol(tb$t06a.eligBySite)]
-                                    ,row.names=gsub('^([^ ].*)','**\\1**'
-                                                    ,rownames(tb$t06a.eligBySite)) %>%
-                                      gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                    ,justify=paste0('l',repChar('r',ncol(tb$t06a.eligBySite)-1))
-                                    ,caption='Table 6a: Participant demographics by site (Cohort)') %>% 
+tb$t06a.eligBySite <- pander_return(tb$dEligBySite
+                                    ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
+                                    ,caption='Table 6a: Participant demographics by site (Cohort)') %>%
   paste0('\n');
+# tb$t06a.eligBySite <- print(tb$dEligBySite,printToggle = F);
+# tb$t06a.eligBySite[,'p'] <- ifelse(tb$t06a.eligBySite[,'p']=='<0.001','*'
+#                                 ,ifelse(tb$t06a.eligBySite[,'p']=='','','NS'));
+# tb$t06a.eligBySite <- pander_return(tb$t06a.eligBySite[,-ncol(tb$t06a.eligBySite)]
+#                                     ,row.names=gsub('^([^ ].*)','**\\1**'
+#                                                     ,rownames(tb$t06a.eligBySite)) %>%
+#                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+#                                     ,justify=paste0('l',repChar('r',ncol(tb$t06a.eligBySite)-1))
+#                                     ,caption='Table 6a: Participant demographics by site (Cohort)') %>% 
+#   paste0('\n');
 #' #### Table 6b. Participant demographics by site (Responders)
 tb$t06b.resBySite <- print(tb$dResBySite,printToggle = F);
 tb$t06b.resBySite[,'p'] <- ifelse(tb$t06b.resBySite[,'p']=='<0.001','*'
