@@ -100,7 +100,6 @@ cat(tb$t06c.compBySite);
 .
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-tb$t04.compl
 .n01 <- sapply(tb$d02.rsamples,length);
 ```
 [Table 7. Survey completers.]{custom-style="Caption"}
@@ -117,9 +116,9 @@ members of the cohort (i.e. those listed in Table 4).
 Accordingly, for each candidate predictor, a separate logistic regression model was fit to the developmental subset with responder
 status as the outcome. Discrete variables with multiple levels were broken up into an equal number of indicator variables. This allowed us to
 choose not only predictor variables to consider but also in some 
-cases how condense their levels. Table 8 shows the results of these `r length(tb$t06.univar) - 2` tests.
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-tb$t06.univar
+cases how condense their levels. Table 8 shows the results of these `r length(tb$t07.univar) - 2` tests.
+```{r, results='asis', echo=FALSE, message=FALSE, warning=FALSE}
+cat(tb$t07.univar);
 ```
 [Table 8. Preliminary assessment of variable via univariate logistic regression.]{custom-style="Caption"}
 
