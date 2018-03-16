@@ -14,6 +14,7 @@
 #+ include=FALSE,cache=FALSE,echo=FALSE
 require(xtable);require(magrittr); require(dplyr); require(knitr);
 require(tableone); require(broom); require(dummies); require(readr);
+require(pander);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile='survProcessed.rdata';
 datadict='data_dictionary.tsv';
@@ -155,6 +156,11 @@ df_fortables <- transform(obd[,c(v(c_ppred),v(c_spred),v(c_outcomes))]
                           ,Sex=pat_sex
                           ,`Financial Class`=ses_finclass
                           ,Income=ses_income/1000);
+df_univar <- cbind(truthy(obd[,v(c_maketf)])
+                   ,obd[,c(v(c_leave2lev),v(c_ppred_num))]
+                   ,dummy.data.frame(obd[,v(c_dummycode)]
+                                     ,verbose=T,sep='='))[rsamples$train,];
+
 #' ### Eligiblility set
 tb$dElig <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
                                   ,'Income','Age','BMI','Responders'
@@ -208,28 +214,56 @@ tb$dAdult <- transform(df_fortables,BMI=pat_bmi_raw) %>%
 #' the full set of non free-text survey responses, summarized, not stratified
 tb$dSurv <- subset(obd,s2resp=='Yes') %>% droplevels %>% 
   CreateTableOne(v(c_survey_strct),data=.,test=F);
-
+#' ### Univariate predictors of participation
+#' 
+#' All univariate predictors
+glm_s1s2null <- glm(formula = s1s2resp ~ 1, family = "binomial"
+                    , data = df_univar);
+#' We fit a separate logistic regression model to each numeric and binary 
+#' predictor, and to *each level of* each factor predictor with >2 levels.
+glm_s1s2uni <- sapply(setdiff(names(df_univar),v(c_outcomes))
+                      ,function(xx) {
+                        # the back-ticks below are needed because the names have
+                        # been altered for readability and are not necessarily
+                        # valid R object names anymore unless quoted in this
+                        # manner
+                        update(glm_s1s2null,as.formula(paste0('.~`',xx,'`')))
+                      },simplify=F);
+#' We use the `[-1,]` to drop the intercept from each result
+tb$dUnivar <- lapply(glm_s1s2uni,function(xx) tidy(xx,conf.int=T)[-1,]) %>% 
+  bind_rows();
+#' adjust the p-values
+tb$dUnivar$p.value <- p.adjust(tb$dUnivar$p.value);
+#' rename the terms to human readable
+tb$dUnivar$term<-submulti(tb$dUnivar$term,univterms);
+#' grab the left side of the `=` containing variable names, or the whole thing
+#' otherwise
+tb$dUnivar$variable <- sapply(strsplit(tb$dUnivar$term,'='),`[`,1);
+#' sort it
+tb$dUnivar <- tb$dUnivar[order(tb$dUnivar$variable
+                                         ,tb$dUnivar$p.value
+                                         ,decreasing = F),];
 #' # Create output tables
 #' 
 panderOptions('table.split.table',Inf);
 panderOptions('table.emphasize.rownames',F);
 #' #### Figure 1, CONSORT diagram.
 #' 
-#' [placehoder]
+#' [placeholder]
 #' 
 #' #### Table 1. Survey Questions
 #' 
-#' [placehoder]
+#' [placeholder]
 #' 
 #' #### Table 2. Selection criteria used in i2b2 to identify cohort and data elements
 #' 
-#' [placehoder]
+#' [placeholder]
 #'  
 #' #### Table 3. Detailed list of site, adult/pediatric cohort,and contact method.
 tb$t03.sitemethod <- df_fortables[,c('site','a_recruitTarget','Recruitment')] %>% 
   unique %>% t %>% submulti(cbind(c('Adult','Pediatric','mychart','post','email')
                                   ,c('A','P','Patient\nPortal','USPS','Email')));
-dimnames(tb$t03.sitemethod) <- list(c('','Cohort Makeup${}^1$','Contact Method${}^2$')
+dimnames(tb$t03.sitemethod) <- list(c('','Cohort Makeup^1^','Contact Method${}^2$')
                                     ,tb$t03.sitemethod[1,]);
 tb$t03.sitemethod <- pander_return(tb$t03.sitemethod[-1,]
 ,caption='Table 3: Detailed list of site, adult/pediatric cohort, and contact method.\n
@@ -267,16 +301,6 @@ tb$t06a.eligBySite <- pander_return(tb$dEligBySite
                                     ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
                                     ,caption='Table 6a: Participant demographics by site (Cohort)') %>%
   paste0('\n');
-# tb$t06a.eligBySite <- print(tb$dEligBySite,printToggle = F);
-# tb$t06a.eligBySite[,'p'] <- ifelse(tb$t06a.eligBySite[,'p']=='<0.001','*'
-#                                 ,ifelse(tb$t06a.eligBySite[,'p']=='','','NS'));
-# tb$t06a.eligBySite <- pander_return(tb$t06a.eligBySite[,-ncol(tb$t06a.eligBySite)]
-#                                     ,row.names=gsub('^([^ ].*)','**\\1**'
-#                                                     ,rownames(tb$t06a.eligBySite)) %>%
-#                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-#                                     ,justify=paste0('l',repChar('r',ncol(tb$t06a.eligBySite)-1))
-#                                     ,caption='Table 6a: Participant demographics by site (Cohort)') %>% 
-#   paste0('\n');
 #' #### Table 6b. Participant demographics by site (Responders)
 tb$t06b.resBySite <- print(tb$dResBySite,printToggle = F);
 tb$t06b.resBySite[,'p'] <- ifelse(tb$t06b.resBySite[,'p']=='<0.001','*'
@@ -297,9 +321,14 @@ tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite
                                                     ,rownames(tb$t06c.compBySite)) %>%
                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                                     ,justify=paste0('l',repChar('r',ncol(tb$t06c.compBySite)-1))
-                                    ,caption='Table 6b: Participant demographics by site (Completers)') %>% 
+                                    ,caption='Table 6c: Participant demographics by site (Completers)') %>% 
   paste0('\n');
 #' #### Table 7. Univariate predictors of participation
+#' 
+tb$t07.univar <- tb$dUnivar[,-ncol(tb$dUnivar)] %>% 
+  transform(p.value=add.significance.stars(p.value)) %>% 
+  pander_return(digits=5,emphasize.strong.rows=which((.)[,'p.value']!='')) %>%
+  cat('\n');
 #' 
 #' #### Table 8. Responses to survey questions.
 tb$t08.survresp <- print(tb$dSurv,printToggle=F) %>% 
@@ -311,71 +340,11 @@ tb$t08.survresp <- print(tb$dSurv,printToggle=F) %>%
 #' 
 #' #### Table S1. Cohort, by recruitment method.
 #' 
+tb$t0S1.eligByRecruit <- pander_return(tb$dEligByRecrt
+                                    ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
+                                    ,caption='Table S1: Participant demographics by recruitment method (Cohort)') %>%
+  paste0('\n');
 #' 
-#' ### Overall
-#+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
-
-#' ## Model fits
-#' 
-#' TODO: move to separate script?
-#' All univariate predictors
-glm_s1s2null <- glm(formula = s1s2resp ~ 1, family = "binomial"
-                    , data = ud_nonsrv);
-#' We fit a separate logistic regression model to each numeric and binary 
-#' predictor, and to *each level of* each factor predictor with >2 levels.
-glm_s1s2uni <- sapply(setdiff(names(ud_nonsrv),v(c_outcomes))
-                      ,function(xx) {
-                        # the back-ticks below are needed because the names have
-                        # been altered for readability and are not necessarily
-                        # valid R object names anymore unless quoted in this
-                        # manner
-                        update(glm_s1s2null,as.formula(paste0('.~`',xx,'`')))
-                      },simplify=F);
-#' We use the `[-1,]` to drop the intercept from each result
-tab_glm_s1s2uni <- lapply(glm_s1s2uni,function(xx) tidy(xx,conf.int=T)[-1,]) %>% 
-  bind_rows();
-#' adjust the p-values
-tab_glm_s1s2uni$p.value <- p.adjust(tab_glm_s1s2uni$p.value);
-#' rename the terms to human readable
-tab_glm_s1s2uni$term<-submulti(tab_glm_s1s2uni$term,univterms);
-#' grab the left side of the `=` containing variable names, or the whole thing
-#' otherwise
-tab_glm_s1s2uni$variable <- sapply(strsplit(tab_glm_s1s2uni$term,'='),`[`,1);
-#' sort it
-tab_glm_s1s2uni <- tab_glm_s1s2uni[order(tab_glm_s1s2uni$variable
-                                         ,tab_glm_s1s2uni$p.value
-                                         ,decreasing = F),];
-
-#' # Creating Printable Tables!
-#' 
-#' ### Results by site
-#' Adult Index Patients
-#+ echo=FALSE, results='asis'
-tb$t05A.adbysite <- kable(res_by_site_ad,digits=2,format='markdown');
-#' Pediatric Index Patients
-#+ echo=FALSE, results='asis'
-tb$t05B.pdbysite <- kable(res_by_site_pd,digits=2,format='markdown');
-
-#' create the raw kable
-kab_glm_s1s2uni <- tab_glm_s1s2uni[,-ncol(tab_glm_s1s2uni)] %>%
-  transform(p.value=ifelse(p.value<.001,'<0.001',round(p.value,3))) %>%
-  kable(format = 'markdown',row.names=F,digits=5);
-#' tweak the kable to highlight significant differences
-for(ii in seq_len(nrow(tab_glm_s1s2uni))) if(tab_glm_s1s2uni[ii,'p.value']<.05){
-  kab_glm_s1s2uni[ii+2]<-gsub('[ ]{1,}',' ',kab_glm_s1s2uni[ii+2]) %>%
-    gsub('\\|[ ]{0,1}([A-Za-z0-9. -=]{2,})[ ]{0,1}\\|','| **\\1** |',.) %>%
-    gsub('\\| ([0-9.-]{2,})\\|','| **\\1** |',.)
-  };
-  #   gsub('\\|$','**|',.) %>% 
-  #   gsub('([A-Za-z0-9 -])\\|([A-Za-z0-9 -=])','\\1**|**\\2',.)
-  # };
-
-#'
-#' Re-binning certain variables based on univariate results
-# not allowed after dct0 is created!
-#obd$a_rebin_ins <- obd$ses_finclass;
-
-
-tb$t06.univar <- kab_glm_s1s2uni;
+#' ## Save everything...
 write_tsv(dct0,path='data_dictionary.tsv');
 save(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');
