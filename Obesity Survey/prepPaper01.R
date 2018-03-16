@@ -265,12 +265,12 @@ panderOptions('table.emphasize.rownames',F);
 tb$t03.sitemethod <- df_fortables[,c('site','a_recruitTarget','Recruitment')] %>% 
   unique %>% t %>% submulti(cbind(c('Adult','Pediatric','mychart','post','email')
                                   ,c('A','P','Patient\nPortal','USPS','Email')));
-dimnames(tb$t03.sitemethod) <- list(c('','Cohort Makeup^1^','Contact Method${}^2$')
+dimnames(tb$t03.sitemethod) <- list(c('','Cohort Makeup^1^','Contact Method^2^')
                                     ,tb$t03.sitemethod[1,]);
 tb$t03.sitemethod <- pander_return(tb$t03.sitemethod[-1,]
 ,caption='Table 3: Detailed list of site, adult/pediatric cohort, and contact method.\n
-${}^1$ Cohort makeup: A = adult only, P = pediatric only.\n
-${}^2$ Contact method: USPS = United States Postal Service, Email = electronic mail on file, Portal = patient portal feature of the electronic medical record system. '
+^1^ Cohort makeup: A = adult only, P = pediatric only.\n
+^2^ Contact method: USPS = United States Postal Service, Email = electronic mail on file, Portal = patient portal feature of the electronic medical record system. '
                                    ,caption.prefix=':') %>% paste0('\n');
 cat(tb$t03.sitemethod);
 #' #### Table 4a. Counts, Age, and BMI: Adult Index Patient
