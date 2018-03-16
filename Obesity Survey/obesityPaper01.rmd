@@ -138,3 +138,9 @@ cat(tb$t08.survresp);
 # Discsussion
 
 # Conclusion
+
+# Supplementary Materials
+
+```{r, results='asis',echo=FALSE, message=FALSE, warning=FALSE}
+cat(tb$t0S1.eligByRecruit);
+```
