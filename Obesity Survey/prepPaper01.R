@@ -328,7 +328,7 @@ tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite
 tb$t07.univar <- tb$dUnivar[,-ncol(tb$dUnivar)] %>% 
   transform(p.value=add.significance.stars(p.value)) %>% 
   pander_return(digits=5,emphasize.strong.rows=which((.)[,'p.value']!='')) %>%
-  cat('\n');
+  paste0('\n');
 #' 
 #' #### Table 8. Responses to survey questions.
 tb$t08.survresp <- print(tb$dSurv,printToggle=F) %>% 
