@@ -588,6 +588,19 @@ makeddict <- function(data,...,delmissing=T,append.to){
 
 #' A simple accessor method for concise embedding of variables into rmarkdown
 getv <- function(data,...){
+  validate <- valid(data,...);
+  if(length(validate$invalid)>0){
+    errmsg <- c();
+    for(ii in validate$invalid){
+      errmsg <- c(errmsg
+                  ,sprintf("Argument %s had an invalid or missing value.\n",ii)
+                  ,'Valid values for this argument are:\n'
+                  ,paste0("'",validate[[ii]],"' ")
+                  ,'\n\n'
+                  );
+    }
+    stop(errmsg);
+    }
   UseMethod('getv');
 }
 
@@ -613,35 +626,6 @@ getv.data.frame <- function(data,record,field,transform=identity,...
     }
   transform(out);
 }
-
-valid <- function(data,...){
-  UseMethod('valid');
-}
-
-valid.CatTable <- function(x,strata,var,level,...){
-  if(missing(strata)||!strata%in%names(x)) return(list(strata=names(x),var=names(x[[1]])));
-  if(missing(var)||!var%in%names(x[[strata]])) return(list(strata=strata,var=names(x[[strata]])));
-  if(missing(level)||!level%in%levels(x[[strata]][[var]]$level)) return(list(strata=strata,var=var,level=levels(x[[strata]][[var]]$level)));
-  return(c());
-};
-
-valid.ContTable <- function(x,strata,var,level,...){
-  if(missing(strata)||!strata%in%names(x)) return(list(strata=names(x),var=rownames(x[[1]])));
-  if(missing(var)||!var%in%rownames(x[[strata]])) return(list(strata=strata,var=rownames(x[[strata]])));
-  return(c());
-};
-
-valid.TableOne <- function(x,strata,var,...){
-  if(missing(strata)||!strata%in%names(x[[1]])) return(list(
-    strata=names(x[[1]])
-    ,varFactors=x$MetaData$varFactors,varNumerics=x$MetaData$varNumerics));
-  if(missing(var)||!var%in%x$MetaData$vars) return(list(
-    strata=strata
-    ,varFactors=x$MetaData$varFactors,varNumerics=x$MetaData$varNumerics));
-  if(var%in%x$MetaData$varFactors) valid(x$CatTable,strata=strata,var=var,...);
-}
-
-valid.data.frame <- function(x,...){setNames(dimnames(x),c('rownames','colnames'));}
 
 getv.TableOne <- function(data,record,field,strata,item,transform=identity,...
                           ,ENV=as.environment(-1)){
@@ -680,6 +664,7 @@ The 'field' argument must be one of the following:
 
 getv.CatTable <- function(data,record,field,strata,item,transform=identity,...
                           ,ENV=as.environment(-1)){
+  validate <- valid()
   nms <- names(data);
 if(missing(strata)||(!is.numeric(strata) & !strata %in% nms)) stop(sprintf("
 The 'strata' argument must be one of the following:
@@ -698,6 +683,74 @@ The 'field' argument must be one of the following:
   getv.data.frame(data=data[[strata]][[item]],record=record,field=field
                   ,transform=transform,...,ENV=ENV);
 }
+
+#' The valid() generic function gives you valid dimension names appropriate
+#' to object type if the corresponding arguments are missing or not valid
+valid <- function(data,...){
+  out <- UseMethod('valid');
+  print(out[out$invalid]);
+  invisible(out);
+}
+
+valid.CatTable <- function(x,strata,var,level,...){
+  out <- list(); out$invalid <- c();
+  if(missing(strata)||!strata%in%names(x)) {
+    out$strata<-names(x); out$invalid<-c(out$invalid,'strata');} else {
+      out$strata<-strata;
+    }
+  if(missing(var)||!var%in%names(x[[1]])) {
+    out$var<-names(x[[1]]); out$invalid <- c(out$invalid,'var');} else {
+      out$var <- var;
+      if(missing(level)||!level%in%levels(x[[1]][[var]]$level)) {
+        out$level=levels(x[[1]][[var]][[level]]);
+        out$invalid <- c(out$invalid,'level');
+        }
+      };
+  return(out);
+};
+
+valid.ContTable <- function(x,strata,var,level,...){
+  out <- list(); out$invalid <- c();
+  if(missing(strata)||!strata%in%names(x)) {
+    out$strata<-names(x); out$invalid<-c(out$invalid,'strata');} else {
+      out$strata<-strata;
+    }
+  if(missing(var)||!var%in%rownames(x[[1]])) {
+    out$var <- rownames(x[[1]]);
+    out$invalid <- c(out$invalid,'var');} else {
+      out$var <- var;
+    }
+  return(out);
+};
+
+valid.TableOne <- function(x,strata,var,...){
+  if(missing(var)||!var%in%x$MetaData$vars){
+    out <- list(); out$invalid <- c();
+    out$strata <- if(missing(strata)||!strata%in%names(x[[1]])){
+      out$invalid <- c(out$invalid,'strata');
+      names(x[[1]]);
+    } else strata;
+    out$var <- x$MetaData$vars;
+    out$invalid <- c(out$invalid,'var');
+    return(out);
+  } else if(var%in%x$MetaData$varFactors) {
+    return(valid(x$CatTable,strata=strata,var=var,...));
+  } else if(var%in%x$MetaData$varNumerics){
+    return(valid(x$ContTable,strata=strata,var=var,...));
+  }
+}
+
+valid.data.frame <- function(x,rownames,colnames,...){
+  out <- list(); out$invalid <- c();
+  out$rownames <- if(missing(rownames)||!rownames%in%base:::rownames(x)){
+    out$invalid <- c(out$invalid,'rownames');
+    base:::rownames(x);} else rownames;
+  out$colnames <- if(missing(colnames)||!colnames%in%base:::colnames(x)){
+    out$invalid <- c(out$invalid,'colnames');
+    base:::colnames(x);} else colnames;
+  out;
+}
+
 
 #' A wrapper for `getv()` though I really should figure out how to rearrange
 #' the arguments on the above functions better
