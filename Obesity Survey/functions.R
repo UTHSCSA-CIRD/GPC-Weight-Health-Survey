@@ -614,6 +614,35 @@ getv.data.frame <- function(data,record,field,transform=identity,...
   transform(out);
 }
 
+valid <- function(data,...){
+  UseMethod('valid');
+}
+
+valid.CatTable <- function(x,strata,var,level,...){
+  if(missing(strata)||!strata%in%names(x)) return(list(strata=names(x),var=names(x[[1]])));
+  if(missing(var)||!var%in%names(x[[strata]])) return(list(strata=strata,var=names(x[[strata]])));
+  if(missing(level)||!level%in%levels(x[[strata]][[var]]$level)) return(list(strata=strata,var=var,level=levels(x[[strata]][[var]]$level)));
+  return(c());
+};
+
+valid.ContTable <- function(x,strata,var,level,...){
+  if(missing(strata)||!strata%in%names(x)) return(list(strata=names(x),var=rownames(x[[1]])));
+  if(missing(var)||!var%in%rownames(x[[strata]])) return(list(strata=strata,var=rownames(x[[strata]])));
+  return(c());
+};
+
+valid.TableOne <- function(x,strata,var,...){
+  if(missing(strata)||!strata%in%names(x[[1]])) return(list(
+    strata=names(x[[1]])
+    ,varFactors=x$MetaData$varFactors,varNumerics=x$MetaData$varNumerics));
+  if(missing(var)||!var%in%x$MetaData$vars) return(list(
+    strata=strata
+    ,varFactors=x$MetaData$varFactors,varNumerics=x$MetaData$varNumerics));
+  if(var%in%x$MetaData$varFactors) valid(x$CatTable,strata=strata,var=var,...);
+}
+
+valid.data.frame <- function(x,...){setNames(dimnames(x),c('rownames','colnames'));}
+
 getv.TableOne <- function(data,record,field,strata,item,transform=identity,...
                           ,ENV=as.environment(-1)){
   nms <- names (data[[1]]);
