@@ -77,7 +77,7 @@ cl_bintail <- function(xx,topn=4,binto='other'){
         ),levels=c(keep,binto)));
 }
 
-#' Title
+#' pander.TableOne
 #'
 #' @param xx        A TableOne object (or can be a TableOne-derived matrix)
 #' @param caption   Table caption, as for most pander.* methods
@@ -672,9 +672,9 @@ The 'field' argument must be one of the following:
 
 #' A wrapper for `getv()` though I really should figure out how to rearrange
 #' the arguments on the above functions better
-grab <- function(item,record=item,field=1,strata=1,transform=identity,data,...){
-  getv(data=data,item=item,record=record,field=field,strata=strata
-       ,transform=transform,...);
+gimme <- function(the,of,thats=1,fromgroup=1,modify=function(xx,...) identity(xx),data,...){
+  out <- getv(data=data,item=of,record=thats,field=the,strata=fromgroup,...);
+  modify(out);
 }
 
 #' Returns a list of column names from the data dictionary for which the column
