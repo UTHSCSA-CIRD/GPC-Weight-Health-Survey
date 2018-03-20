@@ -549,20 +549,8 @@ getv.matrix <- function(data,record,field,transform=identity,...
                   ,ENV=ENV);
 }
 
-getv.data.frame <- function(data,record,field,transform=function(xx,...) identity(xx),...
-                            ,ENV=as.environment(-1)){
-  record <- eval.parent()
-  if(isTRUE(is.character(record))|isTRUE(is.numeric(record))){
-    if(is.character(record) && record %in% rownames(data)){
-      out <- data[rownames(data)==record,field];
-      } else if(is.numeric(record) && record < nrow(data)){
-        out <- data[record,field];
-      }
-    } else {
-      record <- substitute(record,env=ENV);
-      out <- subset(data,eval(record))[,field];
-    }
-  transform(out);
+getv.data.frame <- function(data,field,level,transform=function(xx,...) identity(xx),...){
+  transform(data[level,field]);
 }
 
 getv.TableOne <- function(data,var,field,strata,level,transform=function(xx,...) identity(xx),...
@@ -644,14 +632,15 @@ valid.TableOne <- function(x,strata,var,...){
   }
 }
 
-valid.data.frame <- function(x,rownames,colnames,...){
-  out <- list(); out$invalid <- c();
-  out$rownames <- if(missing(rownames)||!rownames%in%base:::rownames(x)){
-    out$invalid <- c(out$invalid,'rownames');
-    base:::rownames(x);} else rownames;
-  out$colnames <- if(missing(colnames)||!colnames%in%base:::colnames(x)){
-    out$invalid <- c(out$invalid,'colnames');
-    base:::colnames(x);} else colnames;
+valid.data.frame <- function(x,level,field,...){
+  if(missing(level)||!level%in%rownames(x)){
+    out$invalid <- c(out$invalid,'level');
+    out$level <- rownames(x)
+  } else out$level<-level;
+  if(missing(field)||!field%in%colnames(x)){
+    out$invalid <- c(out$invalid,'field');
+    out$field <- colnames(x)
+  } else out$field <- field;
   out;
 }
 
@@ -663,10 +652,25 @@ gimme <- function(the,of,thats=1,fromgroup=1,modify=function(xx,...) identity(xx
   modify(out,...);
 }
 
-#' Wrapper functions for existing functions that take one variable only to 
-#' pass-through optional arguments and ...
-dident <- function(xx,...) identity(xx);
+#' print a table of variables and their levels
+varlevels <- function(data,...){
+  UseMethod('varlevels');
+}
 
+varlevels.data.frame <- function(data,cutoff=10,...){
+  sapply(data,function(xx) if(is.factor(xx)||length(unique(xx))<cutoff){
+    cbind(level=levels(factor(xx))) } else NULL,simplify=F) %>%
+    lapply(as.data.frame) %>% c(.id='var') %>% do.call(bind_rows,.);
+}
+
+varlevels.TableOne <- function(data,...) varlevels.CatTable(data$CatTable,...);
+
+varlevels.CatTable <- function(data,...){
+  sapply(names(data[[1]])
+         ,function(xx) cbind(level=as.character(data[[1]][[xx]]$level))
+         ,simplify=F) %>%
+    lapply(as.data.frame) %>% c(.id='var') %>% do.call(bind_rows,.);
+}
 
 
 #' Returns a list of column names from the data dictionary for which the column

@@ -18,7 +18,7 @@ require(pander);
 #knitr::opts_chunk$set(echo = TRUE);
 datafile<-'survProcessed.rdata';
 datadict<-'data_dictionary.tsv';
-noticefile<-'coauthors_notice.txt';
+noticefile<-'coauthors_notice.md';
 #dir<-'/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
 options(knitr.kable.NA='-');
 #setwd(dir);
@@ -197,6 +197,20 @@ tb$dEligByRecrt <- CreateTableOne(vars=c('Sex','Race','Hispanic'
                                          ,'Responders','Completers')
                                   ,strata = 'Recruitment'
                                   ,data=df_fortables,test=T);
+#' Maximum, minimum, and median values between sites
+tb$dEligBySiteRange <- print(tb$dEligBySite$CatTable,format='p',test=F,print=F
+                             ,showAllLevels = T) %>% 
+  apply(1,function(xx) as.data.frame(rbind(c(fivenum(as.numeric(xx))[-c(2,4)]
+                                             ,which.min(xx)
+                                             ,which.max(xx))))) %>% 
+  sapply(function(xx) mutate(xx,min=V1,med=V2,max=V3
+                             ,whichmin=names(xx)[4]
+                             ,whichmax=names(xx)[5])[,c('min','med','max'
+                                                        ,'whichmin','whichmax')]
+         ,simplify=F) %>% bind_rows;
+rownames(tb$dEligBySiteRange) <- c('n',with(varlevels(tb$dEligBySite)
+                                            ,paste(var,level,sep='=')));
+
 #' ### Responders
 tb$dResBySite <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
                                       ,'Income','Age','BMI'
@@ -342,7 +356,8 @@ tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite
 tb$t07.univar <- tb$dUnivar[,c('estimate','std.error','statistic'
                                ,'conf.low','conf.high','p.value')] %>% 
   transform(p.value=add.significance.stars(p.value)) %>% 
-  pander_return(digits=5,justify=paste0('l',repChar('r',ncol(.)))) %>%
+  pander_return(digits=5,justify=paste0('l',repChar('r',ncol(.)))
+                ,caption='Table 7: Preliminary assessment of variables via univariate logistic regression.') %>%
   paste0('\n');
 #' 
 #' #### Table 8. Responses to survey questions.
@@ -350,12 +365,12 @@ tb$t08A.survresp <- print(tb$dSurv,printToggle=F) %>%
   pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>% 
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                 ,justify=paste0('l',repChar('r',ncol(.)))
-                ,caption='Table 8A: Survey responses.') %>% paste0('\n');
+                ,caption='Table 8a: Survey responses.') %>% paste0('\n');
 tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>% 
   pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>% 
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                 ,justify=paste0('l',repChar('r',ncol(.)))
-                ,caption='Table 8B: Survey responses about children.') %>% 
+                ,caption='Table 8b: Survey responses regarding children.') %>% 
   paste0('\n');
 #' ## Supplementary
 #' 
