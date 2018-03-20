@@ -91,6 +91,12 @@ obd$ses_finclass<-factor(obd$ses_finclass,levels=levels(obd$ses_finclass)[c(6,2,
 for(ii in names(obd)) if(is.factor(obd[[ii]])) {
   levels(obd[[ii]])[levels(obd[[ii]])%in%c('',' ','0','1','4')] <- NA;
 }
+
+#' Calculate BMI from survery self-reported height and weight after filtering 
+#' out impossible values
+obd$a_bmi <- 703*with(obd
+                  ,ifelse(weight_value_lbs<1400&height_in<12*9&height_in>48
+                          ,weight_value_lbs/height_in^2,NA));
 #' 
 #' ---
 #' **NO MORE CHANGES TO THE `obd` OBJECT PAST THIS POINT!**
@@ -112,9 +118,9 @@ dct0$c_factor <- with(dct0,class=='factor' & !dataset_column_names %in% v(c_make
 dct0$c_manylev <- with(dct0,class %in% c('character','factor') & unique > 12);
 dct0$c_manylev[dct0$dataset_column_names=='other_sex'] <- T;
 #' ## all survey questions
-dct0$c_survey_q <- dct0$dataset_column_names %in% names(obd)[
+dct0$c_survey_q <- dct0$dataset_column_names %in% c('a_bmi',names(obd)[
   (match('tracker_form_complete',names(obd))+1):
-    (min(grep('^ses_',names(obd)))-1)];
+    (min(grep('^ses_',names(obd)))-1)]);
 #' ## all survey questions excluding the manylev ones
 dct0$c_survey_strct <- with(dct0,c_survey_q & !c_manylev);
 #' ## survey predictors 
@@ -129,7 +135,8 @@ dct0$c_ppred <- dct0$dataset_column_names %in% c('ses_hispanic','ses_race'
 dct0$c_ppred_num <- with(dct0,c_numeric&c_ppred);
 #' ## non-survey site predictors
 #' 
-dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment','a_recruitTarget','site');
+dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment'
+                                                 ,'a_recruitTarget','site');
 #' 
 #' ## outcomes
 #' 
@@ -213,7 +220,10 @@ tb$dAdult <- transform(df_fortables,BMI=pat_bmi_raw) %>%
 #' 
 #' the full set of non free-text survey responses, summarized, not stratified
 tb$dSurv <- subset(obd,s2resp=='Yes') %>% droplevels %>% 
-  CreateTableOne(v(c_survey_strct),data=.,test=F);
+  CreateTableOne(setdiff(v(c_survey_strct),c('children_research',v(c_pr_child)))
+                 ,data=.,test=F);
+tb$dSurvHaveKids <- subset(obd,s2resp=='Yes'&children_in_home=='Yes') %>% 
+  droplevels %>% CreateTableOne(c('children_research',v(c_pr_child)),data=.,test=F);
 #' ### Univariate predictors of participation
 #' 
 #' All univariate predictors
@@ -334,11 +344,17 @@ tb$t07.univar <- tb$dUnivar[,c('estimate','std.error','statistic'
   paste0('\n');
 #' 
 #' #### Table 8. Responses to survey questions.
-tb$t08.survresp <- print(tb$dSurv,printToggle=F) %>% 
+tb$t08A.survresp <- print(tb$dSurv,printToggle=F) %>% 
   pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>% 
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                 ,justify=paste0('l',repChar('r',ncol(.)))
-                ,caption='Table 8: Survey responses.') %>% paste0('\n');
+                ,caption='Table 8A: Survey responses.') %>% paste0('\n');
+tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>% 
+  pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>% 
+                  gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+                ,justify=paste0('l',repChar('r',ncol(.)))
+                ,caption='Table 8B: Survey responses about children.') %>% 
+  paste0('\n');
 #' ## Supplementary
 #' 
 #' #### Table S1. Cohort, by recruitment method.
