@@ -9,11 +9,15 @@ output:
   word_document:
     keep_md: yes
 ---
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, include=FALSE}
 load('obesityPaper01.rdata');
 require(magrittr); require(dplyr); require(knitr);
 require(pander);
 source('functions.R');
+```
+
+```{r,notice,results='asis',echo=FALSE}
+cat(tb$notice);
 ```
 # Abstract
 
