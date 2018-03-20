@@ -16,15 +16,17 @@ require(xtable);require(magrittr); require(dplyr); require(knitr);
 require(tableone); require(broom); require(dummies); require(readr);
 require(pander);
 #knitr::opts_chunk$set(echo = TRUE);
-datafile='survProcessed.rdata';
-datadict='data_dictionary.tsv';
-dir='/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
+datafile<-'survProcessed.rdata';
+datadict<-'data_dictionary.tsv';
+noticefile<-'coauthors_notice.txt';
+#dir<-'/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
 options(knitr.kable.NA='-');
-setwd(dir);
+#setwd(dir);
 load(datafile);
 source('functions.R');
 #' create our list of data objects, tables, and figures for output
 tb <- list();
+tb$notice <- read_file(noticefile);
 #' repeatability info
 tb$d00.gitstamp <- gitstamp(production=F,branch=T);
 #' create our test, training, and validation sets
