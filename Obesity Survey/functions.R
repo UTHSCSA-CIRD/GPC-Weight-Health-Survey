@@ -1,65 +1,3 @@
-survAUC<-function(Surv.rsp,Surv.rsp.new,lp,lpnew,times,time,lp0=0
-                  ,nonstdSurv=c('OXS','Nagelk','XO')
-                  ,...,FUNS){
-  if(is.null(info<-getOption('survAUCinfo'))){
-    # create a lookup table for these functions if one doesn't exist
-    info<-sapply(ls(package:survAUC),get) %>% lapply(formals) %>%
-      lapply(sapply,class) %>% lapply(bind_rows) %>% bind_rows(.id='fun');
-    options(survAUCinfo=info);
-  }
-  if(!missing(FUNS)) info <- subset(info,fun %in% FUNS);
-  args <- list();
-  for(ii in names(match.call())[-1]) args[[ii]] <- get(ii);
-  #for(ii in names(args)) if(is.language(environment()))
-  # get the arguments that are capable of being missing
-  # screw the formargs stuff
-  #formargs <- sapply(realformals<-formals(sys.function()),is.name);
-  #for(ii in names(formargs[!formargs])) args[[ii]] <- realformals[[ii]];
-  #formargs<-setdiff(names(formargs[formargs]),c('FUNS','...'));
-  # create a value for 'time' if it's missing but there are 'times'
-  if(!'time' %in% names(args) && 'times' %in% names(args)) args$time <- max(eval(args$times));
-  # make sure lp0 is the right length (seriously people? You're going to make me
-  # do this in R of all languages?). BTW, Surv.rsp.new not an error-- for all
-  # functions requiring lp0, there is also that departure from standard names
-  # and for those three Surv.rsp.new becomes Surv.rsp
-  #browser();
-  if(missing(lp0)&&!missing(Surv.rsp.new)) args$lp0 <- rep_len(0,nrow(args$Surv.rsp.new));
-  #if(args$lp0==1 && args$lp0==0) args$lp0 <- rep_len(0,nrow(args$Surv.rsp.new));
-  # which arguments are we missing on our current invokation?
-  #missargs <- setdiff(formargs,names(args));
-  if(!'lp'%in%names(args)) browser();
-  # find the arguments that each function can accept
-  allowedargs<-setNames(apply(info[,-1],1,function(xx) names(info)[-1][!is.na(xx)])
-                        ,unlist(info[,1]));
-  # find the names of the non-optional arguments for each function
-  nonoptargs<- sapply(info$fun,function(ii) subset(info,fun==ii),simplify=F) %>% 
-    lapply(function(jj) na.omit(names(jj)[jj=='name']));
-  # based on the above, here are the functions we can run with the data we have
-  # for the ones that are FALSE we will return NAs
-  canrun <- lapply(nonoptargs,setdiff,names(args)) %>% sapply(length) == 0;
-  # and for each of the rest we will do.call along with an alist of compatible 
-  # arguments. Lets first unpack that list.
-  # for(ii in intersect(names(args),ls())) 
-  #   args[[ii]] <- if(is.language(environment()[[ii]]))
-  #     eval(args[[ii]]) else get(ii);
-  # and filter it down to just the ones that are valid arguments for functions 
-  # that can be run
-  args2use <- sapply(names(canrun)
-                     ,function(xx) if(canrun[xx])
-                       args[intersect(allowedargs[[xx]],names(args))] else NA
-                     ,simplify=F);
-  # correct the inconsistent argument names in the functions names by the 
-  # nonstdSurv variable
-  for(ii in intersect(nonstdSurv,names(canrun[canrun]))) {
-    args2use[[ii]][c('Surv.rsp','lp')] <- args[c('Surv.rsp.new','lpnew')];
-  }
-  # return output!
-  invisible(sapply(names(args2use),function(xx) if(is.na(args2use[[xx]])) NA else {
-    try(do.call(xx,args2use[[xx]]))}));
-}
-
-
-
 #' into the specified existing or new level. That level is listed last
 #' in the resulting factor.
 #' @param xx A \code{vector} (required).
@@ -611,7 +549,7 @@ getv.matrix <- function(data,record,field,transform=identity,...
                   ,ENV=ENV);
 }
 
-getv.data.frame <- function(data,record,field,transform=identity,...
+getv.data.frame <- function(data,record,field,transform=function(xx,...) identity(xx),...
                             ,ENV=as.environment(-1)){
   record <- eval.parent()
   if(isTRUE(is.character(record))|isTRUE(is.numeric(record))){
@@ -627,73 +565,33 @@ getv.data.frame <- function(data,record,field,transform=identity,...
   transform(out);
 }
 
-getv.TableOne <- function(data,record,field,strata,item,transform=identity,...
+getv.TableOne <- function(data,var,field,strata,level,transform=function(xx,...) identity(xx),...
                           ,ENV=as.environment(-1)){
-  nms <- names (data[[1]]);
-  if(missing(strata)||(!is.numeric(strata)&!strata %in% nms)) stop(sprintf("
-The 'strata' argument must be one of the following:
-'%s'",paste0(nms,collapse="', '")));
-  if(is.numeric(strata) && strata <= length(nms)) strata <- nms[strata] else {
-    stop(sprintf("The 'strata' argument should be less than %d",length(nms)+1));
-  }
-  if(missing(item)||!item %in% data$MetaData$vars) stop(sprintf("
-The 'item' argument must be one of the following:
-'%s'",paste0(data$MetaData$vars,collapse="', '")));
-  if(item %in% data$MetaData$varNumerics){
-    getv.ContTable(data$ContTable,record=record,field=field,strata=strata
-                   ,item=item,transform=transform,...,ENV=ENV);
-  } else getv.CatTable(data$CatTable,record=record,field=field,strata=strata
-                       ,item=item,transform=transform,...,ENV=ENV);
+  if(var %in% data$MetaData$varNumerics){
+    getv.ContTable(data$ContTable,var=var,field=field,strata=strata
+                   ,transform=transform,...);
+  } else getv.CatTable(data$CatTable,var=var,field=field,strata=strata
+                       ,level=level,transform=transform,...);
 }
 
 
-getv.ContTable <- function(data,record,field,strata,item,transform=identity,...
-                           ,ENV=as.environment(-1)){
-  nms <- names(data);
-if(missing(strata)||!strata %in% nms) stop(sprintf("
-The 'strata' argument must be one of the following:
-'%s'",paste0(nms,collapse="', '")));
-  nms<- colnames(data[[strata]]);
-if(missing(field)||!field %in% nms) stop(sprintf("
-The 'field' argument must be one of the following:
-'%s'",paste0(nms,collapse="', '")));
-  if(missing(record)) record <- substitute(item) else record<-substitute(record);
-  getv.matrix(data=data[[strata]],record=record,field=field
-              ,transform=transform,...,ENV=ENV);
-  }
+getv.ContTable <- function(data,var,field,strata,transform=function(xx,...) identity(xx),...){
+  transform(data[[strata]][var,field],...);
+}
 
-getv.CatTable <- function(data,record,field,strata,item,transform=identity,...
-                          ,ENV=as.environment(-1)){
-  validate <- valid()
-  nms <- names(data);
-if(missing(strata)||(!is.numeric(strata) & !strata %in% nms)) stop(sprintf("
-The 'strata' argument must be one of the following:
-'%s'",paste0(nms,collapse="', '")));
-  nms <- names(data[[strata]]);
-if(missing(item)||!item %in% nms) stop(sprintf("
-The 'item' argument must be one of the following:
-'%s'",paste0(nms,collapse="', '")));
-  nms <- names(data[[strata]][[item]]);
-if(missing(field)||!field %in% nms) stop(sprintf("
-The 'field' argument must be one of the following:
-'%s'",paste0(nms,collapse="', '")));
-  if(isTRUE(is(record,'character'))) {
-    record <- substitute(level==vv,env=list(vv=record))
-  }
-  getv.data.frame(data=data[[strata]][[item]],record=record,field=field
-                  ,transform=transform,...,ENV=ENV);
+getv.CatTable <- function(data,var,field,strata,level,transform=function(xx,...) identity(xx),...){
+  lev<-level; # to avoid collision with column name
+  transform(subset(data[[strata]][[var]],level==lev)[[field]],...);
 }
 
 #' The valid() generic function gives you valid dimension names appropriate
 #' to object type if the corresponding arguments are missing or not valid
 valid <- function(data,...){
-  out <- UseMethod('valid');
-  print(out[out$invalid]);
-  invisible(out);
+  out <- list(invalid=c());
+  UseMethod('valid');
 }
 
-valid.CatTable <- function(x,strata,var,level,...){
-  out <- list(); out$invalid <- c();
+valid.CatTable <- function(x,strata,var,level,field,...){
   if(missing(strata)||!strata%in%names(x)) {
     out$strata<-names(x); out$invalid<-c(out$invalid,'strata');} else {
       out$strata<-strata;
@@ -702,15 +600,18 @@ valid.CatTable <- function(x,strata,var,level,...){
     out$var<-names(x[[1]]); out$invalid <- c(out$invalid,'var');} else {
       out$var <- var;
       if(missing(level)||!level%in%levels(x[[1]][[var]]$level)) {
-        out$level=levels(x[[1]][[var]][[level]]);
+        out$level=levels(x[[1]][[var]]$level);
         out$invalid <- c(out$invalid,'level');
-        }
-      };
+      }
+    }
+  if(missing(field)||!field%in%names(x[[1]][[1]])){
+    out$field <- names(x[[1]][[1]]);
+    out$invalid <- c(out$invalid,'field');
+  } else out $field <- field;
   return(out);
 };
 
-valid.ContTable <- function(x,strata,var,level,...){
-  out <- list(); out$invalid <- c();
+valid.ContTable <- function(x,strata,var,level,field,...){
   if(missing(strata)||!strata%in%names(x)) {
     out$strata<-names(x); out$invalid<-c(out$invalid,'strata');} else {
       out$strata<-strata;
@@ -720,12 +621,15 @@ valid.ContTable <- function(x,strata,var,level,...){
     out$invalid <- c(out$invalid,'var');} else {
       out$var <- var;
     }
+  if(missing(field)||!field%in%colnames(x[[1]])){
+    out$field <- colnames(x[[1]]);
+    out$invalid <- c(out$invalid,'field');
+  } else out $field <- field;
   return(out);
 };
 
 valid.TableOne <- function(x,strata,var,...){
   if(missing(var)||!var%in%x$MetaData$vars){
-    out <- list(); out$invalid <- c();
     out$strata <- if(missing(strata)||!strata%in%names(x[[1]])){
       out$invalid <- c(out$invalid,'strata');
       names(x[[1]]);
@@ -754,10 +658,16 @@ valid.data.frame <- function(x,rownames,colnames,...){
 
 #' A wrapper for `getv()` though I really should figure out how to rearrange
 #' the arguments on the above functions better
-gimme <- function(the,of,thats=1,fromgroup=1,modify=function(xx,...) identity(xx),data,...){
-  out <- getv(data=data,item=of,record=thats,field=the,strata=fromgroup,...);
-  modify(out);
+gimme <- function(the,of,thats=1,fromgroup=1,modify=function(xx,...) identity(xx),...,data){
+  out <- getv(data=data,var=of,level=thats,field=the,strata=fromgroup,...);
+  modify(out,...);
 }
+
+#' Wrapper functions for existing functions that take one variable only to 
+#' pass-through optional arguments and ...
+dident <- function(xx,...) identity(xx);
+
+
 
 #' Returns a list of column names from the data dictionary for which the column
 #' named in the first argument is true. The first arg can be either a string or 
