@@ -77,17 +77,6 @@ cat(tb$t06a.eligBySite)
 
 ```{r, results='asis',echo=FALSE, message=FALSE, results='asis', warning=FALSE}
 cat(tb$t06b.resBySite);
-#panderOptions("table.style", "rmarkdown");
-#pander(tb$t02A.bysite.00
-#       ,caption='Pander render of print of TableOne'
-#       ,split.tables=Inf,emphasize.rownames=F
-       #,emphasize.strong.rows=grep('^   #',inv=T,rownames(tb$t02A.bysite.00))
-#       ,row.names = gsub('^(n|[^ ]{3}.+)','**\\1**',rownames(tb$t02A.bysite.00)) %>% 
-#         gsub('   ','&nbsp;&nbsp;',.) %>% 
-#         gsub('\\.',' ',.)
-#       ,missing='-'
-#       ,justify=p(c('l',rep('c',ncol(tb$t02A.bysite.00)))#,'','','')
-#       );
 ```
 ...
 
@@ -106,7 +95,7 @@ cat(tb$t06c.compBySite);
 
 .
 
-Prior to analysis the `r nrow(obd)` records were randomly assigned to a development (N=`r .n01['train']`), 
+Prior to analysis the `r sum(.n01)` records were randomly assigned to a development (N=`r .n01['train']`), 
 validation (N=`r .n01['val']`), and test subsets 
 (N=`r .n01['test']`) in order to avoid overfitting and bias due to within-sample testing. All analysis
 decisions were made based on the developmental subset. The first
@@ -127,10 +116,16 @@ cat(tb$t07.univar);
 
 
 ## HMRFS Survey
-`r table(obd$s2resp)['Yes']` individuals completed the HMRFS survey across all sites. Of these respondents, most self-reported as female (`r pct(tb$d03.survey$CatTable$Overall$sex$percent['Female']/100)`),  Caucasian  (`r pct(tb$d03.survey$CatTable$Overall$White$percent['White']/100)`), 
-and  having  private  insurance  (`r pct(tb$d03.survey$CatTable$Overall$insurance$percent['Private']/100)`). The modal range of self-reported household  income  was approximately $50,000/year and average age was 27.50 years with a baseline mean BMI of 25.73 (7.95). These data  indicate  the  sample  that  responded  to  the  HMRFS  survey  was  similar  to  the  overall  cohort  of  eligible patients. Responses indicatethat across all sites (Table 8), `r pct(tb$d03.survey$CatTable$Overall$research$percent['Yes']/100)` of respondents had participated previously in medical   research.   Respondents   were   generally   open   to   investigators   contacting   them   about possible participationin studies (42.7% yes; 38.9% maybe). Key factors in making the decision to participate in medical research  included:topic  of  research  (`r pct(tb$d03A.pr_me['PR_Me_DependsAbout'])`),  time  (`r pct(tb$d03A.pr_me['PR_Me_Time'])`),  doctor  recommendation  (`r pct(tb$d03A.pr_me['PR_Me_Doctor_Op'])`),  reimbursement  (`r pct(tb$d03A.pr_me['PR_Me_Compensation'])`), and child  involvement  (`r pct(tb$d03A.pr_me['PR_Me_Involve_Child'])`). Of  respondents who  had  children  (64.1%), they  were  also  generally  positive  about possibly allowing their child to take part in medical research (29.6% yes; 39.1% maybe). When answering on behalf of their children instead of themselves the followng  Most participants were in favor of their medical information being used for research (35.3% fantastic idea, 48.6% good idea) and even more so if the data being used for medical research is de-identified (32.4% fantastic idea, 49.5% good idea). 
+`r gimme('freq',of='Completers',thats='TRUE',fromgroup='Overall',data=tb$dElig)` individuals completed the HMRFS survey across all sites.
+```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+.gimme.formals <- formals(gimme);
+formals(gimme)[c('the','modify','data','fromgroup','thats')] <- alist(the='percent',modify=pct,data=tb$dSurv,fromgroup='Overall',thats='TRUE');
+```
+Of these respondents, most self-reported as female (`r gimme(of='sex',thats='Female')`),  Caucasian  (`r gimme(of='White')`), and  having  private  insurance  (`r gimme(of='insurance',thats='Private')`). The modal range of self-reported household  income  was approximately $50,000-$100,000/year and average age was `r gimme('mean',of='age',m=format,di=3)` years with a baseline mean BMI of `r gimme('mean',of='a_bmi',m=format,di=4)` (`r gimme('sd',of='a_bmi',m=format,di=3)`). These data indicate the sample that responded to the HMRFS survey was similar to the overall cohort of eligible patients. Responses indicate that across all sites (Table 9A), `r gimme(of='research',thats='Yes')` of respondents had participated previously in medical research. Respondents were generally open to investigators contacting them about possible participation in studies (`r gimme(of='possible_research',thats='Yes')` yes; `r gimme(of='possible_research',thats='Maybe')` maybe). Key factors in making the decision to participate in medical research included: topic of research  (`r gimme(of='PR_Me_DependsAbout')`),  time  (`r gimme(of='PR_Me_Time')`),  doctor  recommendation  (`r gimme(of='PR_Me_Doctor_Op')`),  reimbursement  (`r gimme(of='PR_Me_Compensation')`), and child involvement (`r gimme(of='PR_Me_Involve_Child')`). Of respondents who  had  children  (`r gimme(of='children_in_home',thats='Yes')`), they  were  also  generally  positive  about possibly allowing their child to take part in medical research (`r gimme(of='children_research',thats='Yes',data=tb$dSurvHaveKids)` yes; `r gimme(of='children_research',thats='Yes',data=tb$dSurvHaveKids)` maybe) (Table 9B). The factors for deciding whether their children could participate in research followed the same order of priority as above. Most participants were in favor of their medical information being used for research (`r gimme(of='research_feeling',thats='Fantastic')` fantastic idea, `r gimme(of='research_feeling',thats='GoodIdea')` good idea) and even more so if the data being used for medical research is de-identified (`r gimme(of='deid_data',thats='Fantastic')` fantastic idea, `r gimme(of='deid_data',thats='GoodIdea')` good idea). 
 ```{r, results='asis',echo=FALSE, message=FALSE, warning=FALSE}
-cat(tb$t08.survresp);
+cat(tb$t08A.survresp);
+
+cat(tb$t08B.survrespkids);
 ```
 [Table 9. Responses to survey 2.]{custom-style="Caption"}
 
