@@ -4,7 +4,7 @@
 
 Dear Co-Authors:
 
-This Word document incorporates all the latest data updates/fixes into the tables and into the parts of the text where values from those tables are referenced. This has two goals:
+This document incorporates all the latest data updates/fixes into the tables and into the parts of the text where values from those tables are referenced. This has two goals:
 
 1. Being able to see the tables all in one place.
 2. To have one place from which to copy-paste the version of the text that has the up-to-date numbers.
