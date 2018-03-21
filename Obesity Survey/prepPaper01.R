@@ -149,6 +149,12 @@ dct0$c_ppred_num <- with(dct0,c_numeric&c_ppred);
 #' 
 dct0$c_spred <- dct0$dataset_column_names %in% c('Recruitment'
                                                  ,'a_recruitTarget','site');
+dct0$c_consort <- dct0$dataset_column_names %in% c('contact_type','wave'
+                                                   ,'invite_response_nature'
+                                                   ,'preferred_contact_method'
+                                                   ,'survey_contact_method'
+                                                   ,'tracker_form_complete'
+                                                   ,'s1s2resp','s2resp');
 #' 
 #' ## outcomes
 #' 
@@ -403,4 +409,5 @@ vars_level_names <- merge(dct0,varlevels(obd)
   select(c('variable','level','description','class','unique','missing'));
 write_tsv(vars_level_names,path='vars_level_names.tsv',na='');
 write_tsv(dct0,path='data_dictionary.tsv');
+write_tsv(obd[,v(c_consort)],path='LDS_consortdata_obesity.tsv');
 save(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');

@@ -39,3 +39,6 @@ vignettes/*.pdf
 sitesettings.py
 .Rproj.user
 *.xlsx
+LDS_*
+PHI_*
+
