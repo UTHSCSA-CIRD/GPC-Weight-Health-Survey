@@ -382,5 +382,15 @@ tb$t0S1.eligByRecruit <- pander_return(tb$dEligByRecrt
   paste0('\n');
 #' 
 #' ## Save everything...
+vars_level_names <- merge(dct0,varlevels(obd)
+                          ,by.x='dataset_column_names',by.y='var'
+                          ,all=T,sort=F) %>% 
+  subset(!dataset_column_names %in% c(v(c_meta),'preferred_contact_method'
+                                      ,'Race.bak01','state','contact_type'
+                                      ,'survey_contact_method'
+                                      ,'tracker_form_complete')) %>% 
+  transform(variable=dataset_column_names) %>% 
+  select(c('variable','level','class','unique','missing'));
+write_tsv(vars_level_names,path='vars_level_names.tsv');
 write_tsv(dct0,path='data_dictionary.tsv');
 save(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');
