@@ -213,6 +213,9 @@ tb$dEligByRecrt <- CreateTableOne(vars=c('Sex','Race','Hispanic'
                                          ,'Responders','Completers')
                                   ,strata = 'Recruitment'
                                   ,data=df_fortables,test=T);
+#' The consort diagram
+tb$dConsort <- CreateTableOne(vars=v(c_consort),strata='site',data=obd,test=F
+                              ,includeNA = T);
 #' Maximum, minimum, and median values between sites
 tb$dEligBySiteRange <- print(tb$dEligBySite$CatTable,format='p',test=F,print=F
                              ,showAllLevels = T) %>% 
@@ -395,6 +398,10 @@ tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>%
 tb$t0S1.eligByRecruit <- pander_return(tb$dEligByRecrt
                                     ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
                                     ,caption='Table S1: Participant demographics by recruitment method (Cohort)') %>%
+  paste0('\n');
+#'
+tb$t0S2.consort <- pander_return(tb$dConsort,caption='Table S2: Variables for consort diagram.'
+                                 ,explain=F,format='f') %>% 
   paste0('\n');
 #' 
 #' ## Save everything...
