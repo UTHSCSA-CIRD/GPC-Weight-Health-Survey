@@ -101,11 +101,9 @@ cat(tb$t04b.pedsites);
 
 # Results
 
------- ------------------------
-&nbsp; Figure 1, Consort Diagram
-       (placeholder)
--------------------------------
+![Figure 1: Current draft of consort diagram with comments.](./figure01_obesityPaper01.png "Figure 1: Consort Diagram")
 
+---
 
 ```{r}
 cat(tb$t05.eligible);
