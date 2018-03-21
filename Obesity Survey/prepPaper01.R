@@ -11,6 +11,16 @@
 #' paste into a word processor scrap file, and from there paste into the
 #' Word table-containing document.
 #' 
+#' Note to self... url for box.com API token is: 
+#' https://app.box.com/developers/console/app/557638
+#' The package to require for box.com is boxr() to download and then use 
+#' pandoc to convert back to .rmd:
+#' 
+#' `mv obesityPaper01.gdoc obesityPaper01.docx && pandoc --wrap=none obesityPaper01.docx -t plain -o obesityPaper01.txt && mv obesityPaper01.txt obesityPaper01.rmd`
+#' 
+#' ...probably in its own branch, then merge current active branch in and merge
+#' it back into the currently active branch. Might get ugly with those long lines...
+#' 
 #+ include=FALSE,cache=FALSE,echo=FALSE
 require(xtable);require(magrittr); require(dplyr); require(knitr);
 require(tableone); require(broom); require(dummies); require(readr);
