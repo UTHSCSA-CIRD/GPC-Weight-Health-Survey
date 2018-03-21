@@ -2,11 +2,11 @@
 title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains
   Collaborative Health and Medical Research Family Survey'
 output:
-  html_document:
+  word_document:
     keep_md: yes
   html_notebook: default
   pdf_document: default
-  word_document:
+  html_document:
     keep_md: yes
 ---
 ```{r, include=FALSE}
@@ -128,6 +128,7 @@ cat(tb$t06c.compBySite);
 formals(gimme)[c('data')] <- alist(data=tb$dEligBySiteRange);
 ```
 
+
 Sample size and demographics varied by site (Table 6a). Sample size by site varied from a maximum of `r gimme('max',thats='n',mo=format)` (`r gimme('whichmax',thats='n',mo=format)`) to a minimum of `r gimme('min',thats='n',mo=format)` (`r gimme('whichmin',thats='n',mo=format)`). The proportion of the cohort that was male at each site varied widely  from  `r gimme('max',thats='Sex=Male')`  to  `r gimme('min',thats='Sex=Male')`.  The  proportion  of  African  Americans  in  the  cohort  at  each  site  also  varied widely (`r gimme('max',thats='Race=African American')` - `r gimme('min',thats='Race=African American')`) as did the proportion of Native Americans (`r gimme('max',thats='Race=Native American')` - `r gimme('min',thats='Race=Native American')`) and the proportion of Asians (`r gimme('max',thats='Race=Asian')` - `r gimme('min',thats='Race=Asian')`). Insurance status type varied widely by site as well; the most common were self-pay (`r gimme('max',thats='Financial.Class=Self-Pay')` - `r gimme('min',thats='Financial.Class=Self-Pay')`),  Medicaid (`r gimme('max',thats='Financial.Class=Medicaid')` - `r gimme('min',thats='Financial.Class=Medicaid')`)  and  private  insurance  (`r gimme('max',thats='Financial.Class=Private Insurance')` - `r gimme('min',thats='Financial.Class=Private Insurance')`).  _Approximated  annual  income ranged from $40,000-70,000/year, and mean age for the target child ranged from 9.47 years –12.33. Three sites targeted adults as they  did not have children in their systems, and their average age was 36.15 (7.74) years  or 47.83  (15.1)  years.  Finally,  baseline  body  mass  index  (BMI)  for  the  participating  adult  individual  calculated from self-reported height and weight on the survey ranged from 20.30 (5.24) to 30.35 (7.27)._ Table 6b indicates these same variables by site for responders to Survey 1, and Table 6c indicates the same variables by site for Survey 2 respondents.
 
 ```{r}
@@ -161,7 +162,7 @@ cat(tb$t08A.survresp);
 cat(tb$t08B.survrespkids);
 ```
 
-# Discsussion
+# Discussion
 
 # Conclusion
 
