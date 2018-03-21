@@ -387,10 +387,10 @@ vars_level_names <- merge(dct0,varlevels(obd)
                           ,all=T,sort=F) %>% 
   subset(!dataset_column_names %in% c(v(c_meta),'preferred_contact_method'
                                       ,'Race.bak01','state','contact_type'
-                                      ,'survey_contact_method'
+                                      ,'wave','survey_contact_method'
                                       ,'tracker_form_complete')) %>% 
-  transform(variable=dataset_column_names) %>% 
-  select(c('variable','level','class','unique','missing'));
-write_tsv(vars_level_names,path='vars_level_names.tsv');
+  transform(variable=dataset_column_names,description=NA) %>% 
+  select(c('variable','level','description','class','unique','missing'));
+write_tsv(vars_level_names,path='vars_level_names.tsv',na='');
 write_tsv(dct0,path='data_dictionary.tsv');
 save(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');
