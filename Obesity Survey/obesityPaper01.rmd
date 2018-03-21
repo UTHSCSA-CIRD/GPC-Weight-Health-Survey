@@ -2,11 +2,11 @@
 title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains
   Collaborative Health and Medical Research Family Survey'
 output:
-  word_document:
+  html_document:
     keep_md: yes
   html_notebook: default
   pdf_document: default
-  html_document:
+  word_document:
     keep_md: yes
 ---
 ```{r, include=FALSE}
@@ -167,6 +167,10 @@ cat(tb$t08B.survrespkids);
 
 # Supplementary Materials
 
-```{r, results='asis',echo=FALSE, message=FALSE, warning=FALSE}
+```{r}
 cat(tb$t0S1.eligByRecruit);
+```
+
+```{r}
+cat(tb$t0S2);
 ```
