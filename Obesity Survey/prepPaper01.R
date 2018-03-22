@@ -383,13 +383,15 @@ tb$t08A.survresp <- print(tb$dSurv,printToggle=F) %>%
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                 ,justify=paste0('l',repChar('r',ncol(.)))
                 ,caption='Table 8a: Survey responses.') %>% paste0('\n');
+
 tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>%
   pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>%
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                 ,justify=paste0('l',repChar('r',ncol(.)))
-# tb$t08B.survrespkids <- pander_return(tb$dSurvHaveKids
-,caption='Table 8b: Survey responses regarding children.') %>%
+                ,caption='Table 8b: Survey responses regarding children.') %>% 
   paste0('\n');
+# tb$t08B.survrespkids <- pander_return(tb$dSurvHaveKids
+
 #' ## Supplementary
 #' 
 #' #### Table S1. Cohort, by recruitment method.
