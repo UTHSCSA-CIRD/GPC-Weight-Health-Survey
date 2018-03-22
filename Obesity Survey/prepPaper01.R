@@ -185,32 +185,23 @@ df_univar <- cbind(truthy(obd[,v(c_maketf)])
                    ,obd[,c(v(c_leave2lev),v(c_ppred_num))]
                    ,dummy.data.frame(obd[,v(c_dummycode)]
                                      ,verbose=T,sep='='))[rsamples$train,];
+.cohortvars <- c('Sex','Race','Hispanic','Financial.Class','Income','Age','BMI');
 
 #' ### Eligiblility set
-tb$dElig <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
-                                  ,'Income','Age','BMI','Responders'
-                                  ,'Completers')
+tb$dElig <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
                            ,data=df_fortables);
 
-tb$dRes <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
-                                     ,'Income','Age','BMI','Responders'
-                                     ,'Completers')
+tb$dRes <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
                           ,data=subset(df_fortables,Responders));
 
-tb$dResComp <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
-                                     ,'Income','Age','BMI','Responders'
-                                     ,'Completers')
+tb$dResComp <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
                               ,strata='Completers'
                               ,data=subset(df_fortables,Responders));
 
-tb$dEligBySite <- CreateTableOne(vars=c('Sex','Race','Hispanic'
-                                        ,'Financial.Class','Income','Age','BMI'
-                                        ,'Responders','Completers')
+tb$dEligBySite <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
                                  ,strata = 'site',data=df_fortables,test=T);
 
-tb$dEligByRecrt <- CreateTableOne(vars=c('Sex','Race','Hispanic'
-                                         ,'Financial.Class','Income','Age','BMI'
-                                         ,'Responders','Completers')
+tb$dEligByRecrt <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
                                   ,strata = 'Recruitment'
                                   ,data=df_fortables,test=T);
 #' The consort diagram
@@ -229,6 +220,8 @@ tb$dEligBySiteRange <- print(tb$dEligBySite$CatTable,format='p',test=F,print=F
          ,simplify=F) %>% bind_rows;
 rownames(tb$dEligBySiteRange) <- c('n',with(varlevels(tb$dEligBySite)
                                             ,paste(var,level,sep='=')));
+
+
 
 #' ### Responders
 tb$dResBySite <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
