@@ -342,26 +342,31 @@ tb$t06a.eligBySite <- pander_return(tb$dEligBySite
                                     ,caption='Table 6a: Participant demographics by site (Cohort)') %>%
   paste0('\n');
 #' #### Table 6b. Participant demographics by site (Responders)
-tb$t06b.resBySite <- print(tb$dResBySite,printToggle = F);
-tb$t06b.resBySite[,'p'] <- ifelse(tb$t06b.resBySite[,'p']=='<0.001','*'
-                                  ,ifelse(tb$t06b.resBySite[,'p']=='','','NS'));
-tb$t06b.resBySite <- pander_return(tb$t06b.resBySite[,-ncol(tb$t06b.resBySite)]
-                                    ,row.names=gsub('^([^ ].*)','**\\1**'
-                                                    ,rownames(tb$t06b.resBySite)) %>%
-                                      gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                    ,justify=paste0('l',repChar('r',ncol(tb$t06b.resBySite)-1))
-                                    ,caption='Table 6b: Participant demographics by site (Responders)') %>% 
+# tb$t06b.resBySite <- print(tb$dResBySite,printToggle = F);
+# tb$t06b.resBySite[,'p'] <- ifelse(tb$t06b.resBySite[,'p']=='<0.001','*'
+#                                   ,ifelse(tb$t06b.resBySite[,'p']=='','','NS'));
+# tb$t06b.resBySite <- pander_return(tb$t06b.resBySite[,-ncol(tb$t06b.resBySite)]
+#                                     ,row.names=gsub('^([^ ].*)','**\\1**'
+#                                                     ,rownames(tb$t06b.resBySite)) %>%
+#                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+#                                     ,justify=paste0('l',repChar('r',ncol(tb$t06b.resBySite)-1))
+#                                     ,caption='Table 6b: Participant demographics by site (Responders)') %>% 
+#   paste0('\n');
+tb$t06b.resBySite <- pander_return(tb$dResBySite
+                                   ,caption='Table 6b: Participant demographics by site (Responders)') %>%
   paste0('\n');
 #' #### Table 6c. Participant demographics by site (Completers)
-tb$t06c.compBySite <- print(tb$dCompBySite,printToggle = F);
-tb$t06c.compBySite[,'p'] <- ifelse(tb$t06c.compBySite[,'p']=='<0.001','*'
-                                  ,ifelse(tb$t06c.compBySite[,'p']=='','','NS'));
-tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite)]
-                                    ,row.names=gsub('^([^ ].*)','**\\1**'
-                                                    ,rownames(tb$t06c.compBySite)) %>%
-                                      gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
-                                    ,justify=paste0('l',repChar('r',ncol(tb$t06c.compBySite)-1))
-                                    ,caption='Table 6c: Participant demographics by site (Completers)') %>% 
+# tb$t06c.compBySite <- print(tb$dCompBySite,printToggle = F);
+# tb$t06c.compBySite[,'p'] <- ifelse(tb$t06c.compBySite[,'p']=='<0.001','*'
+#                                   ,ifelse(tb$t06c.compBySite[,'p']=='','','NS'));
+# tb$t06c.compBySite <- pander_return(tb$t06c.compBySite[,-ncol(tb$t06c.compBySite)]
+#                                     ,row.names=gsub('^([^ ].*)','**\\1**'
+#                                                     ,rownames(tb$t06c.compBySite)) %>%
+#                                       gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
+#                                     ,justify=paste0('l',repChar('r',ncol(tb$t06c.compBySite)-1))
+#                                     ,caption='Table 6c: Participant demographics by site (Completers)') %>% 
+tb$t06c.compBySite <- pander_return(tb$dCompBySite
+                                   ,caption='Table 6c: Participant demographics by site (Completers)') %>%
   paste0('\n');
 #' #### Table 7. Univariate predictors of participation
 #' 
@@ -378,11 +383,12 @@ tb$t08A.survresp <- print(tb$dSurv,printToggle=F) %>%
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                 ,justify=paste0('l',repChar('r',ncol(.)))
                 ,caption='Table 8a: Survey responses.') %>% paste0('\n');
-tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>% 
-  pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>% 
+tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>%
+  pander_return(row.names=gsub('^([^ ].*)','**\\1**',rownames(.)) %>%
                   gsub('^   ','&nbsp;&nbsp;&nbsp;',.)
                 ,justify=paste0('l',repChar('r',ncol(.)))
-                ,caption='Table 8b: Survey responses regarding children.') %>% 
+# tb$t08B.survrespkids <- pander_return(tb$dSurvHaveKids
+,caption='Table 8b: Survey responses regarding children.') %>%
   paste0('\n');
 #' ## Supplementary
 #' 
