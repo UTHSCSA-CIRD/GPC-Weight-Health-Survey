@@ -1,13 +1,14 @@
-﻿---
+---
 title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater Plains
   Collaborative Health and Medical Research Family Survey'
 csl: ieee.csl
 output:
-  html_document:
+  word_document:
     keep_md: yes
+    reference_docx: styletemplate.docx
   html_notebook: default
   pdf_document: default
-  word_document:
+  html_document:
     keep_md: yes
 bibliography: obesityPaper01.bib
 ---
@@ -72,58 +73,44 @@ formals(gimme)[c('the','modify','data','fromgroup')]<-alist(the='percent'
                                                             ,fromgroup='TRUE');
 ```
 **Results:** A cohort of `r format(nrow(obd))` patients was created across the participating sites.  The eligible patient population was `r gimme(of='Sex',thats='Female')` female, `r gimme(of='Race',thats='Caucasian')` Caucasian, `r gimme(of='Financial.Class',thats='Self-Pay')` self-pay, with mean age of `r gimme('mean',of='Age',m=format,di=3)` (`r gimme('sd',of='Age',m=format,di=2)`) years with `r gimme(of='BMI',thats='Overweight')` overweight and `r gimme(of='BMI',thats='Obese')` obese. In general, a third of respondents had participated in research previously and were positive about being contacted for additional research both for themselves and for their children. Responses did vary by site.  
+
+# Background and Significance
+
+In 2013, The Greater Plains Collaborative (GPC) was established as Clinical Data Research Network (CDRN), funded by the Patient-Centered Outcomes Research Institute (PCORI) to securely collect and organize patient health information obtained during routine care in its member health systems. To date, 13 such CDRNS have been funded, creating a national “network of networks”. These networks are organized by a coordinating center and overseen by the National Patient-Centered Clinical Research Network (PCORnet)[@fleurence_launching_2014].
+
+The purpose of CDRNs and PCORnet is to support efficient clinical research by creating centralized access to the de-identified data of millions of patients across the country. Each CDRN is responsible for harmonizing patient data across its member systems, and for creating streamlined governance and procedures to facilitate researcher access. Importantly, CDRNs actively involve a variety of stakeholders, including patients, clinicians, healthcare system leaders, and other stakeholders to build and oversee CDRN activities. To test each CDRN’s ability to identify and recruit patients with a particular condition, and to test the ability to harmonize data elements within a network, each CDRN was required to create three cohorts: one of a common disease, one of a rare disease and one concerning height and weight; the GPC height weight cohort is the one described herein.
  
-# PCORI, CDRNs, PCORI CDRN Obesity objectives/requirements
- 
-In 2013, The Greater Plains Collaborative (GPC) was established as Clinical Data Research Network (CDRN), funded by the Patient-Centered Outcomes Research Institute (PCORI) to securely collect and organize patient health information obtained during routine care in its member health systems {about PCORnet}. To date, 13 such CDRNS have been funded, creating a national “network of networks”. These networks are organized by a coordinating center and overseen by the National Patient-Centered Clinical Research Network (PCORnet) [@fleurence_launching_2014].
- 
-The purpose of CDRNs and PCORnet is to support efficient clinical research by creating centralized access to the de-identified data of millions of patients across the country. Each CDRN is responsible for harmonizing patient data across its member systems, and for creating streamlined governance and procedures to facilitate researcher access. Importantly, CDRNs actively involve a variety of stakeholders, including patients, clinicians, healthcare system leaders, and others to build and oversee CDRN activities
- 
-To test each CDRN’s ability to identify and recruit patients with a particular condition, and to test the ability to harmonize data elements within a network, each CDRN was required to create three cohorts: one of a common disease, one of a rare disease and one concerning height and weight.
- 
-## GPC & member sites, populations served
+## GPC Member Sites
  
 Placeholder text, map graphic?
  
-In Phase I of funding, GPC was comprised of ten member health systems, with the data of roughly 6 million people across 7 states, north and south across the Great Plains region. Member institutions included University of Kansas Medical Center, Children’s Mercy Hospital (Kansas City, MO), University of Iowa Healthcare, University of Wisconsin - Madison, Medical College of Wisconsin, Marshfield Clinic, University of Minnesota, University of Nebraska Medical Center, University of Texas Health Science Center at San Antonio,  and University of Texas Southwestern Medical Center.
- 
-Covering more than 1300 miles, the broad reach of the GPC network encompasses large swaths of rural populations as well as multiple urban centers. Four systems in the GPC have established significant relationships with Native American populations. Two health systems located in Texas serve heavily Spanish-speaking populations, which had a significant effect on the healthy weight study approach and methods. Of the ten member health systems, all provide comprehensive adult and pediatric care, with the exception of Children’s Mercy Kansas City, which exclusively serves children.
- 
-In Phase II, largely following the work described in this paper, two additional members were added – University of Missouri and Indiana University.
+In Phase I of funding, GPC was comprised of ten member health systems, with the data of roughly 6 million people across 7 states, north and south across the Great Plains region. Member institutions included Children’s Mercy Hospital (Kansas City, MO), University of Kansas Medical Center, Marshfield Clinic, Medical College of Wisconsin, University of Iowa Healthcare, University of Minnesota, University of Nebraska Medical Center, University of Texas Health Science Center at San Antonio, University of Texas Southwestern Medical Center, and University of Wisconsin - Madison.
+
+Covering more than 1300 miles, the broad reach of the GPC network encompasses large swaths of rural populations as well as multiple urban centers. Four systems in the GPC have established significant relationships with Native American populations. Two health systems located in Texas serve heavily Spanish-speaking populations. Of the ten member health systems participating in the height weight cohort’s health and Medical Research Family Survey (HMRFS), all provide comprehensive adult and pediatric care, with the exception of Children’s Mercy Kansas City, which exclusively serves children. In Phase II of the GPC, largely following the work described in this paper, two additional members were added – University of Missouri and Indiana University.
  
 ------ ------------------------
 &nbsp; Table 1, Survey Questions
        (placeholder)
 -------------------------------
+
+# Objective 
+
+The overall purpose of the HMRFS was to conduct a demonstration survey across all participating GPC sites focused on the topic of pediatric height/weight, or more specifically, pediatric overweight and obesity. The expected outcome of the project was to understand the practical challenges and operational details of a large semi-interconnected system such as the GPC for conducting collaborative research focused on pediatric obesity. Aims of the project were to: 1) estimate the willingness of individuals to be contacted about research activities; 2) obtain information on the attitudes of parents and adults of child bearing age about research, including participation of their child/ren; 3) gain insight into participant attitudes about the use of gathered data for both local and national research; 4) explore the impact of various demographic factors on survey outcomes; 5) examine if there are differences between individuals across various weight classes; 5) determine if there are regional variations in all of the above. Although previous studies have been published on adult obesity using a PCORI funded CDRN [@young_patient_2016], these studies were retrospective in nature reporting on the number of patients in the network who met certain criteria. In contrast, the GPC HMRFS not only gathered retrospective data on individuals who met certain specific inclusion criteria but also contacted a random sub-sample at each site with a survey invitation. The goal for all participating sites was to collect 1000 responses each to "Survey 1" and 100 responses each to "Survey 2" Survey 1 was a single question asking whether or not the individual was willing to be contacted for research, and survey 2 was a more detailed assessment (see Table 1).
+
+# Materials and Methods
+
+The height weight cohort team composed of representatives from all sites began regular meetings in January of 2014. Based on discussion and collective interest, the group quickly decided to develop its cohort and survey around a pediatric population. Weekly working group calls established an interest in characterizing the cohort around data elements that would be attainable for the nascent GPC network, and creating a survey that could be used as a building block for future GPC and healthy weight cohort work. Thus, the HMRFS focused on respondents' willingness to take part in future clinical research as well as key demographic and health related issues theorized to impact these responses.
+
+## Institutional Review Board Process
  
-# Methods
- 
-## Healthy weight cohort team, organization of meetings, etc.
- 
-The healthy weight cohort team began regular meetings in January of 2014. Based on discussion and collective interest, the group quickly decided to develop its cohort and survey around a pediatric population. Weekly working group calls established an interest in characterizing the cohort around data elements that would be attainable for the nascent GPC network, and creating a survey that could be used as a building block for future GPC and healthy weight cohort work. Thus, the Health and Medical Research Family Survey (HMRFS) focused on respondents’ willingness to take part in research.
- 
-## IRB study protocol & aims, IRB deferral process
- 
-The overall purpose of the HMRFS was to conduct a demonstration survey across the 10 participating GPC sites focused on the topic of pediatric obesity. More specifically, the aims were to: 1) estimate the willingness of individuals to be contacted about research activities; 2) obtain information on the attitudes of parents and adults of child bearing age about research, including participation of their child/ren; 3) gain insight into participant attitudes about the use of gathered data for both local and national research; 4) explore the impact of various demographic factors, survey methods, regional variation, and weight status on the above questions. An additional expected outcome of the project was to understand the practical challenges and operational details of a large semi-interconnected system such as the GPC for conducting collaborative research focused on pediatric obesity.
- 
-Although previous studies have been published on adult obesity using a PCORI funded CDRN [@young_patient_2016], these studies were retrospective in nature reporting on the number of patients in the network who met certain criteria. In contrast, the GPC HWS not only gathered retrospective data on individuals who met certain specific inclusion criteria but also contacted a random group of individuals from this sub-sample at each site with a survey invitation. The goal for the 10 participating sites was to collect 1000 responses to “Survey 1” and 100 responses to “Survey 2.” Survey 1 was a single question asking whether or not the individual contact was willing to be contacted for research, and survey 2 was a more detailed assessment (see Table 1).
- 
-Through its efforts to streamline governance, the GPC IRB Consortium was established to facilitate IRB review and approval. The Consortium, including all the GPC sites, signed a common IRB reliance agreement and adopted standard operating procedures which would govern the reliance process. The University of Texas Health Science Center at San Antonio (UTHSCSA) served as the reviewing IRB site for the HMRFS across the GPC network. The HMRFS team of investigators and staff developed the necessary IRB documents which were submitted to the IRB at UTHSCSA. Once the documents were reviewed and approved by the reviewing IRB, the documents were shared with all other participating sites’ IRBs, and these documents were approved under the existing overall IRB reliance agreement. Currently, the GPC participates in the SMART IRB platform with over 175 participating institutions designed to facilitate multisite research and implement the NIH Single IRB Review Policy.  
+Through its efforts to streamline governance, the GPC IRB Consortium was established to facilitate IRB review and approval. The consortium, including all the GPC sites, signed a common IRB reliance agreement and adopted standard operating procedures which would govern the reliance process. The University of Texas Health Science Center at San Antonio (UTHSCSA) served as the reviewing IRB site for the HMRFS across the GPC network. The HMRFS team of investigators and staff developed the necessary IRB documents which were submitted to the IRB at UTHSCSA. Once the documents were reviewed and approved by the reviewing IRB, the documents were shared with all other participating sites’ IRBs, and these documents were approved under the existing overall IRB reliance agreement. Currently, the GPC participates in the SMART IRB platform with over 175 participating institutions designed to facilitate multisite research and implement the NIH Single IRB Review Policy.
  
 ------ ------------------------
 &nbsp; Table 2, Eligibility Query
        (placeholder)
 -------------------------------
  
-## Natural experiment – variation in patient contacting methods
- 
-Individuals who were sent the survey invitation were contacted via a variety of means, including postal service, email, and through the patient portal feature of certain sites' electronic medical record systems (EMR). The method of contact was selected by each HMRFS site PI based on logistics and local policy requirements. Allowing each site to select their own contact method allowed for a natural experiment where recruitment rates and other factors are compared for different methods of contact. For a detailed list of site and contact method see Table 3. Different contact methods posed different challenges.  Traditional mail was costly in terms of staff time needed to validate addresses, stuff envelopes in addition to printing and postage costs. While mail would be sent in waves it was cheaper to send a larger sample all at once.  Sites doing email recruitment had difficulties with invalid or missing email addresses with some sites simply not having enough email addresses in the EMR to accrue a reasonable sample.  For most sites the eligibility cohort was selected from children's records but with the goal of contacting the parents. This raised the concern of whether the email truly belonged to the parent rather than to a child.  Sites were also affected by a time crunch secondary to IRB delays.   
- 
-```{r}
-cat(tb$t03.sitemethod);
-```
- 
-## IT mechanics, Patient selection & contact, I2B2
+## Data Harmonization
  
 This study combined electronic chart review with the results of a survey administered to patients, or in the case of minors, to the patients’ guardians. For the electronic chart review, data was extracted from an open source data warehouse platform called Integrating Informatics from Bench to Bedside (i2b2) [@murphy_instrumenting_2009]. Each of the participating sites had an i2b2 instance deployed, where they stored a de-identified version of all structured data from their respective EMR systems. As a result, no site had to transmit any identifying information to any other site. 
  
@@ -131,13 +118,22 @@ Though not all the sites used the same type of EMR system, because of i2b2’s v
  
 The other required component besides i2b2 was REDCap [@harris_research_2009] or Research Electronic Data Capture. This is not an open source product but it is non-commercial software developed at Vanderbilt University for the purposes of conveniently capturing research data, especially surveys. All sites had their surveys on REDCap. At sites where paper and telephone responses were accepted, survey personnel manually filled in REDCap surveys on behalf of the respondents.
  
-The survey data and the EMR data extracted from i2b2 could be merged together because each record is keyed to the same non-informative index across the two data sources.
- 
-Cohort selection was also done using i2b2, using the selection criteria shown in Table 3. Though GPC is currently deploying SHRINE [@referenece_forthcoming], at the time there was no query federation in place. The inclusion criteria had to be manually replicated at each site to the equivalent local codes. [placholder where I will write about how we came up with the criteria]. Once a query ran at a given site, that site's i2b2 server would generate a "patient set"-- a list of de-identified patient numbers. The informatics teams that run their respective i2b2 servers have crosswalk files matching the de-identified patient numbers to actual medical record numbers (MRN) or to database keys. Neither were shared externally, nor was there any reason to do so. The local informatics teams would use these identifiers to obtain names and contact information from their EMR systems. These contact lists were securely transmitted to the respective local HMRFS leads who uploaded them into REDCap and proceeded with recruitment. [placeholder to talk about the difficulties of using REDCap for purposes that are different from its intended use and the misconceptions surrounding what it's intended use actually is].
+Data was extracted from the EMR using DataBuilder [@adagarla_seine:_2015] collated into an analyzable tabular form using DataFinisher [@bokov_denormalize_2016]. Results of analyzing the combined survey and EMR datasets will be reported in a forthcoming paper [manuscript in preparation]. The survey data and the EMR data extracted from i2b2 could be merged together because each record is keyed to the same non-informative index across the two data sources.
+
+## Cohort Identification
+
+Cohort selection was also done using i2b2, using the selection criteria shown in Table 2. Though GPC is currently deploying SHRINE [@referenece_forthcoming], at the time there was no query federation in place. The inclusion criteria had to be manually replicated at each site to the equivalent local codes. [placholder where I will write about how we came up with the criteria]. Once a query ran at a given site, that site's i2b2 server would generate a "patient set"-- a list of de-identified patient numbers. The informatics teams that run their respective i2b2 servers have crosswalk files matching the de-identified patient numbers to actual medical record numbers (MRN) or to database keys. Neither were shared externally, nor was there any reason to do so. The local informatics teams would use these identifiers to obtain names and contact information from their EMR systems. These contact lists were securely transmitted to the respective local HMRFS leads who uploaded them into REDCap and proceeded with recruitment. [placeholder to talk about the difficulties of using REDCap for purposes that are different from its intended use and the misconceptions surrounding what it's intended use actually is].
  
 It became necessary to send out a supplementary request to the study sites to acquire from their EMRs information about race, ethnicity, and class of insurance provider (private, Medicaid, employer, government, self-pay, etc.). Together with these data elements, information about income was requested. Since not all health systems record patient income, we had to rely on median household income for the census block group in which each patient’s address was located, as obtained from the 2013 American Community Survey [@reference_forthcoming].
+
+## Contacting Participants - A Natural Experiment
  
- 
+Individuals who were sent the survey invitation were contacted via a variety of means, including postal service, email, and through the patient portal feature of certain sites' electronic medical record systems (EMR). The method of contact was selected by each HMRFS site PI based on logistics and local policy requirements. Allowing each site to select their own contact method allowed for a natural experiment where recruitment rates and other factors are compared for different methods of contact. For a detailed list of site and contact method see Table 3. Different contact methods posed different challenges.  Traditional mail was costly in terms of staff time needed to validate addresses, stuff envelopes in addition to printing and postage costs. While mail would be sent in waves it was cheaper to send a larger sample all at once.  Sites doing email recruitment had difficulties with invalid or missing email addresses with some sites simply not having enough email addresses in the EMR to accrue a reasonable sample.  For most sites the eligibility cohort was selected from children's records but with the goal of contacting the parents. This raised the concern of whether the email truly belonged to the parent rather than to a child.  Sites were also affected by a time crunch secondary to IRB delays.
+
+```{r}
+cat(tb$t03.sitemethod);
+```
+
 ```{r}
 cat(tb$t04a.adultsites);
 ```
@@ -147,13 +143,8 @@ cat(tb$t04a.adultsites);
 ```{r}
 cat(tb$t04b.pedsites);
 ```
- 
-## EHRs data extract, Patient reported outcome measures/Redcap Survey Data & Data Entry
- 
-Data was extracted from the EMR using DataBuilder [@adagarla_seine:_2015] collated into an analyzable tabular form using DataFinisher [@bokov_denormalize_2016]. Results of analyzing the combined survey and EMR datasets will be reported in a forthcoming paper [manuscript in preparation] 
- 
-## Survey collection methods – reasons driving choices. 
- 
+
+
 ## Analysis plan
  
 # Results
@@ -206,7 +197,7 @@ cat(tb$t07.univar);
 ```
  
 ## HMRFS Survey
- 
+
 ```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
 formals(gimme)[c('the','modify','data','fromgroup','thats')] <- alist(the='percent',modify=pct,data=tb$dSurv,fromgroup='Overall',thats='TRUE');
 ```

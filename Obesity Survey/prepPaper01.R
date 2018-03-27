@@ -322,12 +322,12 @@ tb$t04b.pedsites <- print(tb$dPeds,printToggle = F) %>% t %>% head(-2) %>%
 #' #### Table 5. Cohort, Survey 1 and Survey 2 demographics.
 tb$t05.eligible <- lapply(tb[c('dElig','dRes','dResComp')]
                           ,print,printToggle=F) %>%
-  with(cbind(dElig,dRes,dResComp[,c('TRUE','p')] )) %>% invisible %>%
+  with(cbind(dElig,dRes,dResComp[,c('TRUE','p')] )) %>% invisible %>% 
   capture.output(pander.TableOne(.,p.skip=c('Responders = TRUE (%)','Completers = TRUE (%)')
                 ,caption='Table 5: Cohort, Survey 1 and Survey 2 demographics'
                 ,cren.fn=function(cc,...) c('Cohort','Survey 1 or 2'
                                             ,'Survey 2','p')
-                ,keep.line.breaks=T)) %>%
+                ,keep.line.breaks=T)) %>% 
   paste0('\n');
 # This is a hack: something in the above pipeline is causing a copy of the 
 # not-yet-formatted TableOne output to show up in the results with the 
