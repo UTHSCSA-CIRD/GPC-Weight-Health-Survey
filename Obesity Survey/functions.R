@@ -68,7 +68,8 @@ pander.TableOne <- function(xx,caption=attr(xx,'caption'),dropcols='test'
   # rendered table were being captured-- one in proper markdown and one as some 
   # kind of messy output. So for this reason we do have to test 
   if(is(xx,'TableOne')) xx <- print(xx,printToggle=F,...);
-  xx <- xx[,xxcols <- colnames(xx)[!colnames(xx) %in% dropcols]];
+  xx <- xx[,xxkeep <- !colnames(xx) %in% dropcols];
+  xxcols <- make.names(colnames(xx),unique = T);
   xxrows <- rownames(xx);
   # rows that represent levels of the same variable
   xxlevrows <- grepl('^   ',xxrows);
