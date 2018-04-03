@@ -173,8 +173,8 @@ df_unilogist <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_
 #' # Prepare data structures for tables.
 #' ## Table for Population
 df_fortables <- transform(obd[,c(v(c_ppred),v(c_spred),v(c_outcomes))]
-                          ,Responders=truthy(s1s2resp)
-                          ,Completers=truthy(s2resp)
+                          ,Survey.1.or.2=truthy(s1s2resp)
+                          ,Survey.2=truthy(s2resp)
                           ,Hispanic=truthy(ses_hispanic)
                           ,Age=pat_age
                           ,Race=ses_race
@@ -188,62 +188,70 @@ df_univar <- cbind(truthy(obd[,v(c_maketf)])
 .cohortvars <- c('Sex','Race','Hispanic','Financial.Class','Income','Age','BMI');
 
 #' ### Eligiblility set
-tb$dElig <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
+tb$dElig <- CreateTableOne(vars=c(.cohortvars,'Survey.1.or.2','Survey.2')
                            ,data=df_fortables);
 
-tb$dRes <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
-                          ,data=subset(df_fortables,Responders));
+tb$dRes <- CreateTableOne(vars=c(.cohortvars,'Survey.1.or.2','Survey.2')
+                          ,data=subset(df_fortables,Survey.1.or.2));
 
-tb$dResComp <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
-                              ,strata='Completers'
-                              ,data=subset(df_fortables,Responders));
+tb$dResComp <- CreateTableOne(vars=c(.cohortvars,'Survey.1.or.2','Survey.2')
+                              ,strata='Survey.2'
+                              ,data=subset(df_fortables,Survey.1.or.2));
 
-tb$dEligBySite <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
+tb$dEligBySite <- CreateTableOne(vars=c(.cohortvars,'Survey.1.or.2','Survey.2')
                                  ,strata = 'site',data=df_fortables,test=T);
 
-tb$dEligByRecrt <- CreateTableOne(vars=c(.cohortvars,'Responders','Completers')
+tb$dEligByRecrt <- CreateTableOne(vars=c(.cohortvars,'Survey.1.or.2','Survey.2')
                                   ,strata = 'Recruitment'
                                   ,data=df_fortables,test=T);
 #' The consort diagram
 tb$dConsort <- CreateTableOne(vars=v(c_consort),strata='site',data=obd,test=F
                               ,includeNA = T);
 #' Maximum, minimum, and median values between sites
-tb$dEligBySiteRange <- print(tb$dEligBySite$CatTable,format='p',test=F,print=F
-                             ,showAllLevels = T) %>% 
-  apply(1,function(xx) as.data.frame(rbind(c(fivenum(as.numeric(xx))[-c(2,4)]
-                                             ,which.min(xx)
-                                             ,which.max(xx))))) %>% 
-  sapply(function(xx) mutate(xx,min=V1,med=V2,max=V3
-                             ,whichmin=names(xx)[4]
-                             ,whichmax=names(xx)[5])[,c('min','med','max'
-                                                        ,'whichmin','whichmax')]
-         ,simplify=F) %>% bind_rows;
-rownames(tb$dEligBySiteRange) <- c('n',with(varlevels(tb$dEligBySite)
-                                            ,paste(var,level,sep='=')));
+tb$dEligBySiteRange <- rangetable.TableOne(tb$dEligBySite,medians='Income');
+# print(tb$dEligBySite$CatTable,format='p',test=F,print=F
+#                              ,showAllLevels = T) %>% 
+#   rbind(cbind(level=tb$dEligBySite$MetaData$varNumerics
+#                 ,sapply(tb$dEligBySite$ContTable
+#                         ,function(xx) xx[,'median']))) %>%
+#   apply(1,function(xx) as.data.frame(rbind(c(fivenum(as.numeric(xx))[-c(2,4)]
+#                                              ,which.min(xx)
+#                                              ,which.max(xx))))) %>% 
+#   sapply(function(xx) mutate(xx,min=V1,med=V2,max=V3
+#                              ,whichmin=names(xx)[4]
+#                              ,whichmax=names(xx)[5])[,c('min','med','max'
+#                                                         ,'whichmin','whichmax')]
+#          ,simplify=F) %>% bind_rows;
+# rownames(tb$dEligBySiteRange) <- c('n',with(varlevels(tb$dEligBySite)
+#                                             ,paste0(var,ifelse(level=='','','=')
+#                                                     ,level)));
 
 
 
 #' ### Responders
 tb$dResBySite <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
                                       ,'Income','Age','BMI'
-                                      ,'Completers')
+                                      ,'Survey.2')
                                ,strata = 'site'
-                               ,data=subset(df_fortables,Responders),test=T);
+                               ,data=subset(df_fortables,Survey.1.or.2),test=T);
 #' ### Completers
 tb$dCompBySite <- CreateTableOne(vars=c('Sex','Race','Hispanic','Financial.Class'
                                       ,'Income','Age','BMI')
                                ,strata = 'site'
-                               ,data=subset(df_fortables,Completers),test=T);
+                               ,data=subset(df_fortables,Survey.2),test=T);
 #' ### Adult vs Pediatric sites
 #+ results="asis",echo=FALSE,warning=FALSE,message=FALSE
 tb$dPeds <- transform(df_fortables,BMI=pat_bmi_raw) %>% 
   subset(a_recruitTarget=='Pediatric') %>% droplevels %>% 
-  CreateTableOne(c('Responders','Completers','Age','pat_bmi_raw'),strata='site'
+  CreateTableOne(c('Survey.1.or.2','Survey.2','Age','pat_bmi_raw'),strata='site'
                  ,data=.);
+tb$dPedsRange <- rangetable.TableOne(tb$dPeds,medians = 'pat_bmi_raw');
 tb$dAdult <- transform(df_fortables,BMI=pat_bmi_raw) %>% 
   subset(a_recruitTarget=='Adult') %>% droplevels %>% 
-  CreateTableOne(c('Responders','Completers','Age','pat_bmi_raw'),strata='site'
+  CreateTableOne(c('Survey.1.or.2','Survey.2','Age','pat_bmi_raw'),strata='site'
                  ,data=.);
+tb$dAdultRange <- rangetable.TableOne(tb$dAdult,medians = 'pat_bmi_raw');
+
 #' ### survey responses about possible research
 #' 
 #' the full set of non free-text survey responses, summarized, not stratified
@@ -324,7 +332,7 @@ tb$t04b.pedsites <- print(tb$dPeds,printToggle = F) %>% t %>% head(-2) %>%
 tb$t05.eligible <- lapply(tb[c('dElig','dRes','dResComp')]
                           ,print,printToggle=F) %>%
   with(cbind(dElig,dRes,dResComp[,c('TRUE','p')] )) %>% invisible %>% 
-  capture.output(pander.TableOne(.,p.skip=c('Responders = TRUE (%)','Completers = TRUE (%)')
+  capture.output(pander.TableOne(.,p.skip=c('Survey.1.or.2 = TRUE (%)','Survey.2 = TRUE (%)')
                 ,caption='Table 5: Cohort, Survey 1 and Survey 2 demographics'
                 ,cren.fn=function(cc,...) c('Cohort','Survey 1 or 2'
                                             ,'Survey 2','p')
@@ -371,9 +379,12 @@ tb$t06c.compBySite <- pander_return(tb$dCompBySite
   paste0('\n');
 #' #### Table 7. Univariate predictors of participation
 #' 
-tb$t07.univar <- tb$dUnivar[,c('estimate','std.error','statistic'
-                               ,'conf.low','conf.high','p.value')] %>% 
-  transform(p.value=add.significance.stars(p.value)) %>% 
+# tb$t07.univar <- tb$dUnivar[,c('estimate','std.error','statistic'
+#                                ,'conf.low','conf.high','p.value')] %>% 
+tb$t07.univar <- tb$dUnivar[,c('estimate','conf.low','conf.high','p.value')] %>%
+  transform(estimate=exp(estimate)
+            ,conf.low=exp(conf.low),conf.high=exp(conf.high)
+            ,p.value=add.significance.stars(p.value)) %>% 
   pander_return(digits=5,justify=paste0('l',repChar('r',ncol(.)))
                 ,caption='Table 7: Preliminary assessment of variables via univariate logistic regression.') %>%
   paste0('\n');
