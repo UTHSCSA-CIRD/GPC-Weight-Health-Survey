@@ -110,10 +110,6 @@ pander.TableOne <- function(xx,caption=attr(xx,'caption'),dropcols='test'
   # cat anything else that might be needed
 }
 
-#' simple little percent expression
-pct <- function(xx,digits=2,multiplier=1,...) sprintf(paste0('%.',digits,'f%%')
-                                                      ,as.numeric(xx)*multiplier);
-
 #' A sketch for a possible future function that converts stargazer tables into
 #' a universal markdown pipe format
 starkable <- function(xx,firstrowisdata=T,row.names=F,taildrop=1
@@ -653,6 +649,54 @@ gimme <- function(the,of,thats=1,fromgroup=1,modify=function(xx,...) identity(xx
   modify(out,...);
 }
 
+#' Some handy mod functions to use with gimme
+#kdollars <- function(xx,...) sprintf("$%d,000",xx);
+dollars <- function(xx,mult=1,...) paste0('$',prettyNum(xx*mult,big.mark = ','));
+#' simple little percent expression
+pct <- function(xx,digits=2,multiplier=1,...) sprintf(paste0('%.',digits,'f%%')
+                                                      ,as.numeric(xx)*multiplier);
+
+#' Creates a table of mins, q1, med, q3, max, and the corresponding
+#' strata that have each one in a TableOne
+rangetable.TableOne <- function(data,fun=fivenum
+                                ,names=c('Min','Q1','Med','Q3','Max')
+                                ,format='p',medians=data$MetaData$varNumerics
+                                ,...){
+  # the left columns are for each of Tukey's five numbers, and the right
+  # columns will have the name of the stratum that is the closes to each
+  # one for each variable, so that when in a paper somebody wants to say
+  # 'group XXX had the largest effect (YY)' the stratum and the value can
+  # be obtained from the same place. Hence the whichnames variable
+  whichnames <- c(names,paste('Which',names,sep='.'));
+  # In this step we just print the TableOne and scrub out the parenthesized
+  # sd values for continuous variables (there doesn't seem to be a argument
+  # to the print method that does this)
+  out <- print(data,format=format,test=F,print=F,showAllLevels = T
+               ,nonnormal=medians,explain=F) %>% 
+    gsub('\\(.*\\).*|\\[.*\\]','',.);
+  # now we get the column names which will be the names of the strata in the
+  # order they appear, leaving out the first one which is the name of the 
+  # variables (rows) being summarized
+  strata <- colnames(out)[-1];
+  # the main business gets done here-- each row gets converted into a 1-row
+  # data.frame where on the left side are the values and on the right, the 
+  # strata associated with each...
+  out <- apply(out[,-1],1,function(xx) {
+    # the check.names=F is needed to avoid the strata labels from getting modified
+    # with trailing numbers to make them unique
+    rowtmp<-data.frame(rbind(fun(setNames(as.numeric(xx),strata))),check.names=F);
+    rowtmp<-cbind(rowtmp,rbind(names(rowtmp)));
+    # ...then they are all given the same column names...
+    setNames(rowtmp,whichnames);
+    # ...then bound into one data.frame
+  }) %>% bind_rows;
+  # the rows get renamed with readable variable and where applicalbel level
+  # labels.
+  rownames(out) <- c('n',with(varlevels(data)
+                        ,paste0(var,ifelse(level=='','','='),level)));
+  out;
+}
+
 #' print a table of variables and their levels
 varlevels <- function(data,...){
   UseMethod('varlevels');
@@ -664,7 +708,8 @@ varlevels.data.frame <- function(data,cutoff=10,...){
     lapply(as.data.frame) %>% c(.id='var') %>% do.call(bind_rows,.);
 }
 
-varlevels.TableOne <- function(data,...) varlevels.CatTable(data$CatTable,...);
+varlevels.TableOne <- function(data,...) rbind(varlevels.CatTable(data$CatTable,...)
+                                           ,varlevels.ContTable(data$ContTable,...));
 
 varlevels.CatTable <- function(data,...){
   sapply(names(data[[1]])
@@ -672,6 +717,10 @@ varlevels.CatTable <- function(data,...){
          ,simplify=F) %>%
     lapply(as.data.frame) %>% c(.id='var') %>% do.call(bind_rows,.);
 }
+
+varlevels.ContTable <- function(data,...) data.frame(var=rownames(data[[1]])
+                                                     ,level=''
+                                                     ,stringsAsFactors = F);
 
 
 #' Returns a list of column names from the data dictionary for which the column
@@ -722,168 +771,6 @@ v <- function(var,dat
   }
 
 
-
-#This function will count the number of times a patient
-#is readmitted to the hospital within a given time window
-#provided by the user (default will be 30 days). Here are
-#the variables:
-# mat = a mx3 matrix that only has pat_id, admit_dt and
-#       discharge_dt. This matrix was passed on by the 
-#	'readmission_total' wrapper function.
-# days = the time window beginning after
-#	 the discharge date to count the 
-#	 number of readmissions. This was passed on by
-#        the 'readmission_total' wrapper function. 
-readmit_counter <- function(one_id, m0, days)
-{
-  m1 <- m0 %>% filter(pat_id %in% one_id)
-  m1$admit_dt <- as.Date(m1$admit_dt)
-  m1$discharge_dt <- as.Date(m1$discharge_dt)
-  m2 <- m1 %>% arrange(admit_dt)
-  crit_date <- as.Date(m2[1,"discharge_dt"]) + as.numeric(days)
-  counter <- 0
-  holder <- sapply(m2$admit_dt[-1], function(ii){
-    if( nrow(m1) == 1)
-    { counter <- 0 }
-    else
-    { 
-      if( as.Date(ii) < crit_date )
-      { counter <- counter + 1 }
-      else 
-      { counter <- counter + 0 }
-    }
-  }    
-  )
-  counter2 <- sum(unlist(holder))
-  return(counter2)
-}
-
-#This wrapper function will pass on a matrix (see below)
-#to the 'readmit_counter' function to count the number 
-#of times a patient is readmitted to the hospital within 
-#a given time window provided by the user (default will 
-#be 30 days). Here are the variables:
-# pat_id = patient ID or MRN
-# admit_dt = hospital admission date
-# discharge_dt = hospital discharge date
-# days = the time window beginning after
-#	 the discharge date to count the 
-#	 number of readmissions 
-#The 'pat_id', 'admit_dt' and 'discharge_dt' variables
-#will be combined in a matrix format and then passed
-#on to the 'readmit_counter' function, along with the
-#the 'days' variable. After calculating the number of
-#readmissions, this wrapper function will return a 
-#matrix with the patient IDs in the first column
-#and the number of readmissions in the second column.
-readmission_total <- function(pat_id, admit_dt, discharge_dt, days)
-{
-  d0 <- as.data.frame(cbind(pat_id, as.character(admit_dt), as.character(discharge_dt)))
-  colnames(d0) <- c('pat_id', 'admit_dt', 'discharge_dt')
-  thepatient <- unique(d0$pat_id)
-  theresult <- c()
-  counter <- sapply(thepatient, function(ii) {readmit_counter(ii, d0, days)})
-  theresult <- as.data.frame(cbind(as.character(thepatient), counter))
-  return(theresult)
-}
-
-#This function will reformats the summary tables the way that Dr. Shireman wants them:
-renamecol <- function(xx) {
-  rai_range <- "Total"
-  rai_n <- sum(xx$rai_n)
-  cumul_count <- xx$cumul_count[nrow(xx)]
-  died_n <- sum(xx$died_n)
-  #this is how Dr. Shireman wanted the
-  #summary fraction reported:
-  #the total number of people in cumulative
-  #count in each table divided by the
-  #total number of people that died (in this case)
-  died_frac <- sum(xx$died_n)/cumul_count
-  comp_n <- sum(xx$comp_n)
-  #the total number of people in cumulative
-  #count in each table divided by the
-  #total number of people that had
-  #complications (in this case)
-  comp_frac <- sum(xx$comp_n)/cumul_count
-  cd4_n <- sum(xx$cd4_n)
-  #the total number of people in cumulative
-  #count in each table divided by the
-  #total number of people that had
-  #Clavien-Dindo Grade 4 complications (in this case)
-  cd4_frac <- sum(xx$cd4_n)/cumul_count
-  readmsn_n <- sum(xx$readmsn_n)
-  #the total number of people in cumulative
-  #count in each table divided by the
-  #total number of people that had
-  #readmissions (in this case)
-  readmsn_frac <- sum(xx$readmsn_n)/cumul_count
-  newtotals <- t(c(rai_range, rai_n, cumul_count
-                   ,died_n, died_frac, comp_n
-                   ,comp_frac, cd4_n, cd4_frac
-                   ,readmsn_n, readmsn_frac))
-  colnames(newtotals) <- colnames(xx)
-  newxx <- rbind(xx, newtotals)
-  colnames(newxx) <- thecolnames
-  return(newxx)
-}
-
-#This function is the actual function that will summarize the variable
-#information with the help of the 'apply' function. In order for this 
-#function to work, the wrapper function 'variable_summary' will need
-#to provide the data frame the user wants to summarize and the
-#column names. 
-summary_vector <- function(xx, df){
-  #browser()
-  #collecting the name of the column:
-  colname <- xx
-  #collecting the summary information for that column
-  #(either Tukey's 5 number summary or something else): 
-  description <- summary(df[,colname])
-  #determining if the variable is coninuous or discrete:
-  #removing the whitespace in the second row in "description":
-  test <- gsub(" ", "", description[2,])
-  #if "test" is "Class:character", then varialbe is discrete;
-  #else, variable is continuous:
-  if(test == "Class:character"){
-    vartype <- "discrete"
-    #counting the number of observations:
-    total_count <- nrow(df[,colname])
-    #counting the number of missing observations:
-    na_count <- sum(is.na(df[,colname]))
-    #creating a table that prints the  categories
-    #the discrete variable in descending order:
-    count_table <- sort(table(df[,colname], useNA = "always"), decreasing = TRUE)
-    #simplifying "description" to a 1 x 1 vector object:
-    description <- paste0(names(count_table), ":", count_table, collapse = "; ")
-  } else{
-    vartype <- "continuous"
-    #counting the number of observations:
-    total_count <- nrow(df[,colname])
-    #counting the number of missing observations:
-    na_count <- sum(is.na(df[,colname]))
-    #simplifying "description" to a 1 x 1 vector object:
-    description <- gsub(" ", "", description) %>% paste0(collapse="; ")
-  }
-  #combining the variable information into a vector:
-  info <- cbind(colname, vartype, total_count, na_count, description)
-}
-
-#This function will create a variable summary table that will provide 
-#the name of the variable, tells whether the variable is discrete or
-#continuous, Tukey's 5 number summary for continuousvariables, and
-#the number of observations for each category for discrete variables.
-#All the user need for this function is the data frame (df) and the
-#function will do the rest.
-variable_summary <- function(df){
-  #collecting the column names from the data frame:
-  all_names <- names(df)
-  #passing the column names to an 'sapply' function:
-  theresult <- sapply(all_names, summary_vector, df)
-  #reformatting the table:
-  theresult <- as.data.frame(t(theresult))
-  colnames(theresult) <-c('VariableName', 'VariableType', 'TotalCounts', 'NumberOfNAs', 'VariableDescription')
-  return(theresult)
-}
 
 
 #' ### Functions for Characterizing and Simulating Data for Sharing and Testing
