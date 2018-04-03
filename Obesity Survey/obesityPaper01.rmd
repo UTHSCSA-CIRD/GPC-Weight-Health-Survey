@@ -142,13 +142,17 @@ cat(tb$t04a.adultsites);
  
 ```{r}
 cat(tb$t04b.pedsites);
+formals(gimme)[c('fromgroup','data','modify')]<-alist('Overall',tb$dElig,pct);
 ```
 
 
 ## Analysis plan
  
 # Results
- 
+
+The cohort flow chart with all sites combined is displayed in Figure 1. There were over xxxxx eligible individuals throughout the CDRN who (describe our flow chart here – who was included and who was excluded with representative sample sizes)￼. The final cohort includes `r gimme('n',of='Age',mod=format)` individuals who met inclusion/exclusion criteria. Cohort demographics (￼Table 5) indicate that across sites our index patients had a slight majority of females (`r gimme('percent',of='Sex',thats='Female')`), predominantly Caucasian (`r gimme('percent',of='Race',thats='Caucasian')`) and privately insured (`r gimme('percent',of='Financial.Class',thats='Private Insurance')`).
+
+
 ![Figure 1: Current draft of consort diagram with comments.](./figure01_obesityPaper01.png "Figure 1: Consort Diagram")
  
 ---
@@ -171,15 +175,19 @@ cat(tb$t06b.resBySite);
  
 ---
  
-```{r}
+```{r dEligBySiteRange}
 cat(tb$t06c.compBySite);
 formals(gimme)[c('data')] <- alist(data=tb$dEligBySiteRange);
 ```
  
  
-Sample size and demographics varied by site (Table 6a). Sample size by site varied from a maximum of `r gimme('max',thats='n',mo=format)` (`r gimme('whichmax',thats='n',mo=format)`) to a minimum of `r gimme('min',thats='n',mo=format)` (`r gimme('whichmin',thats='n',mo=format)`). The proportion of the cohort that was male at each site varied widely  from  `r gimme('max',thats='Sex=Male')`  to  `r gimme('min',thats='Sex=Male')`.  The  proportion  of  African  Americans  in  the  cohort  at  each  site  also  varied widely (`r gimme('max',thats='Race=African American')` - `r gimme('min',thats='Race=African American')`) as did the proportion of Native Americans (`r gimme('max',thats='Race=Native American')` - `r gimme('min',thats='Race=Native American')`) and the proportion of Asians (`r gimme('max',thats='Race=Asian')` - `r gimme('min',thats='Race=Asian')`). Insurance status type varied widely by site as well; the most common were self-pay (`r gimme('max',thats='Financial.Class=Self-Pay')` - `r gimme('min',thats='Financial.Class=Self-Pay')`),  Medicaid (`r gimme('max',thats='Financial.Class=Medicaid')` - `r gimme('min',thats='Financial.Class=Medicaid')`)  and  private  insurance  (`r gimme('max',thats='Financial.Class=Private Insurance')` - `r gimme('min',thats='Financial.Class=Private Insurance')`).  _Approximated  annual  income ranged from $40,000-70,000/year, and mean age for the target child ranged from 9.47 years –12.33. Three sites targeted adults as they  did not have children in their systems, and their average age was 36.15 (7.74) years  or 47.83  (15.1)  years.  Finally,  baseline  body  mass  index  (BMI)  for  the  participating  adult  individual  calculated from self-reported height and weight on the survey ranged from 20.30 (5.24) to 30.35 (7.27)._ Table 6b indicates these same variables by site for responders to Survey 1, and Table 6c indicates the same variables by site for Survey 2 respondents.
+Sample size and demographics varied by site (Table 6a). Sample size by site varied from a maximum of `r gimme('Max',thats='n',mo=format)` (`r gimme('Which.Max',thats='n',mo=format)`) to a minimum of `r gimme('Min',thats='n',mo=format)` (`r gimme('Which.Min',thats='n',mo=format)`). The proportion of the cohort that was male at each site varied from `r gimme('Max',thats='Sex=Male')` to `r gimme('Min',thats='Sex=Male')`. The proportions of African Americans (`r gimme('Max',thats='Race=African American')` - `r gimme('Min',thats='Race=African American')`), Native Americans (`r gimme('Max',thats='Race=Native American')` - `r gimme('Min',thats='Race=Native American')`), and Asians (`r gimme('Max',thats='Race=Asian')` - `r gimme('Min',thats='Race=Asian')`) varied as well. The most common insurance categories were self-pay (`r gimme('Max',thats='Financial.Class=Self-Pay')` - `r gimme('Min',thats='Financial.Class=Self-Pay')`),  Medicaid (`r gimme('Max',thats='Financial.Class=Medicaid')` - `r gimme('Min',thats='Financial.Class=Medicaid')`)  and  private  insurance  (`r gimme('Max',thats='Financial.Class=Private Insurance')` - `r gimme('Min',thats='Financial.Class=Private Insurance')`). Estimated median household income ranged from `r gimme('Min',thats='Income',mod=dollars,mult=1000)` to `r gimme('Max',thats='Income',mod=dollars,mult=1000)` and mean age for pediatric  index patients ranged from `r formals(gimme)$modify<-function(xx,...) round(xx,1); gimme('Min',thats='Age',data=tb$dPedsRange)` to `r gimme('Max',thats='Age',data=tb$dPedsRange)` years old (Table 4b). Three sites targeted adults as they did not have sufficient children in their systems. The mean age of their index patients ranged from `r gimme('Min',thats='Age',data=tb$dAdultRange)` to `r gimme('Max',thats='Age',data=tb$dAdultRange)` years old (Table 4a). The median  body  mass  index  (BMI)  for these adult patients (as obtained from the most recent EMR record prior to initiation of recruitment) ranged from `r gimme('Min',thats='pat_bmi_raw',data=tb$dAdultRange)` to `r gimme('Max',thats='pat_bmi_raw',data=tb$dAdultRange)`.
+```{r dRes}
+formals(gimme)[c('fromgroup','data','modify')] <- alist('Overall',tb$dRes,pct);
+```
+Responders to Survey 1 or 2 (Table 5) were also primarily female (`r gimme('percent',of='Sex',thats='Female')`), Caucasian (`r gimme('percent',of='Race',thats='Caucasian')`), and privately insured (`r gimme('percent',of = 'Financial.Class',thats = 'Private Insurance')`) with a mean age of `r gimme('mean',of='Age',mod=function(xx,...) round(xx,1))` (SD:`r gimme('sd',of='Age',mod=function(xx,...) round(xx,1))`) years and `r gimme('percent',of='BMI',thats='Normal')` had a BMI in the normal range. Survey 2 responders were  `r formals(gimme)[c('data','fromgroup')] <- alist(tb$dResComp,TRUE); gimme('percent',of='Sex',thats='Female')` female, `r gimme('percent',of='Race',thats='Caucasian')` Caucasian, and `r gimme('percent',of = 'Financial.Class',thats = 'Private Insurance')` privately insured, with a mean age of `r gimme('mean',of='Age',mod=function(xx,...) round(xx,1))` (SD:`r gimme('sd',of='Age',mod=function(xx,...) round(xx,1))`) years and `r gimme('percent',of = 'BMI',thats = 'Normal')` had a normal BMI.
  
-```{r}
+```{r samples}
 .n01 <- sapply(tb$d02.rsamples,length);
 ```
  
