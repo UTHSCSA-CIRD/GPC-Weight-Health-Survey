@@ -86,11 +86,20 @@ tupdate <- function(type=NA,name=NA,value=NA,hash=NA,time=Sys.time()
   invisible(trail);
 }
 
-preseq <- function(data,prefix,targetcol,nestingcol){
+walktrail <- function(trail=tinit(),prepend='',seqcol=names(trail)[1]
+                      ,nestingcol=tail(names(trail),1),sep='.'){
   fn <- sys.function();
-  
+  trail[[seqcol]] <- paste0(prepend,trail[[seqcol]]);
+  out <- trail[,setdiff(names(trail),nestingcol)];
+  for(ii in nested <- which(sapply(trail[[nestingcol]],is.data.frame))){
+    out<-rbind(out,fn(trail[[nestingcol]][ii][[1]]
+                      ,prepend=paste0(trail[[seqcol]][ii],sep)
+                      ,seqcol = seqcol,nestingcol = nestingcol));
+  }
+  return(out);
 }
-                    
+
+print.trail <- function(trail)                    
 
 # script registering itself... adds a gitstamp and its own name to trail
 tself <- function(scriptname=parent.frame(2)$ofile,production=T){
@@ -103,7 +112,7 @@ tself <- function(scriptname=parent.frame(2)$ofile,production=T){
 tseed <- function(seed,...){
   seedname <- deparse(match.call()$seed);
   set.seed(seed,...);
-  tupdate('seed',name=seedname);
+  tupdate('seed',name=seedname,value=seed);
 }
 
 tload <- function(file,envir=parent.frame()
