@@ -25,8 +25,8 @@ tself(currentscript,production=T);
 tload(datafile);
 
 #' Our basic, additive GLMM model with site as random effect
-glmer_s1s2 <- glmer(s1s2resp ~ ses_hispanic + pat_sex + pat_age + pat_bmi_raw +
-                      ses_income + ses_race + ses_finclass + (1|site)
-                    ,family=binomial(link='logit'),data=df_unilogist);
+glmer_s1s2 <- glmer(s1s2resp ~ ses_hispanic + pat_sex + pat_age + pat_bmi_raw 
+                    + ses_income + ses_race + ses_finclass + Recruitment 
+                    + (1|site),family=binomial(link='logit'),data=df_unilogist);
 #' Then it gets real slow...
 #glmer_s1s2_2 <- update(glmer,.~(.)^2);
