@@ -32,15 +32,19 @@ noticefile<-'coauthors_notice.md';
 #dir<-'/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
 options(knitr.kable.NA='-');
 #setwd(dir);
-load(datafile);
 source('functions.R');
+source('trailR.R');
+currentscript <- parent.frame(2)$ofile;
+if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+tself(currentscript,production=F);
+tload(datafile);
 #' create our list of data objects, tables, and figures for output
 tb <- list();
-tb$notice <- read_file(noticefile);
+tb$notice <- tread(noticefile,readfun=read_file);
 #' repeatability info
 tb$d00.gitstamp <- gitstamp(production=F,branch=T);
 #' create our test, training, and validation sets
-set.seed(tb$d01.seed <- rseed);
+tseed(tb$d01.seed <- rseed);
 tb$d02.rsamples <- rsamples <- split(seq_len(nrow(obd))
                                     ,sample(c('train','val','test')
                                             ,nrow(obd),rep=T,prob = c(1,1,3)));
@@ -430,4 +434,4 @@ vars_level_names <- merge(dct0,varlevels(obd)
 write_tsv(vars_level_names,path='vars_level_names.tsv',na='');
 write_tsv(dct0,path='data_dictionary.tsv');
 write_tsv(obd[,v(c_consort)],path='LDS_consortdata_obesity.tsv');
-save(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');
+tsave(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');
