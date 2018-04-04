@@ -99,7 +99,6 @@ walktrail <- function(trail=tinit(),prepend='',seqcol=names(trail)[1]
   return(out);
 }
 
-print.trail <- function(trail)                    
 
 # script registering itself... adds a gitstamp and its own name to trail
 tself <- function(scriptname=parent.frame(2)$ofile,production=T){

@@ -26,10 +26,17 @@ tload(datafile);
 .gimme.formals <- formals(gimme);
 formals(format.default)$big.mark <- ',';
 knitr::opts_chunk$set(echo = FALSE,message=FALSE,warning=FALSE,results='asis');
+panderOptions('table.split.table',Inf);
+panderOptions('table.emphasize.rownames',F);
 ```
- 
+#' # Audit Trail
+```{r audit}
+.walktrail <-walktrail(tinit());
+subset(.walktrail[order(.walktrail$sequence),],! type %in% 'info') %>% pander;
+rm(.walktrail);
+```
+
 ```{r eval=FALSE}
-# 
 # READ ME !!! READ ME !!! READ ME !!! READ ME !!! READ ME !!! READ ME
 # 
 # Welcome to the source document from which the autoupdated_obesity_results 
