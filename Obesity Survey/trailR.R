@@ -29,14 +29,14 @@
 #'       accompanying flat-file of trail.
 #' TODO: [priority] function to recursively print a .trail (to screen or to 
 #'       pander)
-#' TODO: wrap the repeating pattern of whichrecord, trail[whichrecord,], etc.
+#' DONE: wrap the repeating pattern of whichrecord, trail[whichrecord,], etc.
 #'       into a function.
 #' TODO: have gitstamp only do the non-production message if the non-production
 #'       argument is TRUE _and_ the file isn't checked in
 #' TODO: if tscript finds that the specified script is not part of the git repo
 #'       then record the type as 'unversioned-script' rather than 'script'
 #'       and save an md5 hash instead of a git-provided hash
-#' TODO: [priority] possibly rename tscript() to tself() and have a separate 
+#' TODO: [priority] ~~possibly rename tscript() to tself() and~~ have a separate 
 #'       tsource() function specifically to wrap source
 #' TODO: [priority] check if a MYSTERY_FILE with a matching hash already exists 
 #'       and if it does, reuse the name
@@ -62,87 +62,82 @@ gitstamp <- function(production=T,branch=T) {
 # returns a trail object
 tinit <- function(trail=getOption('trail'),...){
   if(is.null(trail)) {
-    trail<-data.frame(time=Sys.time(),type='info',name='sessionInfo',value=NA,hash=NA,trail=NA,stringsAsFactors=F); 
+    trail<-data.frame(sequence=sprintf('%04d',1),time=Sys.time(),type='info',name='sessionInfo',value=NA,hash=NA,trail=NA,stringsAsFactors=F); 
     trail$value <- list(sessionInfo());
     options(trail=trail);
   }
   return(trail);
 }
 
-# script registering itself... adds a gitstamp and its own name to trail
-tself <- function(scriptname=parent.frame(2)$ofile
-                    ,trail=getOption('trail',tinit()),production=T){
-  if(is.null(scriptname)) scriptname <- 'INTERACTIVE_SESSION';
-  whichrecord <- nrow(trail)+1;
-  trail[whichrecord,] <- c(time=NA,type='this_script',name=scriptname
-                           ,gitstamp(production=production,branch=T),trail=NA);
-  trail[whichrecord,'time'] <- Sys.time();
+tupdate <- function(type=NA,name=NA,value=NA,hash=NA,time=Sys.time()
+                    ,trail=getOption('trail',tinit()),whichrecord=nrow(trail)+1
+                    ,parent.trail=NA){
+  seq <- sprintf('%04d',whichrecord);
+  trail[whichrecord,] <- c(sequence=seq,time=NA,type=type,name=name,value=NA
+                           ,hash=hash,trail=NA);
+  trail[whichrecord,'time'] <- time;
+  if(!is.atomic(value)||length(value)>1) value <- list(value);
+  trail[whichrecord,'value'] <- value;
+  if(!is.atomic(parent.trail)||length(parent.trail)>1) {
+    parent.trail <- list(list(parent.trail));
+  }
+  trail[whichrecord,'trail'] <- parent.trail;
   options(trail=trail);
+  invisible(trail);
+}
+
+preseq <- function(data,prefix,targetcol,nestingcol){
+  fn <- sys.function();
+  
+}
+                    
+
+# script registering itself... adds a gitstamp and its own name to trail
+tself <- function(scriptname=parent.frame(2)$ofile,production=T){
+  if(is.null(scriptname)) scriptname <- 'INTERACTIVE_SESSION';
+  gs <- gitstamp(production=production,branch=T);
+  tupdate('this_script',name=scriptname,value=gs[1],hash=gs[2]);
 }
 
 # setting and recording the random seed
-tseed <- function(seed,...,trail=getOption('trail',tinit())){
-  whichrecord <- nrow(trail)+1;
+tseed <- function(seed,...){
   seedname <- deparse(match.call()$seed);
-  trail[whichrecord,] <- c(time=NA,type='seed',name=seedname,value=NA,hash=NA,trail=NA);
-  trail[whichrecord,'value'] <- list(list(match.call()));
-  trail[whichrecord,'time'] <- Sys.time();
-  options(trail=trail);
   set.seed(seed,...);
+  tupdate('seed',name=seedname);
 }
 
 tload <- function(file,envir=parent.frame()
-                  ,verbose=FALSE,trail=getOption('trail',tinit()),trailobj='.trail'){
+                  ,verbose=FALSE,trailobj='.trail'){
   if(trailobj %in% ls(envir,all=T)) stop(sprintf('
-The object %s already exists, perhaps due to one of the trail-related functions crashing. Please try again in clean environment.'
-                                         ,trailobj));
-  #if(is.name(filename<-match.call()$file)) filename <- as.character(filename) else {
-  #  filename <- sprintf('MYSTERY_FILE%02d',length(grep('^MYSTERY_FILE',trail[,'name']))+1);
-  #}
+The object %s already exists, perhaps due to one of the trail-related functions 
+crashing. Please try again in clean environment.',trailobj));
   filename <- deparse(match.call()$file);
   filehash <- tools::md5sum(file);
-  load(file,envir,verbose);
-  whichrecord <- nrow(trail)+1;
-  trail[whichrecord,] <- c(time=NA,type='rdata',name=filename,value=file,hash=filehash,trail=NA);
-  trail[whichrecord,'time']<-Sys.time();
+  out<-load(file,envir,verbose);
   if(trailobj %in% ls(envir,all=T)){
-    trail[whichrecord,'trail'] <- list(list(envir[[trailobj]]));
+    ptrail <- envir[[trailobj]];
     rm(list=trailobj,envir=envir);
-  } else trail[whichrecord,'trail'] <- 'NO_TRAIL_FOUND';
-  options(trail=trail);
+  } else ptrail <- 'NO_TRAIL_FOUND';
+  tupdate('rdata',name=filename,value=file,hash=filehash,parent.trail = ptrail);
+  return(out);
 }
 
-tread <- function(file,readfun,...,trail=getOption('trail',tinit())){
-  #if(is.name(filename<-match.call()$file)) filename <- as.character(filename) else {
-  #  filename <- sprintf('MYSTERY_FILE%02d',length(grep('^MYSTERY_FILE',trail[,'name']))+1);
-  #}
+tread <- function(file,readfun,...){
   filename <- deparse(match.call()$file);
-  #readfunname <- as.character(sys.call()$readfun);
   filehash <- tools::md5sum(file);
   loaded <- readfun(file,...);
-  whichrecord <- nrow(trail)+1;
-  trail[whichrecord,]<-c(time=NA,type='file',name=filename,value=file,hash=filehash,trail=NA);
-  trail[whichrecord,'time'] <- Sys.time();
-  options(trail=trail);
+  tupdate('file',name=filename,value=file,hash=filehash);
   return(loaded);
 }
 
-tsave <- function(...,list=character(),envir=parent.frame()
-                  ,trail=getOption('trail',tinit()),trailobj='.trail'){
+tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'){
   # add another sessionInfo() entry to trail
-  whichrecord <- nrow(trail)+1;
-  trail[whichrecord,]<-c(time=NA,type='info',name='sessionInfo',value=NA,hash=NA,trail=NA);
-  trail[whichrecord,'time'] <- Sys.time();
-  trail[whichrecord,'value'] <- list(sessionInfo());
-  whichrecord <- whichrecord+1;
-  trail[whichrecord,] <- c(time=NA,type='save',name='save',value=NA,hash=NA,trail=NA);
-  trail[whichrecord,'time'] <- Sys.time();
-  trail[whichrecord,'value'] <- list(list(match.call()));
-  # put trail object in the environment
-  envir[[trailobj]] <- trail;
+  tupdate('info',name='sessionInfo',value=sessionInfo());
+  val <- deparse(match.call());
+  # update with the actual save entry and put the trail object in the environment
+  envir[[trailobj]] <- tupdate('save',name='save',value=val);
   # save with the args as given
   save(...,list=c(trailobj,list),envir=envir);
-  options(trail=trail);
   # remove the trailobj
   rm(list = trailobj,envir = envir);
 }
@@ -152,6 +147,5 @@ tsave <- function(...,list=character(),envir=parent.frame()
 # source('./trailR.R');
 # currentscript <- parent.frame(2)$ofile;
 # if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
-# tscript(scriptname=currentscript);
-# .trail <- getOption('trail');
-# save(mtcars,.trail,file='junktestsave.rdata');
+# tself(scriptname=currentscript);
+# tsave(mtcars,file='junktestsave.rdata');
