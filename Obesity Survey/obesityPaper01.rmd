@@ -14,10 +14,15 @@ bibliography: obesityPaper01.bib
 ---
  
 ```{r, include=FALSE}
-load('obesityPaper01.rdata');
 require(magrittr); require(dplyr); require(knitr);
 require(pander);
 source('functions.R');
+source('trailR.R');
+currentscript <- parent.frame(2)$ofile;
+if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+tself(currentscript,production=F);
+datafile <- 'obesityPaper01.rdata';
+tload(datafile);
 .gimme.formals <- formals(gimme);
 formals(format.default)$big.mark <- ',';
 knitr::opts_chunk$set(echo = FALSE,message=FALSE,warning=FALSE,results='asis');
