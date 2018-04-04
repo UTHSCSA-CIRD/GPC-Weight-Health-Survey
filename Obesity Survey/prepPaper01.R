@@ -168,7 +168,9 @@ dct0$c_dummycode <- with(dct0,(c_ppred|c_spred)&(c_factor)&!(c_maketf|c_leave2le
 df_unilogist <- cbind(truthy(obd[,v(c_maketf)])
                       ,obd[c(v(c_leave2lev),v(c_ppred_num)
                              ,v(c_dummycode))])[rsamples$train,] %>%
-  transform(ses_income = ses_income/1000);
+  transform(ses_income = scale(ses_income)
+            ,pat_bmi_raw=scale(pat_bmi_raw)
+            ,pat_age=scale(pat_age));
 #' Bin the levels not influencing outcome together
 .finclass_remap <- cbind(setdiff(levels(df_unilogist$ses_finclass)
                                  ,c('Self-Pay','Medicaid')),'PrivOther');
