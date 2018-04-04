@@ -36,7 +36,7 @@ source('functions.R');
 source('trailR.R');
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
-tself(currentscript,production=F);
+tself(currentscript,production=T);
 tload(datafile);
 #' create our list of data objects, tables, and figures for output
 tb <- list();
