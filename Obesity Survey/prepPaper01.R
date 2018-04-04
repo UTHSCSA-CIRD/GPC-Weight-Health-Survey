@@ -4,13 +4,6 @@
 #' date: "June 14, 2017"
 #' ---
 #' 
-#' The main purpose of this script/report is to create the tables that
-#' will be used in Obesity Survey paper #1. The workflow is to render this
-#' as HTML in RStudio, then click `Open in Browser`, then from the browser
-#' ctrl-drag to select in a manner that preserves the tabular format,
-#' paste into a word processor scrap file, and from there paste into the
-#' Word table-containing document.
-#' 
 #' Note to self... url for box.com API token is: 
 #' https://app.box.com/developers/console/app/557638
 #' The package to require for box.com is boxr() to download and then use 
@@ -36,13 +29,13 @@ source('functions.R');
 source('trailR.R');
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
-tself(currentscript,production=T);
+tself(currentscript,production=F);
 tload(datafile);
 #' create our list of data objects, tables, and figures for output
 tb <- list();
 tb$notice <- tread(noticefile,readfun=read_file);
 #' repeatability info
-tb$d00.gitstamp <- gitstamp(production=F,branch=T);
+#tb$d00.gitstamp <- gitstamp(production=F,branch=T);
 #' create our test, training, and validation sets
 tseed(tb$d01.seed <- rseed);
 tb$d02.rsamples <- rsamples <- split(seq_len(nrow(obd))
@@ -170,10 +163,21 @@ dct0$c_outcomes <- dct0$dataset_column_names %in% c('s1s2resp','s2resp');
                                                     # ,'research_feeling'
                                                     # ,'children_research');
 dct0$c_dummycode <- with(dct0,(c_ppred|c_spred)&(c_factor)&!(c_maketf|c_leave2lev));
-#' # Create the table for preliminary univariate screening on non-survey predictors
-df_unilogist <- cbind(truthy(obd[,v(c_maketf)]),obd[,c(v(c_leave2lev),v(c_ppred_num))]
-                     ,dummy.data.frame(obd[,v(c_dummycode)]
-                                       ,verbose=T,sep='='))[rsamples$train,];
+#' Table like df_univar below, but without expanding the multi-level categoric
+#' variables into individual dummy variables
+df_unilogist <- cbind(truthy(obd[,v(c_maketf)])
+                      ,obd[c(v(c_leave2lev),v(c_ppred_num)
+                             ,v(c_dummycode))])[rsamples$train,] %>%
+  transform(ses_income = ses_income/1000);
+#' Bin the levels not influencing outcome together
+.finclass_remap <- cbind(setdiff(levels(df_unilogist$ses_finclass)
+                                 ,c('Self-Pay','Medicaid')),'PrivOther');
+levels(df_unilogist$ses_finclass) <- submulti(levels(df_unilogist$ses_finclass)
+                                              ,.finclass_remap,method='exact');
+.race_remap <- cbind(setdiff(levels(df_unilogist$ses_race)
+                             ,c('Caucasian','African American')),'Other');
+levels(df_unilogist$ses_race) <- submulti(levels(df_unilogist$ses_race)
+                                                 ,.race_remap,method='exact');
 #' # Prepare data structures for tables.
 #' ## Table for Population
 df_fortables <- transform(obd[,c(v(c_ppred),v(c_spred),v(c_outcomes))]
@@ -185,10 +189,12 @@ df_fortables <- transform(obd[,c(v(c_ppred),v(c_spred),v(c_outcomes))]
                           ,Sex=pat_sex
                           ,`Financial Class`=ses_finclass
                           ,Income=ses_income/1000);
+#' Create the table for preliminary univariate screening on non-survey predictors
 df_univar <- cbind(truthy(obd[,v(c_maketf)])
                    ,obd[,c(v(c_leave2lev),v(c_ppred_num))]
                    ,dummy.data.frame(obd[,v(c_dummycode)]
-                                     ,verbose=T,sep='='))[rsamples$train,];
+                                     ,verbose=T,sep='='))[rsamples$train,] %>% 
+  transform(ses_income = ses_income/1000);
 .cohortvars <- c('Sex','Race','Hispanic','Financial.Class','Income','Age','BMI');
 
 #' ### Eligiblility set
@@ -434,4 +440,4 @@ vars_level_names <- merge(dct0,varlevels(obd)
 write_tsv(vars_level_names,path='vars_level_names.tsv',na='');
 write_tsv(dct0,path='data_dictionary.tsv');
 write_tsv(obd[,v(c_consort)],path='LDS_consortdata_obesity.tsv');
-tsave(.workenv,dct0,obd,tb,file='obesityPaper01.rdata');
+tsave(.workenv,df_unilogist,dct0,obd,tb,file='obesityPaper01.rdata');
