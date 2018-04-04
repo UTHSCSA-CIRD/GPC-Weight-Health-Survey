@@ -178,6 +178,8 @@ levels(df_unilogist$ses_finclass) <- submulti(levels(df_unilogist$ses_finclass)
                              ,c('Caucasian','African American')),'Other');
 levels(df_unilogist$ses_race) <- submulti(levels(df_unilogist$ses_race)
                                                  ,.race_remap,method='exact');
+levels(df_unilogist$Recruitment) <- ifelse(levels(df_unilogist$Recruitment)=='post'
+                                           ,'post','electronic');
 #' # Prepare data structures for tables.
 #' ## Table for Population
 df_fortables <- transform(obd[,c(v(c_ppred),v(c_spred),v(c_outcomes))]
