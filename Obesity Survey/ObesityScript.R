@@ -7,13 +7,18 @@ require(magrittr);
 # some handy functions
 source('obesitySurveyHelpers.R');
 source('functions.R');
+source('trailR.R');
+currentscript <- parent.frame(2)$ofile;
+if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+tself(currentscript,production=T);
 if(file.exists('config.R')) source('config.R') else .workenv <- list();
 
 rseed <- 6062016;
-set.seed(rseed);
+input_data <- 'testoutput.csv';
+tseed(rseed);
 
 #load clean and save 
-obd <- read.table("testoutput.csv", header = TRUE, sep = "\t",na.strings = c('','(null)'));
+obd <- tread(input_data, read.table, header = TRUE, sep = "\t",na.strings = c('','(null)'));
 
 # set variables all in one place if practical
 textfields <- grep('^other_|ans6_response$|types2_child$',names(obd),v=T);
@@ -168,9 +173,9 @@ obd[,c('height_req','height_feet','height_value_cm'
        # there are no semicolons terminating the lines.
        ,'weight_req','weight_value_kg')] <- NULL;
 
-set.seed(rseed);
+tseed(rseed);
 samp <- pickSample(obd, .25);
-save(.workenv,obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
+tsave(.workenv,obd,rseed,obd.backup,samp, file = "survProcessed.rdata");
 # We delete the ID-type variables
 samp <- samp[,setdiff(names(samp),c(toOmit,textfields))];
 samp <- samp[,c(vs(samp,'f'),vs(samp))];
@@ -183,5 +188,5 @@ serverData <- list(samp, filter_kids);
 serverDataDic <- c("No filter", "Survey 2 Respondants Only", "Survey 2 Respondants & Pat < 18", "Pat < 18");
 serverTitle <- "Obesity Survey Sample Data Review.";
 serverStatement <- quote(h4("Enter valid shiny tags and information here. Mostly... you know... Like a link to a data dictionary or something."));
-save(serverData ,serverDataDic , serverHash, serverTitle, serverStatement,file="survSave.rdata");
+tsave(serverData ,serverDataDic , serverHash, serverTitle, serverStatement,file="survSave.rdata");
 
