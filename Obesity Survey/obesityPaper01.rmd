@@ -3,13 +3,13 @@ title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater 
   Collaborative Health and Medical Research Family Survey'
 csl: ieee.csl
 output:
+  html_document:
+    keep_md: yes
+  html_notebook: default
+  pdf_document: default
   word_document:
     keep_md: yes
     reference_docx: styletemplate.docx
-  html_notebook: default
-  pdf_document: default
-  html_document:
-    keep_md: yes
 bibliography: obesityPaper01.bib
 ---
  
@@ -20,7 +20,7 @@ source('functions.R');
 source('trailR.R');
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
-tself(currentscript,production=F);
+tself(currentscript,production=T);
 datafile <- 'obesityPaper01.rdata';
 tload(datafile);
 .gimme.formals <- formals(gimme);
@@ -28,11 +28,19 @@ formals(format.default)$big.mark <- ',';
 knitr::opts_chunk$set(echo = FALSE,message=FALSE,warning=FALSE,results='asis');
 panderOptions('table.split.table',Inf);
 panderOptions('table.emphasize.rownames',F);
+panderOptions('missing','');
 ```
-#' # Audit Trail
+### Audit Trail
+
+This is not part of the actual paper. This is here so that if anybody has
+questions for me about the data, it will help me exactly reproduce this version of the output.
 ```{r audit}
 .walktrail <-walktrail(tinit());
-subset(.walktrail[order(.walktrail$sequence),],! type %in% 'info') %>% pander;
+rownames(.walktrail) <- .walktrail$sequence;
+.showcols <- setdiff(names(.walktrail),'sequence');
+subset(.walktrail[order(.walktrail$sequence),.showcols]
+       ,! type %in% c('info')) %>%
+  pander(justify='lrrrrr',style='multiline');
 rm(.walktrail);
 ```
 
