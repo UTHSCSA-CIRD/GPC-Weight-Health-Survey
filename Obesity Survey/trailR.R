@@ -27,7 +27,7 @@
 #'       of 'file'
 #' TODO: a twrite() function that is the inverse of tread() and creates an 
 #'       accompanying flat-file of trail.
-#' TODO: [priority] function to recursively print a .trail (to screen or to 
+#' DONE: [priority] function to recursively print a .trail (to screen or to 
 #'       pander)
 #' DONE: wrap the repeating pattern of whichrecord, trail[whichrecord,], etc.
 #'       into a function.
@@ -40,14 +40,14 @@
 #'       tsource() function specifically to wrap source
 #' TODO: [priority] check if a MYSTERY_FILE with a matching hash already exists 
 #'       and if it does, reuse the name
+#'       
+#' The below is an example of how a script can find out its own file-name 
+#' (except if it is being interactively run)
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 
 #' Return a commit hash (for inclusion in reports for example) after first making
 #' sure all changes are committed and pushed
-#' TODO: instead of auto-committing, error if uncommited changes, needs to be 
-#' a deliberate process, otherwise we have tons of meaningless auto-commit
-#' messages that will make future maintenance harder
 gitstamp <- function(production=T,branch=T) {
   br<- if(branch) system("git rev-parse --abbrev-ref HEAD",intern=T) else NULL;
   if(production){
@@ -69,6 +69,7 @@ tinit <- function(trail=getOption('trail'),...){
   return(trail);
 }
 
+#' The function that updates the trail object with a new row of data
 tupdate <- function(type=NA,name=NA,value=NA,hash=NA,time=Sys.time()
                     ,trail=getOption('trail',tinit()),whichrecord=nrow(trail)+1
                     ,parent.trail=NA){
@@ -86,6 +87,9 @@ tupdate <- function(type=NA,name=NA,value=NA,hash=NA,time=Sys.time()
   invisible(trail);
 }
 
+#' Recursively collect nested trail dataframes and rbind them all together
+#' with a sequence column which will sort them in a way that preserves their
+#' hierarchical relationship
 walktrail <- function(trail=tinit(),prepend='',seqcol=names(trail)[1]
                       ,nestingcol=tail(names(trail),1),sep='.'){
   fn <- sys.function();
@@ -107,13 +111,15 @@ tself <- function(scriptname=parent.frame(2)$ofile,production=T){
   tupdate('this_script',name=scriptname,value=gs[1],hash=gs[2]);
 }
 
-# setting and recording the random seed
+#' setting and recording the random seed
 tseed <- function(seed,...){
   seedname <- deparse(match.call()$seed);
   set.seed(seed,...);
   tupdate('seed',name=seedname,value=seed);
 }
 
+#' loading an rdata file and checking whether it has trail, to include in the 
+#' the current trail as a nested data.frame
 tload <- function(file,envir=parent.frame()
                   ,verbose=FALSE,trailobj='.trail'){
   if(trailobj %in% ls(envir,all=T)) stop(sprintf('
@@ -130,6 +136,9 @@ crashing. Please try again in clean environment.',trailobj));
   return(out);
 }
 
+#' wrapper for most read functions, and records the file and its hash in trail.
+#' Will eventually also check for accompanying flat-file trail files in JSON
+#' format.
 tread <- function(file,readfun,...){
   filename <- deparse(match.call()$file);
   filehash <- tools::md5sum(file);
@@ -138,6 +147,9 @@ tread <- function(file,readfun,...){
   return(loaded);
 }
 
+#' Wrapper for save(). Pulls trail out of options as a data.frame, saves the
+#' data.frame along with whatever was originally going to be saved, and then 
+#' deletes it. Logs the save to itself before saving.
 tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'){
   # add another sessionInfo() entry to trail
   tupdate('info',name='sessionInfo',value=sessionInfo());
@@ -150,7 +162,7 @@ tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'){
   rm(list = trailobj,envir = envir);
 }
 
-#' A script for testing tscript();
+#' A script for testing these functions;
 #
 # source('./trailR.R');
 # currentscript <- parent.frame(2)$ofile;
