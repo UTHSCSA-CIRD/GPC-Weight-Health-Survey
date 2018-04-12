@@ -114,7 +114,7 @@ tself <- function(scriptname=parent.frame(2)$ofile,production=T){
 #' setting and recording the random seed
 tseed <- function(seed,...){
   seedname <- deparse(match.call()$seed);
-  set.seed(seed,...);
+  base:::set.seed(seed,...);
   tupdate('seed',name=seedname,value=seed);
 }
 
