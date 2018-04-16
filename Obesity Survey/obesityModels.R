@@ -34,7 +34,7 @@ File "%s" does not exist, will attempt to instead use "%s"'
   }
 }
 currentscript <- parent.frame(2)$ofile;
-if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+if(is.null(currentscript)) currentscript <- 'MANUALLY_RUN_obesityModels.R';
 tself(currentscript,production=T);
 tload(datafile);
 

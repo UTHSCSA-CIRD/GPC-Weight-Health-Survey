@@ -46,7 +46,7 @@ File "%s" does not exist, will attempt to instead use "%s"'
 }
 
 currentscript <- parent.frame(2)$ofile;
-if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+if(is.null(currentscript)) currentscript <- 'MANUALLY_RUN_prepPaper01.R';
 tself(currentscript,production=F);
 tload(datafile);
 #' create our list of data objects, tables, and figures for output

@@ -10,7 +10,7 @@ source('functions.R');
 source('trailR.R');
 #' This is the magic sauce that tells the script its own name. 
 currentscript <- parent.frame(2)$ofile;
-if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+if(is.null(currentscript)) currentscript <- 'MANUALLY_RUN_ObesityScript.R';
 tself(currentscript,production=T);
 if(file.exists('config.R')) source('config.R') else .workenv <- list();
 rseed <- 6062016;
