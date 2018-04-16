@@ -28,25 +28,19 @@ noticefile<-'coauthors_notice.md';
 options(knitr.kable.NA='-');
 source('functions.R');
 source('trailR.R');
-#' You can create a **config.R** file to override the file path specified by the 
-#' `defaultdatafile` variable. This allows you to bypass having to wait for it 
-#' to be created each time you run this script. See **example.config.R** for 
-#' the correct syntax.
-if(file.exists('config.R')) source('config.R');
-datafile <- get(vardatafile);
-if(!file.exists(datafile)){
-  warning(sprintf('
-File "%s" does not exist, will attempt to instead use "%s"'
-                  ,datafile,defaultdatafile));
-  datafile <- defaultdatafile;
-  if(!file.exists(datafile)){
-    warning(sprintf('"%s" does not exist either, re-running script.',datafile));
-    system('R -e "source(\'ObesityScript.R\')"');
-  }
-}
 
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'MANUALLY_RUN_prepPaper01.R';
+system(sprintf('R -e "options(script_needed=\'%s\');source(\'global.R\');"'
+               ,currentscript));
+
+#' You can use 'config.R' to override the file path specified by the defaultfile
+#' variable. This allows you to bypass having to wait for it to be created each
+#' time you run this script.
+if(file.exists('config.R')) source('config.R');
+datafile <- mget(vardatafile,defaultdatafile)[[1]];
+if(!file.exists(datafile)) datafile <- defaultdatafile;
+
 tself(currentscript,production=F);
 tload(datafile);
 #' create our list of data objects, tables, and figures for output

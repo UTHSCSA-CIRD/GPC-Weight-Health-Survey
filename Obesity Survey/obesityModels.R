@@ -18,23 +18,19 @@ vardatafile <- paste0(scriptid,'.datafile');
 assign(vardatafile,defaultdatafile);
 source('functions.R');
 source('trailR.R');
+
+currentscript <- parent.frame(2)$ofile;
+if(is.null(currentscript)) currentscript <- 'MANUALLY_RUN_obesityModels.R';
+system(sprintf('R -e "options(script_needed=\'%s\');source(\'global.R\');"'
+               ,currentscript));
+
 #' You can use 'config.R' to override the file path specified by the defaultfile
 #' variable. This allows you to bypass having to wait for it to be created each
 #' time you run this script.
 if(file.exists('config.R')) source('config.R');
-datafile <- get(vardatafile);
-if(!file.exists(datafile)){
-  warning(sprintf('
-File "%s" does not exist, will attempt to instead use "%s"'
-                  ,datafile,defaultdatafile));
-  datafile <- defaultdatafile;
-  if(!file.exists(datafile)){
-    warning(sprintf('"%s" does not exist either, re-running script.',datafile));
-    system('R -e "source(\'prepPaper01.R\')"');
-  }
-}
-currentscript <- parent.frame(2)$ofile;
-if(is.null(currentscript)) currentscript <- 'MANUALLY_RUN_obesityModels.R';
+datafile <- mget(vardatafile,defaultdatafile)[[1]];
+if(!file.exists(datafile)) datafile <- defaultdatafile;
+
 tself(currentscript,production=T);
 tload(datafile);
 
