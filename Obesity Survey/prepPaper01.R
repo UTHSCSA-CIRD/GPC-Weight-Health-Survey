@@ -38,7 +38,7 @@ system(sprintf('R -e "options(script_needed=\'%s\');source(\'global.R\');"'
 #' variable. This allows you to bypass having to wait for it to be created each
 #' time you run this script.
 if(file.exists('config.R')) source('config.R');
-datafile <- mget(vardatafile,defaultdatafile)[[1]];
+datafile <- mget(vardatafile,ifnotfound = defaultdatafile)[[1]];
 if(!file.exists(datafile)) datafile <- defaultdatafile;
 
 tself(currentscript,production=F);
