@@ -11,14 +11,28 @@ require(lme4);
 #require(tableone); require(broom); require(dummies); require(readr);
 require(pander);
 #knitr::opts_chunk$set(echo = TRUE);
-datafile<-'obesityPaper01.rdata';
-#datadict<-'data_dictionary.tsv';
-#noticefile<-'coauthors_notice.md';
-#dir<-'/tmp/gpcob/GPC-Weight-Health-Survey/Obesity Survey/';
 options(knitr.kable.NA='-');
-#setwd(dir);
+defaultdatafile <- 'obesityPaper01.rdata';
+scriptid <- 's02_obesitymodels';
+vardatafile <- paste0(scriptid,'.datafile');
+assign(vardatafile,defaultdatafile);
 source('functions.R');
 source('trailR.R');
+#' You can use 'config.R' to override the file path specified by the defaultfile
+#' variable. This allows you to bypass having to wait for it to be created each
+#' time you run this script.
+if(file.exists('config.R')) source('config.R');
+datafile <- get(vardatafile);
+if(!file.exists(datafile)){
+  warning(sprintf('
+File "%s" does not exist, will attempt to instead use "%s"'
+                  ,datafile,defaultdatafile));
+  datafile <- defaultdatafile;
+  if(!file.exists(datafile)){
+    warning(sprintf('"%s" does not exist either, re-running script.',datafile));
+    system('R -e "source(\'ObesityScript.R\')"');
+  }
+}
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(currentscript,production=T);

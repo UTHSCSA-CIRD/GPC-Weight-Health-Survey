@@ -8,11 +8,11 @@ require(magrittr);
 source('obesitySurveyHelpers.R');
 source('functions.R');
 source('trailR.R');
+#' This is the magic sauce that tells the script its own name. 
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(currentscript,production=T);
 if(file.exists('config.R')) source('config.R') else .workenv <- list();
-
 rseed <- 6062016;
 input_data <- 'testoutput.csv';
 tseed(rseed);
