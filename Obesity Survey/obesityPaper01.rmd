@@ -16,10 +16,25 @@ bibliography: obesityPaper01.bib
 ```{r, include=FALSE}
 require(magrittr); require(dplyr); require(knitr);
 require(pander);
+
+defaultdatafile <- 'obesityPaper01.rdata';
+scriptid <- 's02_obesitymodels';
+vardatafile <- paste0(scriptid,'.datafile');
+assign(vardatafile,defaultdatafile);
 source('functions.R');
 source('trailR.R');
 currentscript <- parent.frame(2)$ofile;
-if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+if(is.null(currentscript)) currentscript <- 'MANUALLY_RUN_obesityPaper01.rmd';
+system(sprintf('R -e "options(script_needed=\'%s\');source(\'global.R\');"'
+               ,currentscript));
+
+#' You can use 'config.R' to override the file path specified by the defaultfile
+#' variable. This allows you to bypass having to wait for it to be created each
+#' time you run this script.
+if(file.exists('config.R')) source('config.R');
+datafile <- mget(vardatafile,ifnotfound = defaultdatafile)[[1]];
+if(!file.exists(datafile)) datafile <- defaultdatafile;
+
 tself(currentscript,production=T);
 datafile <- 'obesityPaper01.rdata';
 tload(datafile);
