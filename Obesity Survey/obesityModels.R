@@ -30,7 +30,7 @@ File "%s" does not exist, will attempt to instead use "%s"'
   datafile <- defaultdatafile;
   if(!file.exists(datafile)){
     warning(sprintf('"%s" does not exist either, re-running script.',datafile));
-    system('R -e "source(\'ObesityScript.R\')"');
+    system('R -e "source(\'prepPaper01.R\')"');
   }
 }
 currentscript <- parent.frame(2)$ofile;
