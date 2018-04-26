@@ -104,6 +104,10 @@ levels(obd$Recruitment) <- recruitment[levels(obd$Recruitment)];
 #' Rename/bin races and financial classes
 #' TODO: move to ObesityScript.R
 levels(obd$ses_race) <- race_map[levels(obd$ses_race)];
+#' record which patients are missing race info in a new column
+obd$a_ses_race_missing <- is.na(obd$ses_race);
+#' recode the ses_race missing ones to 'No Answer'
+obd$ses_race[is.na(obd$ses_race)] <- 'No Answer';
 obd$ses_race <- factor(obd$ses_race,levels=levels(obd$ses_race)[c(6,3,1,2,4,5)]);
 
 levels(obd$ses_finclass) <- fin_map[levels(obd$ses_finclass)];
