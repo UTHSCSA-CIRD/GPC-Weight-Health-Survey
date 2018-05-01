@@ -41,7 +41,7 @@ if(file.exists('config.R')) source('config.R');
 datafile <- mget(vardatafile,ifnotfound = defaultdatafile)[[1]];
 if(!file.exists(datafile)) datafile <- defaultdatafile;
 
-tself(currentscript,production=F);
+tself(currentscript,production=T);
 tload(datafile);
 #' create our list of data objects, tables, and figures for output
 tb <- list();
