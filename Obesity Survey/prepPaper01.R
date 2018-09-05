@@ -374,6 +374,7 @@ tb$t05.eligible <- lapply(tb[c('dElig','dRes','dResComp')]
 # formatted output appended to it. Hopefully this only happens when matrices 
 # are manually passed to pander.TableOne and this is the only time we have to
 # manually remove rows from the object:
+save.image('debug.rdata');
 tb$t05.eligible <- with(tb,t05.eligible[(grep('^-+\n$',t05.eligible)[1]):length(t05.eligible)]);
 
 #' #### Table 6a. Participant demographics by site for cohort [N (% by site), unless otherwise indicated]. 
