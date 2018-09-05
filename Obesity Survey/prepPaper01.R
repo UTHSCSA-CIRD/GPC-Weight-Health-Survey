@@ -463,4 +463,4 @@ vars_level_names <- merge(dct0,varlevels(obd)
 write_tsv(vars_level_names,path='vars_level_names.tsv',na='');
 write_tsv(dct0,path='data_dictionary.tsv');
 write_tsv(obd[,v(c_consort)],path='LDS_consortdata_obesity.tsv');
-tsave(.workenv,df_unilogist,dct0,obd,tb,file='obesityPaper01.rdata');
+tsave(.workenv,df_fortable,df_unilogist,dct0,obd,tb,file='obesityPaper01.rdata');
