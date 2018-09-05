@@ -437,6 +437,15 @@ tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>%
   paste0('\n');
 # tb$t08B.survrespkids <- pander_return(tb$dSurvHaveKids
 
+#' #### Table Resub02. Response by contact method.
+tb$dR02.resByRecruit_N <- rbind(Contacted=table(df_fortables$Recruitment)
+                              ,Responded=table(subset(df_fortables,Survey.1.or.2)$Recruitment));
+tb$dR02.resByRecruit_P <- prop.table(tb$dR02.resByRecruit_N) %>% addmargins() %>% 
+  apply(1:2,pct,mult=100) %>% apply(1:2,function(xx) paste0('(',xx,')'));
+tb$dR02.resByRecruit <- addmargins(tb$dR02.resByRecruit_N);
+for(ii in seq_along(tb$dR02.resByRecruit)) {
+  tb$dR02.resByRecruit[ii]<-paste(tb$dR02.resByRecruit[ii]
+                                  ,tb$dR02.resByRecruit_P[ii]);}
 #' ## Supplementary
 #' 
 #' #### Table S1. Cohort, by recruitment method.
