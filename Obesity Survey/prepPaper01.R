@@ -234,6 +234,11 @@ tb$dEligBySite <- CreateTableOne(vars=c(.cohortvars,'Survey.1.or.2','Survey.2')
 tb$dEligByRecrt <- CreateTableOne(vars=c(.cohortvars,'Survey.1.or.2','Survey.2')
                                   ,strata = 'Recruitment'
                                   ,data=df_fortables,test=T);
+tb$dRespByRecrt <- CreateTableOne(vars=c(.cohortvars)
+                                  ,strata = 'Recruitment'
+                                  ,data=subset(df_fortables,Survey.1.or.2),test=T);
+
+
 #' The consort diagram
 tb$dConsort <- CreateTableOne(vars=v(c_consort),strata='site',data=obd,test=F
                               ,includeNA = T);
@@ -451,7 +456,11 @@ tb$dR02.resByRecruit <- rbind(
 #' 
 tb$t0S1.eligByRecruit <- pander_return(tb$dEligByRecrt
                                     ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
-                                    ,caption='Table 3: Participant demographics by recruitment method (Cohort)') %>%
+                                    ,caption='Table S1: Participant demographics by recruitment method (Cohort)') %>%
+  paste0('\n');
+tb$tR03.respByRecruit <- pander_return(tb$dRespByRecrt
+                                       ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
+                                       ,caption='Table 3: Responder demographics by recruitment method.') %>%
   paste0('\n');
 #'
 tb$t0S2.consort <- pander_return(tb$dConsort,caption='Table S2: Variables for consort diagram.'

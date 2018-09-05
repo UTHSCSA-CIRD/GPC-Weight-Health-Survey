@@ -281,11 +281,11 @@ For a detailed list of site and contact method see Table 3.
 pander(tb$dR02.resByRecruit,caption='Response rate by recruitment method.');
 ```
 ```{r}
-cat(tb$t0S1.eligByRecruit);
+cat(tb$tR03.respByRecruit);
 ```
 # Supplementary Materials
- 
- 
+cat(tb$t0S1.eligByRecruit);
+
 ```{r}
 cat(tb$t0S2.consort);
 ```
