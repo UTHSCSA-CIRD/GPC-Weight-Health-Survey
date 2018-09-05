@@ -438,21 +438,20 @@ tb$t08B.survrespkids <- print(tb$dSurvHaveKids,printToggle=F) %>%
 # tb$t08B.survrespkids <- pander_return(tb$dSurvHaveKids
 
 #' #### Table Resub02. Response by contact method.
-tb$dR02.resByRecruit_N <- rbind(Contacted=table(df_fortables$Recruitment)
-                              ,Responded=table(subset(df_fortables,Survey.1.or.2)$Recruitment));
-tb$dR02.resByRecruit_P <- prop.table(tb$dR02.resByRecruit_N) %>% addmargins() %>% 
-  apply(1:2,pct,mult=100) %>% apply(1:2,function(xx) paste0('(',xx,')'));
-tb$dR02.resByRecruit <- addmargins(tb$dR02.resByRecruit_N);
-for(ii in seq_along(tb$dR02.resByRecruit)) {
-  tb$dR02.resByRecruit[ii]<-paste(tb$dR02.resByRecruit[ii]
-                                  ,tb$dR02.resByRecruit_P[ii]);}
+tb$dR02.resByRecruit <- rbind(
+   Contacted=table(df_fortables$Recruitment)
+  ,Responded=table(subset(df_fortables,Survey.1.or.2)$Recruitment)) %>% 
+  addmargins(2) %>% 
+  rbind(.
+        ,TOTAL=apply(.,2,function(xx) {
+          paste0(xx[2],' (',pct(xx[2]/sum(xx),mult=100),')')}));
 #' ## Supplementary
 #' 
 #' #### Table S1. Cohort, by recruitment method.
 #' 
 tb$t0S1.eligByRecruit <- pander_return(tb$dEligByRecrt
                                     ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
-                                    ,caption='Table S1: Participant demographics by recruitment method (Cohort)') %>%
+                                    ,caption='Table 3: Participant demographics by recruitment method (Cohort)') %>%
   paste0('\n');
 #'
 tb$t0S2.consort <- pander_return(tb$dConsort,caption='Table S2: Variables for consort diagram.'
