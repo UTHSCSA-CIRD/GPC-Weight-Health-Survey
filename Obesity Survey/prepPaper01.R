@@ -359,6 +359,7 @@ tb$t04b.pedsites <- print(tb$dPeds,printToggle = F) %>% t %>% head(-2) %>%
   pander_return(caption='Table 4b: Counts, Age, and BMI: Pediatric Index Patients'
                 ,caption.prefix=':') %>% paste0('\n');
 #' #### Table 5. Cohort, Survey 1 and Survey 2 demographics.
+#+ t05.eligible
 tb$t05.eligible <- lapply(tb[c('dElig','dRes','dResComp')]
                           ,print,printToggle=F) %>%
   with(cbind(dElig,dRes,dResComp[,c('TRUE','p')] )) %>% invisible %>% 
@@ -376,6 +377,7 @@ tb$t05.eligible <- lapply(tb[c('dElig','dRes','dResComp')]
 tb$t05.eligible <- with(tb,t05.eligible[(grep('^-+\n$',t05.eligible)[1]):length(t05.eligible)]);
 
 #' #### Table 6a. Participant demographics by site for cohort [N (% by site), unless otherwise indicated]. 
+#+ t06a.eligBySite
 tb$t06a.eligBySite <- pander_return(tb$dEligBySite
                                     ,cren.fn=function(cc,...) gsub('Financial\\.Class','Financial Class',cc)
                                     ,caption='Table 6a: Participant demographics by site (Cohort)') %>%
