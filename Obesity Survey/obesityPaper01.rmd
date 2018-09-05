@@ -3,13 +3,13 @@ title: 'Patient Engagement in Clinical Data Research Networks: The 2015 Greater 
   Collaborative Health and Medical Research Family Survey'
 csl: ieee.csl
 output:
+  html_document:
+    keep_md: yes
+  html_notebook: default
+  pdf_document: default
   word_document:
     keep_md: yes
     reference_docx: styletemplate.docx
-  html_notebook: default
-  pdf_document: default
-  html_document:
-    keep_md: yes
 bibliography: obesityPaper01.bib
 ---
  
